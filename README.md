@@ -32,7 +32,7 @@ npm install
 npm start
 ```
 
-Tests: `./gradlew test` in `backend/` (the context test starts PostgreSQL through Testcontainers, so it needs Docker), `npm test` in `frontend/`.
+Tests: `./gradlew test` in `backend/` (the context test starts PostgreSQL through Testcontainers, so it needs Docker), `npm test` in `frontend/`. Lint: `npm run lint` in `frontend/`.
 
 Each feature is a Spring Modulith module: a direct sub-package of `com.gettogether` (e.g. `com.gettogether.chat`). Other modules may only use what is in the module's root package; `ModularityTests` enforces this.
 
