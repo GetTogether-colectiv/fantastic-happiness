@@ -1,10 +1,8 @@
+@use './styles/theme';
+
 :root {
   --app-max-width: 480px;
   --bottom-nav-height: 4rem;
-  --surface-color: #ffffff;
-  --border-color: #e5e7eb;
-  --muted-color: #6b7280;
-  --primary-color: #4f46e5;
 }
 
 *,
@@ -15,6 +13,7 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  background: #f9fafb;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background: var(--background-color);
 }

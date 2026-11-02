@@ -1,0 +1,68 @@
+export type EventCategory =
+  | 'MUSIC'
+  | 'SPORTS'
+  | 'ART'
+  | 'FOOD'
+  | 'TECH'
+  | 'NIGHTLIFE'
+  | 'OUTDOORS'
+  | 'EDUCATION'
+  | 'OTHER';
+
+export interface EventSummary {
+  id: number;
+  title: string;
+  category: EventCategory;
+  startsAt: string;
+  endsAt: string;
+  city: string;
+  locationName: string;
+  latitude: number | null;
+  longitude: number | null;
+  imageUrl: string | null;
+  capacity: number | null;
+}
+
+export interface EventDetails extends EventSummary {
+  description: string | null;
+  organizerId: number;
+  createdAt: string;
+}
+
+export interface Page<T> {
+  content: T[];
+  page: number;
+  totalPages: number;
+  last: boolean;
+}
+
+export interface EventFilter {
+  category?: EventCategory;
+  city?: string;
+  from?: string;
+  to?: string;
+}
+
+export const CATEGORY_LABELS: Record<EventCategory, string> = {
+  MUSIC: 'Music',
+  SPORTS: 'Sports',
+  ART: 'Art',
+  FOOD: 'Food',
+  TECH: 'Tech',
+  NIGHTLIFE: 'Nightlife',
+  OUTDOORS: 'Outdoors',
+  EDUCATION: 'Education',
+  OTHER: 'Other',
+};
+
+export const CATEGORY_ICONS: Record<EventCategory, string> = {
+  MUSIC: '🎵',
+  SPORTS: '⚽',
+  ART: '🎨',
+  FOOD: '🍽️',
+  TECH: '💻',
+  NIGHTLIFE: '🌙',
+  OUTDOORS: '🌲',
+  EDUCATION: '📚',
+  OTHER: '✨',
+};

@@ -1,0 +1,10 @@
+<div class="state">
+  <span class="icon" aria-hidden="true">{{ icon() }}</span>
+  <h2>{{ title() }}</h2>
+  @if (text()) {
+    <p>{{ text() }}</p>
+  }
+  @if (actionLabel()) {
+    <button type="button" (click)="action.emit()">{{ actionLabel() }}</button>
+  }
+</div>

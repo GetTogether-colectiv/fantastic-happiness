@@ -1,0 +1,18 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--chip-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-color);
+  color: var(--chip-color);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.selected {
+    background: var(--chip-color);
+    color: #ffffff;
+  }
+}
