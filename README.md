@@ -47,7 +47,15 @@ API base URL: `http://localhost:8080/api`, Swagger UI: `http://localhost:8080/ap
 
 HTTP request examples live in `backend/http/` (IntelliJ HTTP Client). Each module gets its own `<module>.http` file, and `http-client.env.json` holds the `dev` environment variables (`baseUrl`, `userId`). Select the `dev` environment when running a request.
 
-Each feature is a Spring Modulith module: a direct sub-package of `com.gettogether` (e.g. `com.gettogether.chat`). Other modules may only use what is in the module's root package; `ModularityTests` enforces this.
+## Modules
+
+Each feature is a Spring Modulith module: a direct sub-package of `com.gettogether` (`users`, `events`, `participation`, `chat`, `posts`, `social`, `notifications`, `recommendation`, `calendar`, `planner`, `recap`). `shared` holds what every module may use (exceptions, error handler, config).
+
+- **Root package of a module** (e.g. `com.gettogether.events`): the module's public API: services other modules may call, DTOs, and events.
+- **`internal` sub-package** (e.g. `com.gettogether.events.internal`): entities, repositories and everything else that is private to the module.
+- **Never import another module's `internal` package.** Talk to other modules through their root package or through events.
+
+`ModularityTests` fails the build on violations and writes the module documentation to `backend/build/spring-modulith-docs`.
 
 ## Git rules
 

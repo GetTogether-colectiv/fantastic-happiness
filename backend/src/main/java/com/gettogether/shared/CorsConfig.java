@@ -1,4 +1,4 @@
-package com.gettogether.config;
+package com.gettogether.shared;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
