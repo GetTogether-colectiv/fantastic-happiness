@@ -1,6 +1,6 @@
 services:
-  postgres:
-    image: postgres:17
+  db:
+    image: postgres:16
     environment:
       POSTGRES_DB: gettogether
       POSTGRES_USER: gettogether
@@ -8,7 +8,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gettogether"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
-  postgres-data:
+  pgdata:

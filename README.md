@@ -17,6 +17,15 @@ Database (needs Docker):
 docker compose up -d
 ```
 
+The scripts in `database/` run on the first start. To recreate the database from scratch (needed after changing a script):
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+Connect with DBeaver/IntelliJ: `localhost:5432`, database `gettogether`, user `gettogether`, password `gettogether`.
+
 Backend (http://localhost:8080):
 
 ```bash
