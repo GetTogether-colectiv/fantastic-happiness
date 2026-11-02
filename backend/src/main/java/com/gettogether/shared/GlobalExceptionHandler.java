@@ -29,6 +29,11 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return respond(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    ResponseEntity<Object> handleUnauthorized(UnauthorizedException exception) {
+        return respond(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
     @ExceptionHandler(ForbiddenException.class)
     ResponseEntity<Object> handleForbidden(ForbiddenException exception) {
         return respond(HttpStatus.FORBIDDEN, exception.getMessage());

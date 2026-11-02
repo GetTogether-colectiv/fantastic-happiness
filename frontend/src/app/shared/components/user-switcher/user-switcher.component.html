@@ -1,0 +1,19 @@
+<div class="user-switcher">
+  <button type="button" class="current" aria-label="Switch user" [attr.aria-expanded]="open()" (click)="toggle()">
+    @if (currentUser(); as user) {
+      <img [src]="user.avatarUrl" [alt]="user.displayName" />
+    }
+  </button>
+  @if (open()) {
+    <ul class="menu">
+      @for (user of users(); track user.id) {
+        <li>
+          <button type="button" [class.selected]="user.id === currentUser()?.id" (click)="select(user)">
+            <img [src]="user.avatarUrl" alt="" />
+            <span>{{ user.displayName }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>

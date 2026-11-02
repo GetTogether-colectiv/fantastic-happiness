@@ -3,3 +3,7 @@ GET {{baseUrl}}/users
 
 ### Get a user
 GET {{baseUrl}}/users/{{userId}}
+
+### Get the current user
+GET {{baseUrl}}/users/me
+X-User-Id: {{userId}}

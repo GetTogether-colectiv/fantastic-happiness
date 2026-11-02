@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UsersTests {
 
     private static final long UNKNOWN_USER_ID = 999_999L;
+    private static final String USER_ID_HEADER = "X-User-Id";
 
     @Autowired
     private MockMvc mockMvc;
@@ -41,6 +42,26 @@ class UsersTests {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").isNotEmpty());
+    }
+
+    @Test
+    void returnsTheCurrentUserFromTheHeader() throws Exception {
+        mockMvc.perform(get("/users/me").header(USER_ID_HEADER, 2))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(2));
+    }
+
+    @Test
+    void rejectsCurrentUserRequestWithoutHeader() throws Exception {
+        mockMvc.perform(get("/users/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401));
+    }
+
+    @Test
+    void returnsNotFoundForUnknownCurrentUser() throws Exception {
+        mockMvc.perform(get("/users/me").header(USER_ID_HEADER, UNKNOWN_USER_ID))
+                .andExpect(status().isNotFound());
     }
 
     @Test

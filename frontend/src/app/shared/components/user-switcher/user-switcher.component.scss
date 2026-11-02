@@ -1,0 +1,55 @@
+.user-switcher {
+  position: relative;
+}
+
+img {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.current {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--border-color);
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  z-index: 2;
+  width: 14rem;
+  max-height: 60dvh;
+  margin: 0.5rem 0 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+
+  button {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    text-align: left;
+
+    &:hover,
+    &.selected {
+      background: var(--border-color);
+    }
+  }
+}
