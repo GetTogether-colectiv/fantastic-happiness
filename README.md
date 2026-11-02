@@ -9,9 +9,22 @@ Mobile-first web application for discovering events and planning free time: swip
 | `backend/` | Spring Boot 4 + Spring Modulith, Java 21, Gradle, JPA, PostgreSQL |
 | `frontend/` | Angular 21, SCSS |
 
-## Running locally
+## Getting started
 
-Database (needs Docker):
+### Prerequisites
+- JDK 21
+- Node.js (LTS) with npm
+- Docker Desktop (running)
+- Git
+
+### From clone to running app
+
+```bash
+git clone https://github.com/GetTogether-colectiv/fantastic-happiness.git
+cd fantastic-happiness
+```
+
+1. Start the database (from the repository root):
 
 ```bash
 docker compose up -d
@@ -26,14 +39,14 @@ docker compose up -d
 
 Connect with DBeaver/IntelliJ: `localhost:5432`, database `gettogether`, user `gettogether`, password `gettogether`.
 
-Backend (http://localhost:8080):
+2. Start the backend (from the repository root, http://localhost:8080):
 
 ```bash
 cd backend
 ./gradlew bootRun
 ```
 
-Frontend (http://localhost:4200):
+3. Start the frontend (in a new terminal, from the repository root, http://localhost:4200; `/api` is proxied to the backend):
 
 ```bash
 cd frontend
