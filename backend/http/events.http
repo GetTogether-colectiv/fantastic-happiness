@@ -1,0 +1,11 @@
+### List events (first page, ordered by start time)
+GET {{baseUrl}}/events
+
+### Filter by category
+GET {{baseUrl}}/events?category=MUSIC
+
+### Combine filters and paginate
+GET {{baseUrl}}/events?category=TECH&city=Cluj-Napoca&from=2026-11-01T00:00:00Z&to=2026-12-31T23:59:59Z&page=0&size=5
+
+### Get event details
+GET {{baseUrl}}/events/1
