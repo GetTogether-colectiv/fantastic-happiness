@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: gettogether
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gettogether
+    username: gettogether
+    password: gettogether
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  modulith:
+    events:
+      jdbc:
+        schema-initialization:
+          enabled: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+gettogether:
+  cors:
+    allowed-origins: http://localhost:4200

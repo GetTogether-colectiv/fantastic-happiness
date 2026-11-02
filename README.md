@@ -43,6 +43,10 @@ npm start
 
 Tests: `./gradlew test` in `backend/` (the context test starts PostgreSQL through Testcontainers, so it needs Docker), `npm test` in `frontend/`. Lint: `npm run lint` in `frontend/`.
 
+API base URL: `http://localhost:8080/api`, Swagger UI: `http://localhost:8080/api/swagger-ui.html`. Every error response has the shape `{ "status", "message" }`, plus `fieldErrors` for validation errors.
+
+HTTP request examples live in `backend/http/` (IntelliJ HTTP Client). Each module gets its own `<module>.http` file, and `http-client.env.json` holds the `dev` environment variables (`baseUrl`, `userId`). Select the `dev` environment when running a request.
+
 Each feature is a Spring Modulith module: a direct sub-package of `com.gettogether` (e.g. `com.gettogether.chat`). Other modules may only use what is in the module's root package; `ModularityTests` enforces this.
 
 ## Git rules
