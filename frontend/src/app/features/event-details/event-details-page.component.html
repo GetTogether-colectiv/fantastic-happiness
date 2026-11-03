@@ -1,6 +1,12 @@
 @let details = state();
 @if (details.status === 'loading') {
   <p class="loading" role="status">Loading event details…</p>
+} @else if (details.status === 'not-found') {
+  <app-empty-state
+    title="This event doesn't exist"
+    actionLabel="Back to Discover"
+    (action)="goToDiscover()"
+  />
 } @else if (details.status === 'error') {
   <app-error-state (retry)="retry()" />
 } @else {

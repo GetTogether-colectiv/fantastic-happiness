@@ -130,4 +130,90 @@ describe('Event details navigation', () => {
     http.expectOne('/api/events/7').flush(EVENT);
     http.expectOne('/api/users/3').flush({ id: 3, displayName: 'Alex', avatarUrl: null });
   });
+
+  it('shows the not-found state for a missing event and returns to Discover', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/events/999999', EventDetailsPageComponent);
+    TestBed.tick();
+    http.expectOne('/api/events/999999').flush(null, { status: 404, statusText: 'Not Found' });
+    harness.detectChanges();
+
+    const page = harness.routeNativeElement!;
+    expect(page.textContent).toContain("This event doesn't exist anymore");
+    expect(page.querySelector('article')).toBeNull();
+    expect(page.querySelector('app-error-state')).toBeNull();
+    const button = page.querySelector<HTMLButtonElement>('app-empty-state button')!;
+    expect(button.textContent).toContain('Back to Discover');
+    button.click();
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Location).path()).toBe('/discover');
+  });
+
+  it.each(['abc', '0', '-1', '1.5', '9007199254740992'])(
+    'shows not-found for invalid id %s without making a request',
+    async (id) => {
+      const harness = await RouterTestingHarness.create();
+      await harness.navigateByUrl(`/events/${id}`, EventDetailsPageComponent);
+      TestBed.tick();
+      harness.detectChanges();
+      expect(harness.routeNativeElement?.textContent).toContain("This event doesn't exist anymore");
+      http.expectNone((request) => request.url.startsWith('/api/'));
+    },
+  );
+
+  it.each([0, 403, 500])('shows the generic error state for status %s', async (status) => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/events/7', EventDetailsPageComponent);
+    TestBed.tick();
+    const request = http.expectOne('/api/events/7');
+    if (status === 0) {
+      request.error(new ProgressEvent('error'));
+    } else {
+      request.flush(null, { status, statusText: 'Request failed' });
+    }
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.textContent).toContain('Something went wrong.');
+    expect(harness.routeNativeElement?.querySelector('app-empty-state')).toBeNull();
+    expect(harness.routeNativeElement?.querySelector('article')).toBeNull();
+  });
+
+  it('retries a failed event request and renders the recovered event', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/events/7', EventDetailsPageComponent);
+    TestBed.tick();
+    http.expectOne('/api/events/7').flush(null, { status: 500, statusText: 'Server Error' });
+    harness.detectChanges();
+    harness.routeNativeElement!.querySelector<HTMLButtonElement>('app-error-state button')!.click();
+    TestBed.tick();
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.textContent).toContain('Loading event details');
+    http.expectOne('/api/events/7').flush(EVENT);
+    http.expectOne('/api/users/3').flush({ id: 3, displayName: 'Alex', avatarUrl: null });
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.textContent).toContain(EVENT.title);
+    expect(harness.routeNativeElement?.querySelector('app-error-state')).toBeNull();
+  });
+
+  it('loads a valid event after navigating away from a missing event', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/events/999999', EventDetailsPageComponent);
+    TestBed.tick();
+    http.expectOne('/api/events/999999').flush(null, { status: 404, statusText: 'Not Found' });
+    harness.detectChanges();
+    await loadEvent(harness);
+    expect(harness.routeNativeElement?.textContent).toContain(EVENT.title);
+    expect(harness.routeNativeElement?.querySelector('app-empty-state')).toBeNull();
+  });
+
+  it('keeps the event visible when only the organizer returns 404', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/events/7', EventDetailsPageComponent);
+    TestBed.tick();
+    http.expectOne('/api/events/7').flush(EVENT);
+    http.expectOne('/api/users/3').flush(null, { status: 404, statusText: 'Not Found' });
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.textContent).toContain(EVENT.title);
+    expect(harness.routeNativeElement?.textContent).toContain('Organizer information unavailable');
+    expect(harness.routeNativeElement?.querySelector('app-empty-state')).toBeNull();
+  });
 });
