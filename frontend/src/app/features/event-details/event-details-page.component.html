@@ -1,0 +1,75 @@
+@let details = state();
+@if (details.status === 'loading') {
+  <p class="loading" role="status">Loading event details…</p>
+} @else if (details.status === 'error') {
+  <app-error-state (retry)="retry()" />
+} @else {
+  <article>
+    <div class="cover">
+      @if (details.event.imageUrl) {
+        <img class="cover-image" [src]="details.event.imageUrl" alt="" />
+      }
+      <button class="back-button" type="button" aria-label="Go back" (click)="goBack()">
+        <span aria-hidden="true">←</span>
+      </button>
+    </div>
+
+    <div class="details">
+      <app-category-chip [category]="details.event.category" [selected]="true" />
+      <h2>{{ details.event.title }}</h2>
+
+      <dl class="facts">
+        <div class="fact">
+          <dt><span aria-hidden="true">📅</span> Date and time</dt>
+          <dd>
+            <time [attr.datetime]="details.event.startsAt">{{
+              details.event.startsAt | date: 'medium'
+            }}</time>
+            –
+            <time [attr.datetime]="details.event.endsAt">{{
+              details.event.endsAt | date: 'medium'
+            }}</time>
+          </dd>
+        </div>
+        <div class="fact">
+          <dt><span aria-hidden="true">📍</span> Location</dt>
+          <dd>{{ details.event.locationName }}, {{ details.event.city }}</dd>
+        </div>
+        <div class="fact">
+          <dt><span aria-hidden="true">👥</span> Capacity</dt>
+          <dd>
+            @if (details.event.capacity !== null) {
+              {{ details.event.capacity }} places
+            } @else {
+              No capacity limit
+            }
+          </dd>
+        </div>
+        <div class="fact">
+          <dt><span aria-hidden="true">👤</span> Organizer</dt>
+          <dd class="organizer">
+            @if (details.organizer; as organizer) {
+              @if (organizer.avatarUrl) {
+                <img class="avatar" [src]="organizer.avatarUrl" alt="" />
+              } @else {
+                <span class="avatar avatar-placeholder" aria-hidden="true">{{
+                  organizer.displayName.slice(0, 1)
+                }}</span>
+              }
+              {{ organizer.displayName }}
+            } @else {
+              Organizer information unavailable
+            }
+          </dd>
+        </div>
+      </dl>
+
+      @if (details.event.description) {
+        <section aria-labelledby="description-title">
+          <h3 id="description-title">About this event</h3>
+          <p class="description">{{ details.event.description }}</p>
+        </section>
+      }
+    </div>
+  </article>
+}
