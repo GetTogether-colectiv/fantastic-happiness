@@ -1,13 +1,28 @@
 import { Location } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from '../../app.routes';
 import { EventDetails } from '../../core/models/event.model';
 import { EventCardComponent } from '../../shared/components/event-card/event-card.component';
 import { EventDetailsPageComponent } from './event-details-page.component';
+import { EventChatComponent } from './sections/event-chat/event-chat.component';
+import { EventFriendsComponent } from './sections/event-friends/event-friends.component';
+import { EventJoinComponent } from './sections/event-join/event-join.component';
+import { EventMapComponent } from './sections/event-map/event-map.component';
+import { EventPostsComponent } from './sections/event-posts/event-posts.component';
+
+@Component({
+  selector: 'app-event-join',
+  template: '<button type="button">Join {{ event().title }}</button>',
+})
+class PopulatedJoinComponent {
+  readonly event = input.required<EventDetails>();
+}
 
 const EVENT: EventDetails = {
   id: 7,
@@ -139,7 +154,7 @@ describe('Event details navigation', () => {
     harness.detectChanges();
 
     const page = harness.routeNativeElement!;
-    expect(page.textContent).toContain("This event doesn't exist anymore");
+    expect(page.textContent).toContain("This event doesn't exist");
     expect(page.querySelector('article')).toBeNull();
     expect(page.querySelector('app-error-state')).toBeNull();
     const button = page.querySelector<HTMLButtonElement>('app-empty-state button')!;
@@ -156,7 +171,7 @@ describe('Event details navigation', () => {
       await harness.navigateByUrl(`/events/${id}`, EventDetailsPageComponent);
       TestBed.tick();
       harness.detectChanges();
-      expect(harness.routeNativeElement?.textContent).toContain("This event doesn't exist anymore");
+      expect(harness.routeNativeElement?.textContent).toContain("This event doesn't exist");
       http.expectNone((request) => request.url.startsWith('/api/'));
     },
   );
@@ -215,5 +230,53 @@ describe('Event details navigation', () => {
     expect(harness.routeNativeElement?.textContent).toContain(EVENT.title);
     expect(harness.routeNativeElement?.textContent).toContain('Organizer information unavailable');
     expect(harness.routeNativeElement?.querySelector('app-empty-state')).toBeNull();
+  });
+
+  it('passes the current event to all five sections without rendering placeholder content', async () => {
+    const harness = await RouterTestingHarness.create();
+    await loadEvent(harness);
+    const nextEvent = { ...EVENT, id: 8, title: 'Another concert' };
+    await loadEvent(harness, nextEvent);
+
+    const sectionComponents = [
+      EventJoinComponent,
+      EventMapComponent,
+      EventChatComponent,
+      EventFriendsComponent,
+      EventPostsComponent,
+    ];
+    expect(harness.routeNativeElement?.querySelectorAll('.event-section')).toHaveLength(5);
+    for (const component of sectionComponents) {
+      const section = harness.routeDebugElement!.query(By.directive(component));
+      expect(section.componentInstance.event()).toEqual(nextEvent);
+      expect(section.nativeElement.textContent).toBe('');
+      expect(section.nativeElement.childElementCount).toBe(0);
+    }
+  });
+});
+
+describe('Event details section extension', () => {
+  it('renders a section implemented by its owner without changing the page layout', async () => {
+    TestBed.configureTestingModule({
+      imports: [EventDetailsPageComponent],
+      providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    });
+    TestBed.overrideComponent(EventDetailsPageComponent, {
+      remove: { imports: [EventJoinComponent] },
+      add: { imports: [PopulatedJoinComponent] },
+    });
+    const http = TestBed.inject(HttpTestingController);
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/events/7', EventDetailsPageComponent);
+    TestBed.tick();
+    http.expectOne('/api/events/7').flush(EVENT);
+    http.expectOne('/api/users/3').flush({ id: 3, displayName: 'Alex', avatarUrl: null });
+    harness.detectChanges();
+
+    expect(
+      harness.routeNativeElement?.querySelector('.event-section--join button')?.textContent,
+    ).toBe(`Join ${EVENT.title}`);
+    expect(harness.routeNativeElement?.querySelector('app-event-map')?.textContent).toBe('');
+    http.verify();
   });
 });

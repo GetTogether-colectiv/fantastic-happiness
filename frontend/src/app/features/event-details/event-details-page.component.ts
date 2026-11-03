@@ -19,6 +19,11 @@ import { UsersService } from '../../core/services/users.service';
 import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
+import { EventChatComponent } from './sections/event-chat/event-chat.component';
+import { EventFriendsComponent } from './sections/event-friends/event-friends.component';
+import { EventJoinComponent } from './sections/event-join/event-join.component';
+import { EventMapComponent } from './sections/event-map/event-map.component';
+import { EventPostsComponent } from './sections/event-posts/event-posts.component';
 
 type DetailsState =
   | { status: 'loading' }
@@ -28,7 +33,17 @@ type DetailsState =
 
 @Component({
   selector: 'app-event-details-page',
-  imports: [CategoryChipComponent, DatePipe, EmptyStateComponent, ErrorStateComponent],
+  imports: [
+    CategoryChipComponent,
+    DatePipe,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    EventJoinComponent,
+    EventMapComponent,
+    EventChatComponent,
+    EventFriendsComponent,
+    EventPostsComponent,
+  ],
   templateUrl: './event-details-page.component.html',
   styleUrl: './event-details-page.component.scss',
 })
