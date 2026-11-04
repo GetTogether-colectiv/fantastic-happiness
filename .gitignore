@@ -28,4 +28,4 @@ replay_pid*
 
 # IDE
 .idea/
-frontend/package-lock.js
+frontend/package-lock.json
