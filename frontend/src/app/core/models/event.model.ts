@@ -21,6 +21,7 @@ export interface EventSummary {
   longitude: number | null;
   imageUrl: string | null;
   capacity: number | null;
+  goingCount: number;
 }
 
 export interface EventDetails extends EventSummary {
@@ -55,14 +56,16 @@ export const CATEGORY_LABELS: Record<EventCategory, string> = {
   OTHER: 'Other',
 };
 
+export const EVENT_CATEGORIES = Object.keys(CATEGORY_LABELS) as EventCategory[];
+
 export const CATEGORY_ICONS: Record<EventCategory, string> = {
-  MUSIC: '🎵',
-  SPORTS: '⚽',
-  ART: '🎨',
-  FOOD: '🍽️',
-  TECH: '💻',
-  NIGHTLIFE: '🌙',
-  OUTDOORS: '🌲',
-  EDUCATION: '📚',
-  OTHER: '✨',
+  MUSIC: 'music_note',
+  SPORTS: 'sports_soccer',
+  ART: 'palette',
+  FOOD: 'restaurant',
+  TECH: 'computer',
+  NIGHTLIFE: 'nightlife',
+  OUTDOORS: 'park',
+  EDUCATION: 'school',
+  OTHER: 'celebration',
 };

@@ -13,5 +13,6 @@ public record EventSummary(
         Double latitude,
         Double longitude,
         String imageUrl,
-        Integer capacity) {
+        Integer capacity,
+        Integer goingCount) {
 }

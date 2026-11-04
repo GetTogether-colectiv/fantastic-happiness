@@ -12,6 +12,10 @@ final class EventSpecifications {
     private EventSpecifications() {
     }
 
+    static Specification<Event> notEndedBefore(Instant moment) {
+        return (event, query, builder) -> builder.greaterThanOrEqualTo(event.get("endsAt"), moment);
+    }
+
     static Specification<Event> matching(EventCategory category, String city, Instant from, Instant to) {
         List<Specification<Event>> filters = new ArrayList<>();
         if (category != null) {

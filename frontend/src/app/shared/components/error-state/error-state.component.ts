@@ -1,7 +1,9 @@
 import { Component, input, output } from '@angular/core';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-error-state',
+  imports: [MatIcon],
   templateUrl: './error-state.component.html',
   styleUrl: './error-state.component.scss',
 })

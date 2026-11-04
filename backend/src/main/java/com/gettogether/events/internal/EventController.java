@@ -26,13 +26,15 @@ class EventController {
     private static final Sort ORDER_BY_START = Sort.by("startsAt", "id");
 
     private final EventRepository eventRepository;
+    private final EventService eventService;
 
-    EventController(EventRepository eventRepository) {
+    EventController(EventRepository eventRepository, EventService eventService) {
         this.eventRepository = eventRepository;
+        this.eventService = eventService;
     }
 
     @GetMapping
-    @Operation(summary = "List events ordered by start time, optionally filtered")
+    @Operation(summary = "List upcoming events, ordered by start time, optionally filtered. Events that already ended are left out")
     PageResponse<EventSummary> findAll(
             @RequestParam(required = false) EventCategory category,
             @RequestParam(required = false) String city,
@@ -44,9 +46,7 @@ class EventController {
             @Parameter(description = "Page size, between 1 and " + MAX_PAGE_SIZE)
             @RequestParam(defaultValue = "" + DEFAULT_PAGE_SIZE) int size) {
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), ORDER_BY_START);
-        return PageResponse.from(eventRepository
-                .findAll(EventSpecifications.matching(category, city, from, to), pageRequest)
-                .map(EventMapper::toSummary));
+        return PageResponse.from(eventService.findUpcoming(category, city, from, to, pageRequest));
     }
 
     @GetMapping("/{id}")

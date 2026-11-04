@@ -1,0 +1,44 @@
+<div class="date-range">
+  <button
+    type="button"
+    class="trigger"
+    [class.active]="active()"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="open()"
+    (click)="open.set(!open())"
+  >
+    <mat-icon aria-hidden="true">calendar_today</mat-icon>
+    {{ label() }}
+  </button>
+
+  @if (open()) {
+    <div class="popover" role="dialog" aria-label="Choose dates">
+      <div class="shortcuts">
+        @for (shortcut of shortcuts; track shortcut.label) {
+          <button type="button" (click)="applyShortcut(shortcut)">{{ shortcut.label }}</button>
+        }
+      </div>
+      <label>
+        From
+        <input
+          #fromInput
+          type="date"
+          [value]="from() ?? ''"
+          [max]="to() ?? ''"
+          (change)="select({ from: fromInput.value || undefined, to: to() })"
+        />
+      </label>
+      <label>
+        To
+        <input
+          #toInput
+          type="date"
+          [value]="to() ?? ''"
+          [min]="from() ?? ''"
+          (change)="select({ from: from(), to: toInput.value || undefined })"
+        />
+      </label>
+      <button type="button" class="clear" (click)="clear()">Clear dates</button>
+    </div>
+  }
+</div>

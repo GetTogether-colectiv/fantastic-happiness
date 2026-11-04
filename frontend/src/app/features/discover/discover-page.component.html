@@ -1,0 +1,60 @@
+<section class="filters">
+  <div class="chips" appDragScroll role="group" aria-label="Category">
+    <button
+      type="button"
+      class="all"
+      [class.selected]="!filter().category"
+      [attr.aria-pressed]="!filter().category"
+      (click)="selectCategory(undefined)"
+    >
+      All
+    </button>
+    @for (category of categories; track category) {
+      <button
+        type="button"
+        [attr.aria-pressed]="filter().category === category"
+        (click)="selectCategory(category)"
+      >
+        <app-category-chip [category]="category" [selected]="filter().category === category" />
+      </button>
+    }
+  </div>
+  <app-date-range [from]="filter().from" [to]="filter().to" (rangeChange)="updateFilter($event)" />
+</section>
+
+@switch (state()) {
+  @case ('loading') {
+    <div class="list">
+      @for (skeleton of skeletons; track $index) {
+        <app-skeleton-card />
+      }
+    </div>
+  }
+  @case ('loaded') {
+    <div class="list">
+      @for (event of events(); track event.id) {
+        <a class="card-link" [routerLink]="['/events', event.id]">
+          @if ($index === prefetchIndex()) {
+            <span #sentinel class="sentinel"></span>
+          }
+          <app-event-card [event]="event" />
+        </a>
+      }
+    </div>
+    @if (loadingMore()) {
+      <div class="spinner" role="status" aria-label="Loading more events"></div>
+    } @else if (lastPage()) {
+      <p class="end">You've seen all upcoming events</p>
+    }
+  }
+  @case ('empty') {
+    <app-empty-state
+      title="No events match your filters"
+      actionLabel="Clear filters"
+      (action)="clearFilters()"
+    />
+  }
+  @case ('error') {
+    <app-error-state message="We couldn't load the events." (retry)="retry()" />
+  }
+}

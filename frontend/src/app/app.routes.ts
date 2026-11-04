@@ -5,7 +5,14 @@ export const routes: Routes = [
   {
     path: 'discover',
     data: { title: 'Discover' },
-    loadComponent: () => import('./features/discover/discover.component').then((m) => m.DiscoverComponent),
+    loadComponent: () =>
+      import('./features/discover/discover-page.component').then((m) => m.DiscoverPageComponent),
+  },
+  {
+    path: 'events/:id',
+    data: { title: 'Event' },
+    loadComponent: () =>
+      import('./features/event-details/event-details.component').then((m) => m.EventDetailsComponent),
   },
   {
     path: 'swipe',
