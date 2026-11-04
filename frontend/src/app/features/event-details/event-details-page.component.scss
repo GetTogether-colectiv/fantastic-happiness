@@ -57,9 +57,18 @@ h2 {
 }
 
 dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
   margin-bottom: var(--space-xs);
   color: var(--muted-color);
   font-size: var(--font-size-sm);
+
+  mat-icon {
+    width: var(--font-size-lg);
+    height: var(--font-size-lg);
+    font-size: var(--font-size-lg);
+  }
 }
 
 dd {

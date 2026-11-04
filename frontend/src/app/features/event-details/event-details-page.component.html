@@ -16,7 +16,7 @@
         <img class="cover-image" [src]="details.event.imageUrl" alt="" />
       }
       <button class="back-button" type="button" aria-label="Go back" (click)="goBack()">
-        <span aria-hidden="true">←</span>
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
       </button>
     </div>
 
@@ -26,7 +26,7 @@
 
       <dl class="facts">
         <div class="fact">
-          <dt><span aria-hidden="true">📅</span> Date and time</dt>
+          <dt><mat-icon aria-hidden="true">event</mat-icon> Date and time</dt>
           <dd>
             <time [attr.datetime]="details.event.startsAt">{{
               details.event.startsAt | date: 'medium'
@@ -38,11 +38,11 @@
           </dd>
         </div>
         <div class="fact">
-          <dt><span aria-hidden="true">📍</span> Location</dt>
+          <dt><mat-icon aria-hidden="true">place</mat-icon> Location</dt>
           <dd>{{ details.event.locationName }}, {{ details.event.city }}</dd>
         </div>
         <div class="fact">
-          <dt><span aria-hidden="true">👥</span> Capacity</dt>
+          <dt><mat-icon aria-hidden="true">groups</mat-icon> Capacity</dt>
           <dd>
             @if (details.event.capacity !== null) {
               {{ details.event.capacity }} places
@@ -52,7 +52,7 @@
           </dd>
         </div>
         <div class="fact">
-          <dt><span aria-hidden="true">👤</span> Organizer</dt>
+          <dt><mat-icon aria-hidden="true">person</mat-icon> Organizer</dt>
           <dd class="organizer">
             @if (details.organizer; as organizer) {
               @if (organizer.avatarUrl) {

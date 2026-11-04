@@ -1,5 +1,6 @@
 import { DatePipe, Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
 import { Component, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,6 +39,7 @@ type DetailsState =
     DatePipe,
     EmptyStateComponent,
     ErrorStateComponent,
+    MatIconModule,
     EventJoinComponent,
     EventMapComponent,
     EventChatComponent,
