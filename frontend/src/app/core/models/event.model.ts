@@ -1,13 +1,5 @@
 export type EventCategory =
-  | 'MUSIC'
-  | 'SPORTS'
-  | 'ART'
-  | 'FOOD'
-  | 'TECH'
-  | 'NIGHTLIFE'
-  | 'OUTDOORS'
-  | 'EDUCATION'
-  | 'OTHER';
+  'MUSIC' | 'SPORTS' | 'ART' | 'FOOD' | 'TECH' | 'NIGHTLIFE' | 'OUTDOORS' | 'EDUCATION' | 'OTHER';
 
 export interface EventSummary {
   id: number;
@@ -67,5 +59,5 @@ export const CATEGORY_ICONS: Record<EventCategory, string> = {
   NIGHTLIFE: 'nightlife',
   OUTDOORS: 'park',
   EDUCATION: 'school',
-  OTHER: 'celebration',
+  OTHER: 'category',
 };

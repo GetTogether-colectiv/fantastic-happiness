@@ -1,0 +1,97 @@
+@let details = state();
+@if (details.status === 'loading') {
+  <p class="loading" role="status">Loading event details…</p>
+} @else if (details.status === 'not-found') {
+  <app-empty-state
+    title="This event doesn't exist"
+    actionLabel="Back to Discover"
+    (action)="goToDiscover()"
+  />
+} @else if (details.status === 'error') {
+  <app-error-state (retry)="retry()" />
+} @else {
+  <article>
+    <div class="cover">
+      @if (details.event.imageUrl) {
+        <img class="cover-image" [src]="details.event.imageUrl" alt="" />
+      }
+      <button class="back-button" type="button" aria-label="Go back" (click)="goBack()">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      </button>
+    </div>
+
+    <div class="details">
+      <app-category-chip [category]="details.event.category" [selected]="true" />
+      <h2>{{ details.event.title }}</h2>
+
+      <dl class="facts">
+        <div class="fact">
+          <dt><mat-icon aria-hidden="true">event</mat-icon> Date and time</dt>
+          <dd>
+            <time [attr.datetime]="details.event.startsAt">{{
+              details.event.startsAt | date: 'medium'
+            }}</time>
+            –
+            <time [attr.datetime]="details.event.endsAt">{{
+              details.event.endsAt | date: 'medium'
+            }}</time>
+          </dd>
+        </div>
+        <div class="fact">
+          <dt><mat-icon aria-hidden="true">place</mat-icon> Location</dt>
+          <dd>{{ details.event.locationName }}, {{ details.event.city }}</dd>
+        </div>
+        <div class="fact">
+          <dt><mat-icon aria-hidden="true">groups</mat-icon> Capacity</dt>
+          <dd>
+            @if (details.event.capacity !== null) {
+              {{ details.event.capacity }} places
+            } @else {
+              No capacity limit
+            }
+          </dd>
+        </div>
+        <div class="fact">
+          <dt><mat-icon aria-hidden="true">person</mat-icon> Organizer</dt>
+          <dd class="organizer">
+            @if (details.organizer; as organizer) {
+              @if (organizer.avatarUrl) {
+                <img class="avatar" [src]="organizer.avatarUrl" alt="" />
+              } @else {
+                <span class="avatar avatar-placeholder" aria-hidden="true">{{
+                  organizer.displayName.slice(0, 1)
+                }}</span>
+              }
+              {{ organizer.displayName }}
+            } @else {
+              Organizer information unavailable
+            }
+          </dd>
+        </div>
+      </dl>
+
+      @if (details.event.description) {
+        <section aria-labelledby="description-title">
+          <h3 id="description-title">About this event</h3>
+          <p class="description">{{ details.event.description }}</p>
+        </section>
+      }
+
+      <div class="event-section event-section--join">
+        <app-event-join [event]="details.event" />
+      </div>
+      <div class="event-section event-section--map">
+        <app-event-map [event]="details.event" />
+      </div>
+      <div class="event-section event-section--chat">
+        <app-event-chat [event]="details.event" />
+      </div>
+      <div class="event-section event-section--friends">
+        <app-event-friends [event]="details.event" />
+      </div>
+      <div class="event-section event-section--posts">
+        <app-event-posts [event]="details.event" />
+      </div>
+    </div>
+  </article>
+}

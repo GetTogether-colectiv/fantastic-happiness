@@ -1,14 +1,14 @@
 import { Component, input, output } from '@angular/core';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-empty-state',
-  imports: [MatIcon],
+  imports: [MatIconModule],
   templateUrl: './empty-state.component.html',
   styleUrl: './empty-state.component.scss',
 })
 export class EmptyStateComponent {
-  readonly icon = input('search_off');
+  readonly icon = input('search');
   readonly title = input.required<string>();
   readonly text = input<string>();
   readonly actionLabel = input<string>();

@@ -12,9 +12,9 @@
   white-space: nowrap;
 
   mat-icon {
-    width: 1rem;
-    height: 1rem;
-    font-size: 1rem;
+    width: var(--font-size-lg);
+    height: var(--font-size-lg);
+    font-size: var(--font-size-lg);
   }
 
   &.selected {
