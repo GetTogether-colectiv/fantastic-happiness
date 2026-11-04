@@ -17,12 +17,6 @@ export const routes: Routes = [
       import('./features/discover/discover-page.component').then((m) => m.DiscoverPageComponent),
   },
   {
-    path: 'events/:id',
-    data: { title: 'Event' },
-    loadComponent: () =>
-      import('./features/event-details/event-details.component').then((m) => m.EventDetailsComponent),
-  },
-  {
     path: 'swipe',
     data: { title: 'Swipe' },
     loadComponent: () => import('./features/swipe/swipe.component').then((m) => m.SwipeComponent),
