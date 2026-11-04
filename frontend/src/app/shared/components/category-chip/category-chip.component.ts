@@ -1,8 +1,10 @@
 import { Component, computed, input } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { CATEGORY_ICONS, CATEGORY_LABELS, EventCategory } from '../../../core/models/event.model';
 
 @Component({
   selector: 'app-category-chip',
+  imports: [MatIconModule],
   templateUrl: './category-chip.component.html',
   styleUrl: './category-chip.component.scss',
 })

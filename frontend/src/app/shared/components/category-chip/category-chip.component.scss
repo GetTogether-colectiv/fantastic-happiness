@@ -11,6 +11,12 @@
   font-weight: 600;
   white-space: nowrap;
 
+  mat-icon {
+    width: var(--font-size-lg);
+    height: var(--font-size-lg);
+    font-size: var(--font-size-lg);
+  }
+
   &.selected {
     background: var(--chip-color);
     color: #ffffff;

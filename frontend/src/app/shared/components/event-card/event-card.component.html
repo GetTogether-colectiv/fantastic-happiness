@@ -1,4 +1,4 @@
-<article class="card">
+<a class="card" [routerLink]="['/events', event().id]">
   <div class="image">
     @if (event().imageUrl) {
       <img [src]="event().imageUrl" alt="" loading="lazy" />
@@ -10,4 +10,4 @@
     <p class="date">{{ event().startsAt | eventDate }}</p>
     <p class="location">{{ event().locationName }}</p>
   </div>
-</article>
+</a>

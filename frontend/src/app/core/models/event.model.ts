@@ -1,13 +1,5 @@
 export type EventCategory =
-  | 'MUSIC'
-  | 'SPORTS'
-  | 'ART'
-  | 'FOOD'
-  | 'TECH'
-  | 'NIGHTLIFE'
-  | 'OUTDOORS'
-  | 'EDUCATION'
-  | 'OTHER';
+  'MUSIC' | 'SPORTS' | 'ART' | 'FOOD' | 'TECH' | 'NIGHTLIFE' | 'OUTDOORS' | 'EDUCATION' | 'OTHER';
 
 export interface EventSummary {
   id: number;
@@ -56,13 +48,13 @@ export const CATEGORY_LABELS: Record<EventCategory, string> = {
 };
 
 export const CATEGORY_ICONS: Record<EventCategory, string> = {
-  MUSIC: '🎵',
-  SPORTS: '⚽',
-  ART: '🎨',
-  FOOD: '🍽️',
-  TECH: '💻',
-  NIGHTLIFE: '🌙',
-  OUTDOORS: '🌲',
-  EDUCATION: '📚',
-  OTHER: '✨',
+  MUSIC: 'music_note',
+  SPORTS: 'sports_soccer',
+  ART: 'palette',
+  FOOD: 'restaurant',
+  TECH: 'computer',
+  NIGHTLIFE: 'nightlife',
+  OUTDOORS: 'park',
+  EDUCATION: 'school',
+  OTHER: 'category',
 };
