@@ -13,6 +13,7 @@ export interface EventSummary {
   longitude: number | null;
   imageUrl: string | null;
   capacity: number | null;
+  goingCount: number;
 }
 
 export interface EventDetails extends EventSummary {
@@ -46,6 +47,8 @@ export const CATEGORY_LABELS: Record<EventCategory, string> = {
   EDUCATION: 'Education',
   OTHER: 'Other',
 };
+
+export const EVENT_CATEGORIES = Object.keys(CATEGORY_LABELS) as EventCategory[];
 
 export const CATEGORY_ICONS: Record<EventCategory, string> = {
   MUSIC: 'music_note',

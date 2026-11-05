@@ -13,9 +13,11 @@ import java.util.Optional;
 class EventsApiImpl implements EventsApi {
 
     private final EventRepository eventRepository;
+    private final EventService eventService;
 
-    EventsApiImpl(EventRepository eventRepository) {
+    EventsApiImpl(EventRepository eventRepository, EventService eventService) {
         this.eventRepository = eventRepository;
+        this.eventService = eventService;
     }
 
     @Override
@@ -25,7 +27,7 @@ class EventsApiImpl implements EventsApi {
 
     @Override
     public List<EventSummary> findByIds(Collection<Long> ids) {
-        return eventRepository.findAllById(ids).stream().map(EventMapper::toSummary).toList();
+        return eventService.findByIds(ids);
     }
 
     @Override

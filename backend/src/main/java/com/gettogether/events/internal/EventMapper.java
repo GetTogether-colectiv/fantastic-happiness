@@ -8,7 +8,7 @@ final class EventMapper {
     private EventMapper() {
     }
 
-    static EventSummary toSummary(Event event) {
+    static EventSummary toSummary(Event event, int goingCount) {
         return new EventSummary(
                 event.getId(),
                 event.getTitle(),
@@ -20,7 +20,8 @@ final class EventMapper {
                 event.getLatitude(),
                 event.getLongitude(),
                 event.getImageUrl(),
-                event.getCapacity());
+                event.getCapacity(),
+                goingCount);
     }
 
     static EventDetails toDetails(Event event) {

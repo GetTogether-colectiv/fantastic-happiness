@@ -14,7 +14,7 @@ export const routes: Routes = [
     path: 'discover',
     data: { title: 'Discover' },
     loadComponent: () =>
-      import('./features/discover/discover.component').then((m) => m.DiscoverComponent),
+      import('./features/discover/discover-page.component').then((m) => m.DiscoverPageComponent),
   },
   {
     path: 'swipe',
