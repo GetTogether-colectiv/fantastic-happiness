@@ -10,10 +10,10 @@ import java.util.stream.Collectors;
 @Service
 class ParticipationApiImpl implements ParticipationApi {
 
-    private final AttendanceRepository attendanceRepository;
+    private final ParticipationRepository participationRepository;
 
-    ParticipationApiImpl(AttendanceRepository attendanceRepository) {
-        this.attendanceRepository = attendanceRepository;
+    ParticipationApiImpl(ParticipationRepository participationRepository) {
+        this.participationRepository = participationRepository;
     }
 
     @Override
@@ -21,7 +21,7 @@ class ParticipationApiImpl implements ParticipationApi {
         if (eventIds.isEmpty()) {
             return Map.of();
         }
-        return attendanceRepository.countByEventIds(eventIds).stream()
-                .collect(Collectors.toMap(AttendanceCount::getEventId, count -> Math.toIntExact(count.getTotal())));
+        return participationRepository.countByEventIds(eventIds, ParticipationStatus.GOING).stream()
+                .collect(Collectors.toMap(ParticipationCount::getEventId, count -> Math.toIntExact(count.getTotal())));
     }
 }

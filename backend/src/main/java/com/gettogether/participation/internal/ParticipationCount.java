@@ -1,6 +1,6 @@
 package com.gettogether.participation.internal;
 
-interface AttendanceCount {
+interface ParticipationCount {
 
     Long getEventId();
 
