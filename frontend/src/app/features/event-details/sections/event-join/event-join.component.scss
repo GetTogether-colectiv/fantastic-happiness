@@ -27,6 +27,30 @@ p {
   color: var(--danger-color);
   font-size: var(--font-size-sm);
 }
+.success {
+  color: var(--text-color);
+  border-left: 3px solid var(--success-color);
+  padding-left: var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+.leave-confirmation {
+  background: var(--surface-color);
+  color: var(--text-color);
+  font-family: var(--font-family), sans-serif;
+  border-radius: var(--radius-md);
+  h2 {
+    color: inherit;
+    font-size: var(--font-size-xl);
+  }
+  mat-dialog-content {
+    color: var(--muted-color);
+    font-size: var(--font-size-md);
+  }
+  mat-dialog-actions {
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+}
 button {
   margin-top: var(--space-md);
   padding: var(--space-sm) var(--space-xl);
@@ -37,9 +61,20 @@ button {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  &.join {
+    border-color: var(--success-color);
+    background: var(--success-color);
+    color: var(--text-color);
+  }
   &.leave {
     background: var(--surface-color);
-    color: var(--primary-color);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+  }
+  &.cancel-leave {
+    background: var(--surface-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
   }
   &:disabled {
     opacity: 0.5;

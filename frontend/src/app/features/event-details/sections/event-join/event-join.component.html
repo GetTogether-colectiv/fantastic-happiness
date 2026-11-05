@@ -19,14 +19,32 @@
     </p>
     <button
       type="button"
+      [class.join]="current.status !== 'GOING'"
       [class.leave]="current.status === 'GOING'"
       [disabled]="pending()"
+      [attr.aria-haspopup]="current.status === 'GOING' ? 'dialog' : null"
       (click)="toggleParticipation()"
     >
-      {{ current.status === 'GOING' ? 'Leave' : 'GOING' }}
+      {{ current.status === 'GOING' ? 'Leave event' : 'I want to go' }}
     </button>
     @if (message()) {
       <p class="message" role="alert">{{ message() }}</p>
     }
+    @if (success()) {
+      <p class="success" role="status" aria-live="polite">{{ success() }}</p>
+    }
   }
 </section>
+
+<ng-template #leaveConfirmation>
+  <div class="leave-confirmation">
+    <h2 mat-dialog-title id="leave-event-title">Leave this event?</h2>
+    <mat-dialog-content id="leave-event-message">
+      Are you sure you no longer want to attend this event?
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button type="button" class="cancel-leave" [mat-dialog-close]="false">Cancel</button>
+      <button type="button" class="leave" [mat-dialog-close]="true">Yes, leave</button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>
