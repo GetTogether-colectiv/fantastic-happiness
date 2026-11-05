@@ -1,5 +1,6 @@
 package com.gettogether.participation.internal;
 
+import com.gettogether.participation.ParticipationStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -30,6 +31,17 @@ public class Participation {
     private Instant createdAt;
 
     protected Participation() {
+    }
+
+    Participation(Long userId, Long eventId, ParticipationStatus status) {
+        this.userId = userId;
+        this.eventId = eventId;
+        this.status = status;
+        this.createdAt = Instant.now();
+    }
+
+    void changeStatus(ParticipationStatus status) {
+        this.status = status;
     }
 
     public Long getId() {

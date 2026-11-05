@@ -1,4 +1,4 @@
-package com.gettogether.participation.internal;
+package com.gettogether.participation;
 
 public enum ParticipationStatus {
     GOING,
