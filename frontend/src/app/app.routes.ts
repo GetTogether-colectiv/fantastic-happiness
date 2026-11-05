@@ -19,7 +19,8 @@ export const routes: Routes = [
   {
     path: 'swipe',
     data: { title: 'Swipe' },
-    loadComponent: () => import('./features/swipe/swipe.component').then((m) => m.SwipeComponent),
+    loadComponent: () =>
+      import('./features/swipe/swipe-page.component').then((m) => m.SwipePageComponent),
   },
   {
     path: 'map',

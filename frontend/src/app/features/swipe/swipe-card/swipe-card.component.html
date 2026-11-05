@@ -1,0 +1,45 @@
+<div #container class="container">
+  <a
+    class="card"
+    [href]="'/events/' + event().id"
+    [attr.aria-disabled]="busy()"
+    [style.transform]="transform()"
+    [style.--swipe-duration]="duration + 'ms'"
+    [class.dragging]="dragging()"
+    (pointerdown)="pointerDown($event)"
+    (pointermove)="pointerMove($event)"
+    (pointerup)="pointerUp($event)"
+    (pointercancel)="cancelPointer($event)"
+    (lostpointercapture)="cancelPointer($event)"
+    (click)="open($event)"
+    (keydown.enter)="openWithKeyboard($event)"
+    (keydown.space)="openWithKeyboard($event)"
+    (transitionend)="transitionEnd($event)"
+    draggable="false"
+  >
+    <div class="image">
+      @if (event().imageUrl) {
+        <img [src]="event().imageUrl" alt="" draggable="false" />
+      }
+      <app-category-chip class="category" [category]="event().category" [selected]="true" />
+      <span
+        class="stamp going"
+        [style.opacity]="offset() > 0 ? stampOpacity() : 0"
+        aria-hidden="true"
+        >GOING</span
+      >
+      <span
+        class="stamp nope"
+        [style.opacity]="offset() < 0 ? stampOpacity() : 0"
+        aria-hidden="true"
+        >NOPE</span
+      >
+    </div>
+    <div class="body">
+      <h2>{{ event().title }}</h2>
+      <p class="date">{{ event().startsAt | eventDate }}</p>
+      <p>{{ event().locationName }}, {{ event().city }}</p>
+      <p>{{ event().goingCount }} going</p>
+    </div>
+  </a>
+</div>

@@ -36,6 +36,7 @@ const EVENT: EventDetails = {
   longitude: null,
   imageUrl: '/concert.jpg',
   capacity: 30,
+  goingCount: 0,
   description: 'Live music.\nEveryone is welcome.',
   organizerId: 3,
   createdAt: '2026-11-01T12:00:00Z',
@@ -121,10 +122,22 @@ describe('Event details navigation', () => {
     harness.routeNativeElement!.querySelector<HTMLButtonElement>('.back-button')!.click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Location).path()).toBe('/discover');
+    http.expectOne('/api/events?page=0&size=10').flush({
+      content: [],
+      page: 0,
+      totalPages: 0,
+      last: true,
+    });
   });
 
   it('uses browser back after in-app navigation', async () => {
     const harness = await RouterTestingHarness.create('/discover');
+    http.expectOne('/api/events?page=0&size=10').flush({
+      content: [],
+      page: 0,
+      totalPages: 0,
+      last: true,
+    });
     await loadEvent(harness);
     const location = TestBed.inject(Location);
     vi.spyOn(location, 'getState').mockReturnValue({ navigationId: 2 });
@@ -135,6 +148,12 @@ describe('Event details navigation', () => {
 
   it('opens details when an event card is clicked', async () => {
     const harness = await RouterTestingHarness.create('/discover');
+    http.expectOne('/api/events?page=0&size=10').flush({
+      content: [],
+      page: 0,
+      totalPages: 0,
+      last: true,
+    });
     const card = TestBed.createComponent(EventCardComponent);
     card.componentRef.setInput('event', EVENT);
     card.detectChanges();
@@ -162,6 +181,12 @@ describe('Event details navigation', () => {
     button.click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Location).path()).toBe('/discover');
+    http.expectOne('/api/events?page=0&size=10').flush({
+      content: [],
+      page: 0,
+      totalPages: 0,
+      last: true,
+    });
   });
 
   it.each(['abc', '0', '-1', '1.5', '9007199254740992'])(
