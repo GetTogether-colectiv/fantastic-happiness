@@ -46,4 +46,24 @@ describe('ParticipationService', () => {
     );
     expect(error).toHaveBeenCalledWith(expect.objectContaining({ status: 409 }));
   });
+
+  it('loads the current participation, going count and capacity', () => {
+    const response = { status: 'GOING', goingCount: 12, capacity: 20 };
+    const received = vi.fn();
+    service.getParticipation(7).subscribe(received);
+    const request = http.expectOne('/api/events/7/participation');
+    expect(request.request.method).toBe('GET');
+    request.flush(response);
+    expect(received).toHaveBeenCalledWith(response);
+  });
+
+  it('removes participation and accepts an empty 204 response', () => {
+    const complete = vi.fn();
+    service.removeParticipation(7).subscribe({ complete });
+    const request = http.expectOne('/api/events/7/participation');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.body).toBeNull();
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    expect(complete).toHaveBeenCalledOnce();
+  });
 });

@@ -16,6 +16,14 @@ export class ParticipationService {
     return this.http.get<EventSummary[]>(`${API_BASE_URL}/participation/feed`, { params });
   }
 
+  getParticipation(eventId: number): Observable<ParticipationResponse> {
+    return this.http.get<ParticipationResponse>(`${API_BASE_URL}/events/${eventId}/participation`);
+  }
+
+  removeParticipation(eventId: number): Observable<void> {
+    return this.http.delete<void>(`${API_BASE_URL}/events/${eventId}/participation`);
+  }
+
   setStatus(eventId: number, status: ParticipationStatus): Observable<ParticipationResponse> {
     return this.http.put<ParticipationResponse>(`${API_BASE_URL}/events/${eventId}/participation`, {
       status,

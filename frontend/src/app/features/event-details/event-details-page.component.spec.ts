@@ -18,6 +18,14 @@ import { EventPostsComponent } from './sections/event-posts/event-posts.componen
 
 @Component({
   selector: 'app-event-join',
+  template: '',
+})
+class JoinStubComponent {
+  readonly event = input.required<EventDetails>();
+}
+
+@Component({
+  selector: 'app-event-join',
   template: '<button type="button">Join {{ event().title }}</button>',
 })
 class PopulatedJoinComponent {
@@ -48,6 +56,10 @@ describe('Event details navigation', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
+    });
+    TestBed.overrideComponent(EventDetailsPageComponent, {
+      remove: { imports: [EventJoinComponent] },
+      add: { imports: [JoinStubComponent] },
     });
     http = TestBed.inject(HttpTestingController);
   });
@@ -264,7 +276,7 @@ describe('Event details navigation', () => {
     await loadEvent(harness, nextEvent);
 
     const sectionComponents = [
-      EventJoinComponent,
+      JoinStubComponent,
       EventMapComponent,
       EventChatComponent,
       EventFriendsComponent,

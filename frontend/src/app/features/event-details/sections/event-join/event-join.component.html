@@ -1,0 +1,32 @@
+<section
+  class="participation"
+  aria-label="Event participation"
+  [attr.aria-busy]="loading() || pending()"
+>
+  @if (loading()) {
+    <p class="loading" role="status">Loading participation…</p>
+  } @else if (loadError()) {
+    <app-error-state message="We couldn't load your participation." (retry)="retry()" />
+  } @else if (participation(); as current) {
+    <h3>Participation</h3>
+    <p class="count" aria-live="polite">{{ current.goingCount }} going</p>
+    <p class="capacity">
+      @if (current.capacity !== null) {
+        {{ current.capacity }} places
+      } @else {
+        No capacity limit
+      }
+    </p>
+    <button
+      type="button"
+      [class.leave]="current.status === 'GOING'"
+      [disabled]="pending()"
+      (click)="toggleParticipation()"
+    >
+      {{ current.status === 'GOING' ? 'Leave' : 'GOING' }}
+    </button>
+    @if (message()) {
+      <p class="message" role="alert">{{ message() }}</p>
+    }
+  }
+</section>

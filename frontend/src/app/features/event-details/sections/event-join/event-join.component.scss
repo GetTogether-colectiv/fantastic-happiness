@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+.participation {
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+}
+h3 {
+  margin: 0 0 var(--space-md);
+  font-size: var(--font-size-lg);
+}
+p {
+  margin: var(--space-sm) 0;
+}
+.count {
+  font-weight: 600;
+}
+.capacity,
+.loading {
+  color: var(--muted-color);
+  font-size: var(--font-size-sm);
+}
+.message {
+  color: var(--danger-color);
+  font-size: var(--font-size-sm);
+}
+button {
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-xl);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-pill);
+  background: var(--primary-color);
+  color: var(--surface-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  &.leave {
+    background: var(--surface-color);
+    color: var(--primary-color);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  &:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: var(--space-xs);
+  }
+}
