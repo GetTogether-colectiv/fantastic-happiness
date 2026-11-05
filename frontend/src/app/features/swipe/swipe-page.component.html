@@ -42,6 +42,13 @@
   @if (feedError()) {
     <app-error-state message="We couldn't load more events." (retry)="loadFeed()" />
   }
+  @if (!events().length && !loading() && !feedError()) {
+    <app-empty-state
+      title="You're all caught up — check back later or browse Discover"
+      actionLabel="Browse Discover"
+      (action)="goToDiscover()"
+    />
+  }
   @if (loading() && events().length) {
     <p class="loading" role="status">Loading more events…</p>
   }

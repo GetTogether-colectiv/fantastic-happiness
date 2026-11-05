@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { EventSummary } from '../../core/models/event.model';
 import { ParticipationStatus } from '../../core/models/participation.model';
 import { ParticipationService } from '../../core/services/participation.service';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { SkeletonCardComponent } from '../../shared/components/skeleton-card/skeleton-card.component';
 import { SwipeCardComponent } from './swipe-card/swipe-card.component';
@@ -14,7 +15,13 @@ const REFILL_THRESHOLD = 3;
 
 @Component({
   selector: 'app-swipe-page',
-  imports: [MatIconModule, ErrorStateComponent, SkeletonCardComponent, SwipeCardComponent],
+  imports: [
+    MatIconModule,
+    EmptyStateComponent,
+    ErrorStateComponent,
+    SkeletonCardComponent,
+    SwipeCardComponent,
+  ],
   templateUrl: './swipe-page.component.html',
   styleUrl: './swipe-page.component.scss',
 })
@@ -110,6 +117,10 @@ export class SwipePageComponent {
     if (!this.busy()) {
       void this.router.navigate(['/events', eventId]);
     }
+  }
+
+  protected goToDiscover(): void {
+    void this.router.navigate(['/discover']);
   }
 
   private advance(): void {

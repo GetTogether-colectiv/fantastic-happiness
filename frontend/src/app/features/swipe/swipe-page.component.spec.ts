@@ -328,16 +328,80 @@ describe('SwipePageComponent', () => {
     expect(card().event().id).toBe(2);
   });
 
-  it('handles initial failure and an empty response without adding an empty-state UI', () => {
+  it('shows the error state on initial failure and the empty state after a successful empty retry', () => {
     feeds[0].error(new HttpErrorResponse({ status: 503 }));
     fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-error-state')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
     fixture.nativeElement.querySelector('app-error-state button').click();
     fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
     feeds[1].next([]);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-swipe-card')).toBeNull();
-    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-error-state')).toBeNull();
     expect(service.getFeed).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows the exact empty-state message for an initial empty feed', () => {
+    load([]);
+    expect(fixture.nativeElement.querySelector('app-empty-state h2').textContent).toBe(
+      "You're all caught up — check back later or browse Discover",
+    );
+    expect(fixture.nativeElement.querySelector('app-swipe-card')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.actions')).toBeNull();
+  });
+
+  it('hides the empty state during initial loading', () => {
+    expect(fixture.nativeElement.querySelector('[role="status"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
+  });
+
+  it('waits for the final card and its refill before showing the empty state', () => {
+    load([1]);
+    const current = start();
+    current.exited.emit();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
+    succeed(current);
+    expect(fixture.nativeElement.querySelector('app-swipe-card')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[role="status"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
+
+    feeds[1].next([]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[role="status"]')).toBeNull();
+  });
+
+  it('shows a feed error instead of an empty state when the final refill fails', () => {
+    load([1]);
+    succeed(start());
+    feeds[1].error(new HttpErrorResponse({ status: 503 }));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-error-state')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
+  });
+
+  it('keeps remaining cards visible during and after an empty refill', () => {
+    load([1, 2, 3]);
+    succeed(start());
+    expect(card().event().id).toBe(2);
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
+    feeds[1].next([]);
+    fixture.detectChanges();
+    expect(card().event().id).toBe(2);
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.actions')).not.toBeNull();
+  });
+
+  it('navigates to Discover from the empty-state action', () => {
+    load([]);
+    const button = fixture.nativeElement.querySelector('app-empty-state button');
+    expect(button.textContent.trim()).toBe('Browse Discover');
+    button.click();
+    expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/discover']);
   });
 
   it('unsubscribes when leaving the page', () => {
