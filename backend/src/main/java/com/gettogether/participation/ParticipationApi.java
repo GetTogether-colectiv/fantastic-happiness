@@ -1,6 +1,7 @@
 package com.gettogether.participation;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,4 +17,10 @@ public interface ParticipationApi {
     void setStatus(Long userId, Long eventId, ParticipationStatus status);
 
     void remove(Long userId, Long eventId);
+
+    boolean isGoing(Long userId, Long eventId);
+
+    List<Long> listGoingUserIds(Long eventId);
+
+    List<Long> listEventsFor(Long userId, ParticipationStatus status);
 }
