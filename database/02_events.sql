@@ -59,7 +59,7 @@ FROM (VALUES
     ('Transylvanian Food Festival', 'Traditional dishes, local producers and live cooking shows.', 'FOOD', INTERVAL '5 days 12 hours', INTERVAL '8 hours', 'Piata Unirii', 46.7693, 23.5899, 2000, 2),
     ('Wine in the Garden', 'A guided tasting of Transylvanian wines among the plants.', 'FOOD', INTERVAL '8 days 19 hours', INTERVAL '3 hours', 'Gradina Botanica', 46.7600, 23.5864, 80, 3),
     ('Street Food Weekend', 'Food trucks from all over the country in the middle of the park.', 'FOOD', INTERVAL '-10 days 12 hours', INTERVAL '9 hours', 'Parcul Central', 46.7664, 23.5827, 1500, 4),
-    ('Pastry Masterclass', 'Bake three classic pastries with a professional chef.', 'FOOD', INTERVAL '15 days 17 hours', INTERVAL '3 hours', 'Casa Tranzit', 46.7730, 23.5846, 20, 5),
+    ('Pastry Masterclass', 'Bake three classic pastries with a professional chef.', 'FOOD', INTERVAL '15 days 17 hours', INTERVAL '3 hours', 'Casa Tranzit', 46.7730, 23.5846, 6, 5),
     -- TECH
     ('Cluj JS Meetup', 'Two talks about modern frontend and plenty of time to talk to other developers.', 'TECH', INTERVAL '3 days 18 hours', INTERVAL '3 hours', 'Form Space', 46.7742, 23.5788, 150, 6),
     ('AI in Healthcare Conference', 'Researchers and startups show what machine learning does in hospitals.', 'TECH', INTERVAL '16 days 9 hours', INTERVAL '9 hours', 'Universitatea Babes-Bolyai', 46.7677, 23.5912, 500, 7),

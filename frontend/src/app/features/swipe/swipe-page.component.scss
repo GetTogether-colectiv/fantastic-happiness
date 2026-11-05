@@ -1,0 +1,49 @@
+:host {
+  display: block;
+}
+.swipe-page {
+  width: 100%;
+}
+.stack {
+  overflow: clip;
+  padding: var(--space-xs);
+}
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2xl);
+  margin-top: var(--space-xl);
+  button {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border: 2px solid currentColor;
+    border-radius: var(--radius-pill);
+    background: var(--surface-color);
+    cursor: pointer;
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    &:focus-visible {
+      outline: 3px solid var(--primary-color);
+      outline-offset: var(--space-xs);
+    }
+  }
+}
+.going {
+  color: var(--success-color);
+}
+.nope {
+  color: var(--muted-color);
+}
+.message {
+  color: var(--danger-color);
+  text-align: center;
+}
+.loading {
+  color: var(--muted-color);
+  text-align: center;
+  font-size: var(--font-size-sm);
+}

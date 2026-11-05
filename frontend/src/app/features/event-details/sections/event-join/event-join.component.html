@@ -1,0 +1,50 @@
+<section
+  class="participation"
+  aria-label="Event participation"
+  [attr.aria-busy]="loading() || pending()"
+>
+  @if (loading()) {
+    <p class="loading" role="status">Loading participation…</p>
+  } @else if (loadError()) {
+    <app-error-state message="We couldn't load your participation." (retry)="retry()" />
+  } @else if (participation(); as current) {
+    <h3>Participation</h3>
+    <p class="count" aria-live="polite">{{ current.goingCount }} going</p>
+    <p class="capacity">
+      @if (current.capacity !== null) {
+        {{ current.capacity }} places
+      } @else {
+        No capacity limit
+      }
+    </p>
+    <button
+      type="button"
+      [class.join]="current.status !== 'GOING'"
+      [class.leave]="current.status === 'GOING'"
+      [disabled]="pending()"
+      [attr.aria-haspopup]="current.status === 'GOING' ? 'dialog' : null"
+      (click)="toggleParticipation()"
+    >
+      {{ current.status === 'GOING' ? 'Leave event' : 'I want to go' }}
+    </button>
+    @if (message()) {
+      <p class="message" role="alert">{{ message() }}</p>
+    }
+    @if (success()) {
+      <p class="success" role="status" aria-live="polite">{{ success() }}</p>
+    }
+  }
+</section>
+
+<ng-template #leaveConfirmation>
+  <div class="leave-confirmation">
+    <h2 mat-dialog-title id="leave-event-title">Leave this event?</h2>
+    <mat-dialog-content id="leave-event-message">
+      Are you sure you no longer want to attend this event?
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button type="button" class="cancel-leave" [mat-dialog-close]="false">Cancel</button>
+      <button type="button" class="leave" [mat-dialog-close]="true">Yes, leave</button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>

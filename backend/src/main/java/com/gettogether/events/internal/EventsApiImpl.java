@@ -31,6 +31,11 @@ class EventsApiImpl implements EventsApi {
     }
 
     @Override
+    public List<EventSummary> findUpcoming(Collection<Long> excludedIds, int limit) {
+        return eventService.findUpcoming(excludedIds, limit);
+    }
+
+    @Override
     public boolean exists(Long id) {
         return eventRepository.existsById(id);
     }

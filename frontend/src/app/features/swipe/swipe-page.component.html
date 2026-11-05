@@ -1,0 +1,55 @@
+<section class="swipe-page" aria-label="Swipe events">
+  @if (loading() && !events().length) {
+    <div role="status" aria-label="Loading events"><app-skeleton-card /></div>
+  }
+  <div class="stack">
+    @for (event of currentEvents(); track event.id) {
+      <app-swipe-card
+        [event]="event"
+        [busy]="busy()"
+        [decision]="decision()"
+        (decide)="decide($event)"
+        (exited)="exited()"
+        (openDetails)="openEvent(event.id)"
+      />
+    }
+  </div>
+  @if (events().length) {
+    <div class="actions" aria-label="Choose participation">
+      <button
+        type="button"
+        class="nope"
+        aria-label="Not interested"
+        [disabled]="busy()"
+        (click)="decide('NOT_INTERESTED')"
+      >
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+      <button
+        type="button"
+        class="going"
+        aria-label="Going"
+        [disabled]="busy()"
+        (click)="decide('GOING')"
+      >
+        <mat-icon aria-hidden="true">check</mat-icon>
+      </button>
+    </div>
+  }
+  @if (message()) {
+    <p class="message" role="alert">{{ message() }}</p>
+  }
+  @if (feedError()) {
+    <app-error-state message="We couldn't load more events." (retry)="loadFeed()" />
+  }
+  @if (!events().length && !loading() && !feedError()) {
+    <app-empty-state
+      title="You're all caught up — check back later or browse Discover"
+      actionLabel="Browse Discover"
+      (action)="goToDiscover()"
+    />
+  }
+  @if (loading() && events().length) {
+    <p class="loading" role="status">Loading more events…</p>
+  }
+</section>

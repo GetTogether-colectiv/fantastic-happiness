@@ -10,5 +10,7 @@ public interface EventsApi {
 
     List<EventSummary> findByIds(Collection<Long> ids);
 
+    List<EventSummary> findUpcoming(Collection<Long> excludedIds, int limit);
+
     boolean exists(Long id);
 }

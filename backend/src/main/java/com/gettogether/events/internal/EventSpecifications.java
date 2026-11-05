@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 final class EventSpecifications {
@@ -14,6 +15,15 @@ final class EventSpecifications {
 
     static Specification<Event> notEndedBefore(Instant moment) {
         return (event, query, builder) -> builder.greaterThanOrEqualTo(event.get("endsAt"), moment);
+    }
+
+    static Specification<Event> startsAfter(Instant moment) {
+        return (event, query, builder) -> builder.greaterThan(event.get("startsAt"), moment);
+    }
+
+    static Specification<Event> excludingIds(Collection<Long> excludedIds) {
+        return excludedIds.isEmpty() ? Specification.unrestricted()
+                : (event, query, builder) -> event.get("id").in(excludedIds).not();
     }
 
     static Specification<Event> matching(EventCategory category, String city, Instant from, Instant to) {
