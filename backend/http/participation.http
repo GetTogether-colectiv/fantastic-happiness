@@ -1,0 +1,44 @@
+# IDs from a fresh seed: Street Art Walk = 12; Pastry Masterclass = 19.
+# Check the event IDs if the database was initialized with different seed data.
+@eventId = 12
+@fullEventId = 19
+
+### Swipe feed (200; excludes the current user's recorded decisions)
+GET {{baseUrl}}/participation/feed?size=10
+X-User-Id: {{userId}}
+
+### Get participation (200; returns status, goingCount and capacity)
+GET {{baseUrl}}/events/{{eventId}}/participation
+X-User-Id: {{userId}}
+
+### Join Street Art Walk (200; repeating GOING succeeds without adding another attendee)
+PUT {{baseUrl}}/events/{{eventId}}/participation
+X-User-Id: {{userId}}
+Content-Type: application/json
+
+{"status": "GOING"}
+
+### Mark Street Art Walk not interested (200)
+PUT {{baseUrl}}/events/{{eventId}}/participation
+X-User-Id: {{userId}}
+Content-Type: application/json
+
+{"status": "NOT_INTERESTED"}
+
+### Remove participation (204; repeating DELETE also succeeds)
+DELETE {{baseUrl}}/events/{{eventId}}/participation
+X-User-Id: {{userId}}
+
+### Full Pastry Masterclass as user 1 (200; status null, goingCount 6, capacity 6)
+# User 1 is deliberately not one of the six seeded attendees.
+GET {{baseUrl}}/events/{{fullEventId}}/participation
+X-User-Id: 1
+
+### Attempt to join full Pastry Masterclass as user 1 (409)
+# Expected response: {"status": 409, "message": "EVENT_FULL"}.
+# The request leaves the six existing participations unchanged.
+PUT {{baseUrl}}/events/{{fullEventId}}/participation
+X-User-Id: 1
+Content-Type: application/json
+
+{"status": "GOING"}
