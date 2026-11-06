@@ -1,4 +1,8 @@
 <section class="chat">
+  @if (reconnecting()) {
+    <p class="reconnecting" role="status">Reconnecting…</p>
+  }
+
   <header class="chat-header">
     <button type="button" aria-label="Go back" (click)="goBack()">
       <mat-icon aria-hidden="true">arrow_back</mat-icon>
@@ -7,19 +11,35 @@
   </header>
 
   @if (error()) {
-    <p class="chat-error">Join the event to chat</p>
+    <p class="chat-error" role="alert">Join the event to chat</p>
   }
 
-  <div class="messages">
-    @for (message of messages(); track message.id) {
-      <article class="message" [class.own]="message.userId === currentUserId()">
-        @if (message.userId !== currentUserId()) {
-          <span class="author">{{ message.userName }}</span>
+  <div class="messages" #list (scroll)="onScroll()">
+    @for (row of rows(); track row.message.id) {
+      @if (row.startsDay) {
+        <p class="day">{{ row.message.sentAt | date: 'd MMM y' }}</p>
+      }
+      <article
+        class="message"
+        [class.own]="row.message.userId === currentUserId()"
+        [class.grouped]="!row.startsGroup"
+      >
+        @if (row.message.userId !== currentUserId() && row.startsGroup) {
+          <div class="author">
+            @if (row.message.userAvatarUrl) {
+              <img [src]="row.message.userAvatarUrl" alt="" />
+            }
+            <span>{{ row.message.userName }}</span>
+          </div>
         }
-        <p>{{ message.content }}</p>
+        <p>{{ row.message.content }}</p>
       </article>
     }
   </div>
+
+  @if (hasNewMessages()) {
+    <button class="new-messages" type="button" (click)="showNewMessages()">New messages ↓</button>
+  }
 
   <form class="composer" (ngSubmit)="send()">
     <input

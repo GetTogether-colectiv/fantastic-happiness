@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../api.config';
 import { ChatMessage } from '../models/chat.model';
 import { CurrentUserService } from './current-user.service';
 
-const HISTORY_PAGE_SIZE = 30;
+export const HISTORY_PAGE_SIZE = 30;
 const RECONNECT_DELAY_MS = 3000;
 const USER_ID_HEADER = 'X-User-Id';
 const WEBSOCKET_PATH = `${API_BASE_URL}/ws`;
