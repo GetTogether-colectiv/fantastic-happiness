@@ -1,0 +1,37 @@
+<section class="chat">
+  <header class="chat-header">
+    <button type="button" aria-label="Go back" (click)="goBack()">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    </button>
+    <h2>{{ title() }}</h2>
+  </header>
+
+  @if (error()) {
+    <p class="chat-error">Join the event to chat</p>
+  }
+
+  <div class="messages">
+    @for (message of messages(); track message.id) {
+      <article class="message" [class.own]="message.userId === currentUserId()">
+        @if (message.userId !== currentUserId()) {
+          <span class="author">{{ message.userName }}</span>
+        }
+        <p>{{ message.content }}</p>
+      </article>
+    }
+  </div>
+
+  <form class="composer" (ngSubmit)="send()">
+    <input
+      name="message"
+      maxlength="1000"
+      placeholder="Write a message"
+      aria-label="Message"
+      [ngModel]="draft()"
+      (ngModelChange)="draft.set($event)"
+    />
+    <button type="submit" aria-label="Send">
+      <mat-icon aria-hidden="true">send</mat-icon>
+    </button>
+  </form>
+</section>

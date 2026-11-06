@@ -3,6 +3,12 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   { path: '', redirectTo: 'discover', pathMatch: 'full' },
   {
+    path: 'events/:id/chat',
+    data: { title: 'Group chat' },
+    loadComponent: () =>
+      import('./features/event-chat/chat-page.component').then((m) => m.ChatPageComponent),
+  },
+  {
     path: 'events/:id',
     data: { title: 'Event details' },
     loadComponent: () =>
