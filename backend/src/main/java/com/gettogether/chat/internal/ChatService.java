@@ -54,6 +54,12 @@ class ChatService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    long countMessages(Long eventId, Long userId) {
+        requireGoing(userId, eventId);
+        return chatMessageRepository.countByEventId(eventId);
+    }
+
     private void requireGoing(Long userId, Long eventId) {
         if (!participationApi.isGoing(userId, eventId)) {
             throw new ForbiddenException(NOT_GOING);

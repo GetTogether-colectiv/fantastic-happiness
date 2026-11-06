@@ -35,4 +35,10 @@ class ChatHistoryController {
                                      @Min(MIN_PAGE_SIZE) @Max(MAX_PAGE_SIZE) int size) {
         return chatService.findHistory(id, currentUserProvider.currentUserId(), before, size);
     }
+
+    @GetMapping("/count")
+    long countMessages(@PathVariable Long id) {
+        return chatService.countMessages(id, currentUserProvider.currentUserId());
+    }
+
 }

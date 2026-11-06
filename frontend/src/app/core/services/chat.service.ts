@@ -42,6 +42,10 @@ export class ChatService {
     return this.http.get<ChatMessage[]>(`${API_BASE_URL}/events/${eventId}/messages`, { params });
   }
 
+  getMessageCount(eventId: number): Observable<number> {
+    return this.http.get<number>(`${API_BASE_URL}/events/${eventId}/messages/count`);
+  }
+
   watchMessages(eventId: number): Observable<ChatMessage> {
     return this.rxStomp
       .watch(`/topic/events/${eventId}/chat`)

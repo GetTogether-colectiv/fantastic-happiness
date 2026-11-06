@@ -8,6 +8,7 @@ import {
   input,
   signal,
   viewChild,
+  output,
 } from '@angular/core';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Subscription, map } from 'rxjs';
@@ -26,6 +27,7 @@ const SUCCESS_MESSAGE_DURATION_MS = 3000;
 })
 export class EventJoinComponent {
   readonly event = input.required<EventDetails>();
+  readonly participationChanged = output<void>();
   private readonly service = inject(ParticipationService);
   private readonly dialog = inject(MatDialog);
   private readonly leaveConfirmation =
@@ -147,6 +149,7 @@ export class EventJoinComponent {
         next: (response) => {
           this.participation.set(response);
           this.pending.set(false);
+          this.participationChanged.emit();
           this.success.set(
             current.status === 'GOING' ? "You've left this event." : "You're going to this event!",
           );

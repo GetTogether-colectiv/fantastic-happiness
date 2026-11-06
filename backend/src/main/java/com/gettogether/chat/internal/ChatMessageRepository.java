@@ -11,4 +11,5 @@ import java.util.List;
 interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
     List<ChatMessage> findByEventIdOrderBySentAtDesc(Long eventId, Pageable pageable);
     List<ChatMessage> findByEventIdAndSentAtBeforeOrderBySentAtDesc(Long eventId, Instant before, Pageable pageable);
+    long countByEventId(Long eventId);
 }
