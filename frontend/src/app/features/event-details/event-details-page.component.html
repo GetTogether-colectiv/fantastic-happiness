@@ -78,13 +78,13 @@
       }
 
       <div class="event-section event-section--join">
-        <app-event-join [event]="details.event" />
+        <app-event-join [event]="details.event" (participationChanged)="chat.refresh()" />
       </div>
       <div class="event-section event-section--map">
         <app-event-map [event]="details.event" />
       </div>
       <div class="event-section event-section--chat">
-        <app-event-chat [event]="details.event" />
+        <app-event-chat #chat [event]="details.event" />
       </div>
       <div class="event-section event-section--friends">
         <app-event-friends [event]="details.event" />
