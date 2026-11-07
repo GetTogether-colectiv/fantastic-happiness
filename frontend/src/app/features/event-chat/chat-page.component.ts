@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { RxStompState } from '@stomp/rx-stomp';
-import { ChatMessage } from '../../core/models/chat.model';
+import { ChatMessage, JOIN_TO_CHAT_MESSAGE, MAX_MESSAGE_LENGTH } from '../../core/models/chat.model';
 import { ChatService, HISTORY_PAGE_SIZE } from '../../core/services/chat.service';
 import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
@@ -51,6 +51,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   private loadingOlder = false;
 
   protected readonly currentUserId = inject(CurrentUserService).userId;
+  protected readonly maxMessageLength = MAX_MESSAGE_LENGTH;
+  protected readonly joinToChatMessage = JOIN_TO_CHAT_MESSAGE;
   protected readonly title = signal('');
   protected readonly error = signal(false);
   protected readonly draft = signal('');

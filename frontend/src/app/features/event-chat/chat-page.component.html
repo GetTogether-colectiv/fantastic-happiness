@@ -11,7 +11,7 @@
   </header>
 
   @if (error()) {
-    <p class="chat-error" role="alert">Join the event to chat</p>
+    <p class="chat-error" role="alert">{{ joinToChatMessage }}</p>
   }
 
   <div class="messages" #list (scroll)="onScroll()">
@@ -44,7 +44,7 @@
   <form class="composer" (ngSubmit)="send()">
     <input
       name="message"
-      maxlength="1000"
+      [maxlength]="maxMessageLength"
       placeholder="Write a message"
       aria-label="Message"
       [ngModel]="draft()"
