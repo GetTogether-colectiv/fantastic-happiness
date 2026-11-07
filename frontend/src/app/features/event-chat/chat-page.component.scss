@@ -63,6 +63,9 @@ $avatar-size: 20px;
 }
 
 .message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   align-self: flex-start;
   max-width: 80%;
 
@@ -76,6 +79,7 @@ $avatar-size: 20px;
 
   &.own {
     align-self: flex-end;
+    align-items: flex-end;
 
     p {
       background: var(--primary-color);
