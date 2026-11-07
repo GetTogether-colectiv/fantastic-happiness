@@ -2,13 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { RxStomp } from '@stomp/rx-stomp';
 import { Observable, map } from 'rxjs';
-import { API_BASE_URL } from '../api.config';
+import { API_BASE_URL, USER_ID_HEADER } from '../api.config';
 import { ChatMessage } from '../models/chat.model';
 import { CurrentUserService } from './current-user.service';
 
 export const HISTORY_PAGE_SIZE = 30;
 const RECONNECT_DELAY_MS = 3000;
-const USER_ID_HEADER = 'X-User-Id';
 const WEBSOCKET_PATH = `${API_BASE_URL}/ws`;
 const ERROR_QUEUE = '/user/queue/errors';
 
