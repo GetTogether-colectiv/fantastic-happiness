@@ -28,13 +28,13 @@ class EventManagementController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create an event organized by the current user")
-    EventDetails create(@Valid @RequestBody CreateEventRequest request) {
+    EventDetails createEvent(@Valid @RequestBody CreateEventRequest request) {
         return managementService.create(currentUserProvider.currentUserId(), request);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Edit an event. Only its organizer can do it")
-    EventDetails update(@PathVariable Long id, @Valid @RequestBody CreateEventRequest request) {
+    EventDetails updateEvent(@PathVariable Long id, @Valid @RequestBody CreateEventRequest request) {
         return managementService.update(id, currentUserProvider.currentUserId(), request);
     }
 }
