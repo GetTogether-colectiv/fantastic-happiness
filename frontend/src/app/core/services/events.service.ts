@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../api.config';
-import { EventDetails, EventFilter, EventSummary, Page } from '../models/event.model';
+import { EventDetails, EventFilter, EventRequest, EventSummary, Page } from '../models/event.model';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -22,5 +22,13 @@ export class EventsService {
 
   getEvent(id: number): Observable<EventDetails> {
     return this.http.get<EventDetails>(`${API_BASE_URL}/events/${id}`);
+  }
+
+  createEvent(request: EventRequest): Observable<EventDetails> {
+    return this.http.post<EventDetails>(`${API_BASE_URL}/events`, request);
+  }
+
+  updateEvent(id: number, request: EventRequest): Observable<EventDetails> {
+    return this.http.put<EventDetails>(`${API_BASE_URL}/events/${id}`, request);
   }
 }

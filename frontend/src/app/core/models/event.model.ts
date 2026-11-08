@@ -36,6 +36,18 @@ export interface EventFilter {
   to?: string;
 }
 
+export interface EventRequest {
+  title: string;
+  description: string | null;
+  category: EventCategory;
+  startsAt: string;
+  endsAt: string;
+  locationName: string;
+  city: string;
+  capacity: number | null;
+  imageUrl: string | null;
+}
+
 export const CATEGORY_LABELS: Record<EventCategory, string> = {
   MUSIC: 'Music',
   SPORTS: 'Sports',

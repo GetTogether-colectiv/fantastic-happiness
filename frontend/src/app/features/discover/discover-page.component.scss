@@ -83,3 +83,24 @@
     transform: rotate(360deg);
   }
 }
+
+.create-button {
+  position: fixed;
+  z-index: 2;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-lg));
+  right: max(var(--space-lg), calc((100vw - var(--app-max-width)) / 2 + var(--space-lg)));
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-color);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: var(--space-xs);
+  }
+}
