@@ -9,6 +9,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from '../../app.routes';
 import { EventDetails } from '../../core/models/event.model';
 import { EventCardComponent } from '../../shared/components/event-card/event-card.component';
+import { DEFAULT_EVENT_IMAGE_URL } from '../../shared/pipes/event-image.pipe';
 import { EventDetailsPageComponent } from './event-details-page.component';
 import { EventChatComponent } from './sections/event-chat/event-chat.component';
 import { EventFriendsComponent } from './sections/event-friends/event-friends.component';
@@ -133,7 +134,9 @@ describe('Event details navigation', () => {
     expect(harness.routeNativeElement?.textContent).toContain('No capacity limit');
     expect(harness.routeNativeElement?.textContent).toContain('Organizer information unavailable');
     expect(harness.routeNativeElement?.querySelector('#description-title')).toBeNull();
-    expect(harness.routeNativeElement?.querySelector('.cover-image')).toBeNull();
+    expect(harness.routeNativeElement?.querySelector('.cover-image')?.getAttribute('src')).toBe(
+      DEFAULT_EVENT_IMAGE_URL,
+    );
   });
 
   it('returns a direct visitor to Discover', async () => {

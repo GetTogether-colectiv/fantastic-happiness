@@ -12,9 +12,7 @@
 } @else {
   <article>
     <div class="cover">
-      @if (details.event.imageUrl) {
-        <img class="cover-image" [src]="details.event.imageUrl" alt="" />
-      }
+      <img class="cover-image" [src]="details.event.imageUrl | eventImage" alt="" />
       <button class="back-button" type="button" aria-label="Go back" (click)="goBack()">
         <mat-icon aria-hidden="true">arrow_back</mat-icon>
       </button>

@@ -21,6 +21,7 @@ import { UsersService } from '../../core/services/users.service';
 import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
+import { EventImagePipe } from '../../shared/pipes/event-image.pipe';
 import { EventChatComponent } from './sections/event-chat/event-chat.component';
 import { EventFriendsComponent } from './sections/event-friends/event-friends.component';
 import { EventJoinComponent } from './sections/event-join/event-join.component';
@@ -40,6 +41,7 @@ type DetailsState =
     DatePipe,
     EmptyStateComponent,
     ErrorStateComponent,
+    EventImagePipe,
     MatIconModule,
     RouterLink,
     EventJoinComponent,
