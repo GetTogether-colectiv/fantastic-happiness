@@ -1,0 +1,29 @@
+:host {
+  display: block;
+  margin-top: var(--space-xl);
+}
+
+.chat-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.chat-row--disabled {
+  color: var(--muted-color);
+}
+
+.label {
+  flex: 1;
+}
+
+.count {
+  color: var(--muted-color);
+  font-size: var(--font-size-sm);
+}

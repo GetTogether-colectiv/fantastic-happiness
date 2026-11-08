@@ -25,6 +25,15 @@ class JoinStubComponent {
 }
 
 @Component({
+  selector: 'app-event-chat',
+  template: '',
+})
+class ChatStubComponent {
+  readonly event = input.required<EventDetails>();
+  readonly refresh = vi.fn();
+}
+
+@Component({
   selector: 'app-event-join',
   template: '<button type="button">Join {{ event().title }}</button>',
 })
@@ -58,8 +67,8 @@ describe('Event details navigation', () => {
       providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     });
     TestBed.overrideComponent(EventDetailsPageComponent, {
-      remove: { imports: [EventJoinComponent] },
-      add: { imports: [JoinStubComponent] },
+      remove: { imports: [EventJoinComponent, EventChatComponent] },
+      add: { imports: [JoinStubComponent, ChatStubComponent] },
     });
     http = TestBed.inject(HttpTestingController);
   });
@@ -278,7 +287,7 @@ describe('Event details navigation', () => {
     const sectionComponents = [
       JoinStubComponent,
       EventMapComponent,
-      EventChatComponent,
+      ChatStubComponent,
       EventFriendsComponent,
       EventPostsComponent,
     ];
@@ -299,8 +308,8 @@ describe('Event details section extension', () => {
       providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     });
     TestBed.overrideComponent(EventDetailsPageComponent, {
-      remove: { imports: [EventJoinComponent] },
-      add: { imports: [PopulatedJoinComponent] },
+      remove: { imports: [EventJoinComponent, EventChatComponent] },
+      add: { imports: [PopulatedJoinComponent, ChatStubComponent] },
     });
     const http = TestBed.inject(HttpTestingController);
     const harness = await RouterTestingHarness.create();

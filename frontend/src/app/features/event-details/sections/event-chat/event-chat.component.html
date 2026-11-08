@@ -1,0 +1,12 @@
+@if (messageCount() !== null) {
+  <a class="chat-row" [routerLink]="['/events', event().id, 'chat']">
+    <mat-icon aria-hidden="true">forum</mat-icon>
+    <span class="label">Group chat</span>
+    <span class="count">{{ messageCount() }}</span>
+  </a>
+} @else {
+  <div class="chat-row chat-row--disabled">
+    <mat-icon aria-hidden="true">forum</mat-icon>
+    <span class="label">{{ joinToChatMessage }}</span>
+  </div>
+}

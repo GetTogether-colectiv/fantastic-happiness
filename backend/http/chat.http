@@ -1,0 +1,15 @@
+# IDs from a fresh seed: Morning Run in the Park = 6; Pastry Masterclass = 19.
+@eventId = 6
+@notGoingEventId = 19
+
+### History (200; newest first)
+GET {{baseUrl}}/events/{{eventId}}/messages
+X-User-Id: {{userId}}
+
+### Older messages (200; only messages sent before the given time)
+GET {{baseUrl}}/events/{{eventId}}/messages?before=2026-11-06T14:00:00Z&size=30
+X-User-Id: {{userId}}
+
+### History of an event the user is not going to (403)
+GET {{baseUrl}}/events/{{notGoingEventId}}/messages
+X-User-Id: {{userId}}
