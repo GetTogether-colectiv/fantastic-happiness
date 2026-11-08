@@ -1,0 +1,66 @@
+<div class="tabs" role="tablist" aria-label="My events">
+  <button
+    type="button"
+    role="tab"
+    [class.selected]="tab() === 'upcoming'"
+    [attr.aria-selected]="tab() === 'upcoming'"
+    (click)="selectTab('upcoming')"
+  >
+    Upcoming
+  </button>
+  <button
+    type="button"
+    role="tab"
+    [class.selected]="tab() === 'past'"
+    [attr.aria-selected]="tab() === 'past'"
+    (click)="selectTab('past')"
+  >
+    Past
+  </button>
+</div>
+
+@switch (state()) {
+  @case ('loading') {
+    <div class="list">
+      @for (skeleton of skeletons; track $index) {
+        <app-skeleton-card />
+      }
+    </div>
+  }
+  @case ('loaded') {
+    @if (tab() === 'upcoming') {
+      @for (day of days(); track day.key) {
+        <h2 class="day">{{ day.label }}</h2>
+        <div class="list">
+          @for (event of day.events; track event.id) {
+            <a class="card-link" [routerLink]="['/events', event.id]">
+              <app-compact-event-card [event]="event" />
+            </a>
+          }
+        </div>
+      }
+    } @else {
+      <div class="list">
+        @for (event of events(); track event.id) {
+          <a class="card-link" [routerLink]="['/events', event.id]">
+            <app-compact-event-card [event]="event" [showDate]="true" />
+          </a>
+        }
+      </div>
+    }
+  }
+  @case ('empty') {
+    @if (tab() === 'upcoming') {
+      <app-empty-state
+        title="You haven't joined any events yet — try Swipe"
+        actionLabel="Go to Swipe"
+        (action)="goToSwipe()"
+      />
+    } @else {
+      <app-empty-state title="No past events yet" />
+    }
+  }
+  @case ('error') {
+    <app-error-state message="We couldn't load your events." (retry)="retry()" />
+  }
+}
