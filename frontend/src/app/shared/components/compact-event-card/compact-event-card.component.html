@@ -1,0 +1,14 @@
+<article class="card">
+  @if (event().imageUrl) {
+    <img class="thumb" [src]="event().imageUrl" alt="" loading="lazy" />
+  } @else {
+    <div class="thumb placeholder">
+      <mat-icon aria-hidden="true">{{ icons[event().category] }}</mat-icon>
+    </div>
+  }
+  <div class="info">
+    <h3 class="title">{{ event().title }}</h3>
+    <p class="meta">{{ event().startsAt | date: (showDate() ? 'd MMM, HH:mm' : 'HH:mm') }}</p>
+    <p class="meta">{{ event().locationName }}, {{ event().city }}</p>
+  </div>
+</article>

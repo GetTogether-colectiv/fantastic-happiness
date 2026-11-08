@@ -31,7 +31,7 @@ export const routes: Routes = [
     path: 'my-events',
     data: { title: 'My events' },
     loadComponent: () =>
-      import('./features/my-events/my-events.component').then((m) => m.MyEventsComponent),
+      import('./features/my-events/my-events-page.component').then((m) => m.MyEventsPageComponent),
   },
   {
     path: 'profile',

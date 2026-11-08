@@ -34,6 +34,15 @@ describe('ParticipationService', () => {
     },
   );
 
+  it.each(['UPCOMING', 'PAST'] as const)('loads my %s events', (when) => {
+    const received = vi.fn();
+    service.getMyEvents(when).subscribe(received);
+    const request = http.expectOne(`/api/me/events?when=${when}`);
+    expect(request.request.method).toBe('GET');
+    request.flush([]);
+    expect(received).toHaveBeenCalledWith([]);
+  });
+
   it('passes a full-event error to the caller', () => {
     const error = vi.fn();
     service.setStatus(7, 'GOING').subscribe({ error });
