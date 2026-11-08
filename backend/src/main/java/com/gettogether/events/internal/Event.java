@@ -49,6 +49,28 @@ public class Event {
     protected Event() {
     }
 
+    Event(Long organizerId, CreateEventRequest request) {
+        this.organizerId = organizerId;
+        this.createdAt = Instant.now();
+        apply(request);
+    }
+
+    void update(CreateEventRequest request) {
+        apply(request);
+    }
+
+    private void apply(CreateEventRequest request) {
+        this.title = request.title();
+        this.description = request.description();
+        this.category = request.category();
+        this.startsAt = request.startsAt();
+        this.endsAt = request.endsAt();
+        this.city = request.city();
+        this.locationName = request.locationName();
+        this.imageUrl = request.imageUrl();
+        this.capacity = request.capacity();
+    }
+
     public Long getId() {
         return id;
     }

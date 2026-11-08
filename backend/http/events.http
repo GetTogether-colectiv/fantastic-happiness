@@ -9,3 +9,37 @@ GET {{baseUrl}}/events?category=TECH&city=Cluj-Napoca&from=2026-11-01T00:00:00Z&
 
 ### Get event details
 GET {{baseUrl}}/events/1
+
+### Create an event (the organizer is the current user)
+POST {{baseUrl}}/events
+Content-Type: application/json
+X-User-Id: {{userId}}
+
+{
+  "title": "Board game night",
+  "description": "Bring your favourite game.",
+  "category": "OTHER",
+  "startsAt": "2030-01-10T18:00:00Z",
+  "endsAt": "2030-01-10T21:00:00Z",
+  "locationName": "Game Cafe",
+  "city": "Cluj-Napoca",
+  "capacity": 20,
+  "imageUrl": null
+}
+
+### Edit an event (only its organizer, otherwise 403)
+PUT {{baseUrl}}/events/1
+Content-Type: application/json
+X-User-Id: {{userId}}
+
+{
+  "title": "Board game night, new venue",
+  "description": "Bring your favourite game.",
+  "category": "OTHER",
+  "startsAt": "2030-01-10T18:00:00Z",
+  "endsAt": "2030-01-10T21:00:00Z",
+  "locationName": "Game Cafe",
+  "city": "Cluj-Napoca",
+  "capacity": null,
+  "imageUrl": null
+}
