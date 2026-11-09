@@ -3,6 +3,22 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   { path: '', redirectTo: 'discover', pathMatch: 'full' },
   {
+    path: 'events/new',
+    data: { title: 'New event' },
+    loadComponent: () =>
+      import('./features/event-form/event-form-page.component').then(
+        (m) => m.EventFormPageComponent,
+      ),
+  },
+  {
+    path: 'events/:id/edit',
+    data: { title: 'Edit event' },
+    loadComponent: () =>
+      import('./features/event-form/event-form-page.component').then(
+        (m) => m.EventFormPageComponent,
+      ),
+  },
+  {
     path: 'events/:id/chat',
     data: { title: 'Group chat' },
     loadComponent: () =>

@@ -12,12 +12,16 @@
 } @else {
   <article>
     <div class="cover">
-      @if (details.event.imageUrl) {
-        <img class="cover-image" [src]="details.event.imageUrl" alt="" />
-      }
+      <img class="cover-image" [src]="details.event.imageUrl | eventImage" alt="" />
       <button class="back-button" type="button" aria-label="Go back" (click)="goBack()">
         <mat-icon aria-hidden="true">arrow_back</mat-icon>
       </button>
+      @if (details.event.organizerId === currentUserId()) {
+        <a class="edit-button" [routerLink]="['/events', details.event.id, 'edit']">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+          Edit
+        </a>
+      }
     </div>
 
     <div class="details">

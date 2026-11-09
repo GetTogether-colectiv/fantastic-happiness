@@ -18,9 +18,7 @@
     draggable="false"
   >
     <div class="image">
-      @if (event().imageUrl) {
-        <img [src]="event().imageUrl" alt="" draggable="false" />
-      }
+      <img [src]="event().imageUrl | eventImage" alt="" draggable="false" />
       <app-category-chip class="category" [category]="event().category" [selected]="true" />
       <span
         class="stamp going"

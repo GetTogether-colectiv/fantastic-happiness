@@ -33,3 +33,13 @@ body {
   color: var(--text-color);
   background: var(--background-color);
 }
+
+.mat-mdc-snack-bar-container.app-snack-bar {
+  --mat-snack-bar-container-color: var(--text-color);
+  --mat-snack-bar-supporting-text-color: var(--surface-color);
+  --mat-snack-bar-button-color: var(--surface-color);
+  --mat-snack-bar-container-shape: var(--radius-md);
+  --mat-snack-bar-supporting-text-font: var(--font-family);
+  --mat-snack-bar-supporting-text-size: var(--font-size-sm);
+  margin-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-lg));
+}

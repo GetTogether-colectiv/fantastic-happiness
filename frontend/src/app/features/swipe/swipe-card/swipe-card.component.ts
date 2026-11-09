@@ -12,6 +12,7 @@ import { EventSummary } from '../../../core/models/event.model';
 import { ParticipationStatus } from '../../../core/models/participation.model';
 import { CategoryChipComponent } from '../../../shared/components/category-chip/category-chip.component';
 import { EventDatePipe } from '../../../shared/pipes/event-date.pipe';
+import { EventImagePipe } from '../../../shared/pipes/event-image.pipe';
 
 const DRAG_THRESHOLD_PX = 5;
 const ROTATION_DIVISOR = 20;
@@ -21,7 +22,7 @@ const TRANSITION_FALLBACK_MS = 50;
 
 @Component({
   selector: 'app-swipe-card',
-  imports: [CategoryChipComponent, EventDatePipe],
+  imports: [CategoryChipComponent, EventDatePipe, EventImagePipe],
   templateUrl: './swipe-card.component.html',
   styleUrl: './swipe-card.component.scss',
 })
