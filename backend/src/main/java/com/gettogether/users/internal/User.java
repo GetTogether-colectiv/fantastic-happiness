@@ -1,12 +1,11 @@
 package com.gettogether.users.internal;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.gettogether.shared.EventCategory;
+import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +24,12 @@ public class User {
     private String city;
 
     private Instant createdAt;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "user_preferred_categories", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "category", nullable = false, length = 30)
+    @Enumerated(EnumType.STRING)
+    private Set<EventCategory> preferredCategories = new HashSet<>();
 
     protected User() {
     }
@@ -51,5 +56,20 @@ public class User {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public Set<EventCategory> getPreferredCategories() {
+        return Set.copyOf(preferredCategories);
+    }
+
+    void updateProfile(String displayName, String city, String avatarUrl) {
+        this.displayName = displayName;
+        this.city = city;
+        this.avatarUrl = avatarUrl;
+    }
+
+    void replacePreferredCategories(Set<EventCategory> categories) {
+        preferredCategories.clear();
+        preferredCategories.addAll(categories);
     }
 }

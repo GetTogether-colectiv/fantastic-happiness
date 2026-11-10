@@ -1,6 +1,6 @@
 package com.gettogether.events.internal;
 
-import com.gettogether.events.EventCategory;
+import com.gettogether.shared.EventCategory;
 import com.gettogether.events.EventSummary;
 import com.gettogether.participation.ParticipationApi;
 import org.springframework.data.domain.Page;

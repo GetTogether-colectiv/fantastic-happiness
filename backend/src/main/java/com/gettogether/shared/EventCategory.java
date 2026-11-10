@@ -1,4 +1,4 @@
-package com.gettogether.events;
+package com.gettogether.shared;
 
 public enum EventCategory {
     MUSIC,

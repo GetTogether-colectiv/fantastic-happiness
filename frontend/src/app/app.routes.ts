@@ -59,7 +59,7 @@ export const routes: Routes = [
     path: 'profile',
     data: { title: 'Profile' },
     loadComponent: () =>
-      import('./features/profile/profile.component').then((m) => m.ProfileComponent),
+      import('./features/profile/profile-page.component').then((m) => m.ProfilePageComponent),
   },
   { path: '**', redirectTo: 'discover' },
 ];

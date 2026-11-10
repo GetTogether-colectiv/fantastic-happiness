@@ -1,5 +1,7 @@
 package com.gettogether.events;
 
+import com.gettogether.shared.EventCategory;
+
 import java.time.Instant;
 
 public record EventSummary(

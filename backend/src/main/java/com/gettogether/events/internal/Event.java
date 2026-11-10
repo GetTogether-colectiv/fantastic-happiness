@@ -1,6 +1,6 @@
 package com.gettogether.events.internal;
 
-import com.gettogether.events.EventCategory;
+import com.gettogether.shared.EventCategory;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
