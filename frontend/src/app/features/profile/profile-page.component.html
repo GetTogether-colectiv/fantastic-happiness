@@ -1,0 +1,63 @@
+@switch (state()) {
+  @case ('loading') {
+    <app-skeleton-card />
+  }
+  @case ('error') {
+    <app-error-state message="We couldn't load your profile." (retry)="load()" />
+  }
+  @case ('loaded') {
+    @if (profile(); as user) {
+      <section class="header">
+        @if (editing()) {
+          <form class="edit-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+            <label>
+              Name
+              <input type="text" formControlName="displayName" autocomplete="name" />
+            </label>
+            @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
+              <p class="error" role="alert">Enter a name of up to {{ nameMaxLength }} characters.</p>
+            }
+            <label>
+              City
+              <input type="text" formControlName="city" />
+            </label>
+            <label>
+              Avatar image URL
+              <input type="url" formControlName="avatarUrl" />
+            </label>
+            @if (form.controls.avatarUrl.touched && form.controls.avatarUrl.invalid) {
+              <p class="error" role="alert">Enter a link that starts with http:// or https://.</p>
+            }
+            @if (saveFailed()) {
+              <p class="error" role="alert">Couldn't save your profile. Please try again.</p>
+            }
+            <div class="actions">
+              <button type="submit" class="save" [disabled]="saving()">Save</button>
+              <button type="button" class="cancel" (click)="cancel()">Cancel</button>
+            </div>
+          </form>
+        } @else {
+          @if (user.avatarUrl) {
+            <img class="avatar" [src]="user.avatarUrl" alt="" />
+          } @else {
+            <div class="avatar placeholder">
+              <mat-icon aria-hidden="true">person</mat-icon>
+            </div>
+          }
+          <div class="identity">
+            <h1>{{ user.displayName }}</h1>
+            @if (user.city) {
+              <p class="city">{{ user.city }}</p>
+            }
+          </div>
+          <button type="button" class="edit" (click)="edit()">Edit</button>
+        }
+      </section>
+
+      <section class="preferences" aria-labelledby="likes-title">
+        <h2 id="likes-title">What do you like?</h2>
+        <app-category-picker [initial]="user.preferredCategories" />
+      </section>
+    }
+  }
+}

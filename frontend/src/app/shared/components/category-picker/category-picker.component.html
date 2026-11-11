@@ -1,0 +1,28 @@
+<div class="grid" role="group" aria-label="Favorite categories">
+  @for (category of categories; track category) {
+    <button
+      type="button"
+      class="tile"
+      [class.selected]="isSelected(category)"
+      [attr.aria-pressed]="isSelected(category)"
+      (click)="toggle(category)"
+    >
+      <mat-icon aria-hidden="true">{{ icons[category] }}</mat-icon>
+      <span class="label">{{ labels[category] }}</span>
+      @if (isSelected(category)) {
+        <mat-icon class="check" aria-hidden="true">check</mat-icon>
+      }
+    </button>
+  }
+</div>
+
+<p class="hint" [class.error]="status() === 'error'" role="status">
+  @switch (status()) {
+    @case ('saved') {
+      Saved
+    }
+    @case ('error') {
+      Couldn't save your choice. Please try again.
+    }
+  }
+</p>

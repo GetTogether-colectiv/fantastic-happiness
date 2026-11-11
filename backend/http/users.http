@@ -4,6 +4,25 @@ GET {{baseUrl}}/users
 ### Get a user
 GET {{baseUrl}}/users/{{userId}}
 
-### Get the current user
+### Get the current user (200; must contain "preferredCategories")
 GET {{baseUrl}}/users/me
 X-User-Id: {{userId}}
+
+### Update the profile (200; blank name or non-http avatar gives 400)
+PUT {{baseUrl}}/users/me
+X-User-Id: {{userId}}
+Content-Type: application/json
+
+### Replace the preferences (200; empty list gives 400)
+PUT {{baseUrl}}/users/me/preferences
+X-User-Id: {{userId}}
+Content-Type: application/json
+
+{"categories": ["MUSIC", "TECH"]}
+
+### Empty preferences (400)
+PUT {{baseUrl}}/users/me/preferences
+X-User-Id: {{userId}}
+Content-Type: application/json
+
+{"categories": []}

@@ -1,7 +1,7 @@
 package com.gettogether.events.internal;
 
 import com.gettogether.TestcontainersConfiguration;
-import com.gettogether.events.EventCategory;
+import com.gettogether.shared.EventCategory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

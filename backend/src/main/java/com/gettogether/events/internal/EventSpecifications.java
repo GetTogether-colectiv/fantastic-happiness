@@ -1,6 +1,6 @@
 package com.gettogether.events.internal;
 
-import com.gettogether.events.EventCategory;
+import com.gettogether.shared.EventCategory;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;

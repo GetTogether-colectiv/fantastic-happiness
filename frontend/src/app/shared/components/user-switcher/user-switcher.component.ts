@@ -13,8 +13,23 @@ import { UsersService } from '../../../core/services/users.service';
 export class UserSwitcherComponent {
   private readonly router = inject(Router);
   private readonly currentUserService = inject(CurrentUserService);
+  private readonly usersService = inject(UsersService);
+  private readonly loadedUsers = toSignal(this.usersService.findAll(), { initialValue: [] });
 
-  protected readonly users = toSignal(inject(UsersService).findAll(), { initialValue: [] });
+  /** The loaded list with the edited profile applied, so a new name or avatar shows without a reload. */
+  protected readonly users = computed(() => {
+    const profile = this.usersService.profile();
+    return this.loadedUsers().map((user) =>
+      user.id === profile?.id
+        ? {
+            ...user,
+            displayName: profile.displayName,
+            city: profile.city,
+            avatarUrl: profile.avatarUrl,
+          }
+        : user,
+    );
+  });
   protected readonly open = signal(false);
   protected readonly currentUser = computed(() =>
     this.users().find((user) => user.id === this.currentUserService.userId()),
