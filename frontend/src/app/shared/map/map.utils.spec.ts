@@ -1,4 +1,10 @@
-import { LocatedEvent, createCategoryIcon, hasLocation, toLatLng } from './map.utils';
+import {
+  LocatedEvent,
+  coordinatesOf,
+  createCategoryIcon,
+  hasLocation,
+  toLatLng,
+} from './map.utils';
 
 const EVENT: LocatedEvent = {
   id: 1,
@@ -19,6 +25,11 @@ describe('map utils', () => {
   it('knows when an event has a map position', () => {
     expect(hasLocation(EVENT)).toBe(true);
     expect(hasLocation({ ...EVENT, latitude: null, longitude: null })).toBe(false);
+  });
+
+  it('gives the coordinates of an event, or null when it has none', () => {
+    expect(coordinatesOf(EVENT)).toEqual({ latitude: 46.7742, longitude: 23.5788 });
+    expect(coordinatesOf({ ...EVENT, latitude: null, longitude: null })).toBeNull();
   });
 
   it('turns an event into Leaflet coordinates', () => {

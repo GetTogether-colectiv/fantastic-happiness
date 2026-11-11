@@ -1,5 +1,10 @@
 import * as L from 'leaflet';
-import { CATEGORY_ICONS, EventCategory, EventSummary } from '../../core/models/event.model';
+import {
+  CATEGORY_ICONS,
+  Coordinates,
+  EventCategory,
+  EventSummary,
+} from '../../core/models/event.model';
 
 export const CLUJ_NAPOCA_CENTER: L.LatLngTuple = [46.7693, 23.5899];
 export const CITY_ZOOM = 13;
@@ -15,14 +20,22 @@ const PIN_TIP: L.PointTuple = [16, 32];
 // angular.json copies Leaflet's default marker images to /leaflet, so the default marker can find them.
 L.Icon.Default.imagePath = 'leaflet/';
 
-export type LocatedEvent = EventSummary & { latitude: number; longitude: number };
+export type LocatedEvent = EventSummary & Coordinates;
 
 export function hasLocation(event: EventSummary): event is LocatedEvent {
   return event.latitude !== null && event.longitude !== null;
 }
 
-export function toLatLng(event: LocatedEvent): L.LatLngTuple {
-  return [event.latitude, event.longitude];
+export function coordinatesOf(event: EventSummary): Coordinates | null {
+  return hasLocation(event) ? { latitude: event.latitude, longitude: event.longitude } : null;
+}
+
+export function toLatLng(position: Coordinates): L.LatLngTuple {
+  return [position.latitude, position.longitude];
+}
+
+export function toCoordinates(position: L.LatLng): Coordinates {
+  return { latitude: position.lat, longitude: position.lng };
 }
 
 export function addOpenStreetMapTiles(map: L.Map): void {

@@ -1,0 +1,13 @@
+<div #map class="map" role="application" aria-label="Map to pick the event location"></div>
+
+<div class="status">
+  @if (value()) {
+    <span class="hint">Drag the pin to adjust it.</span>
+    <button class="clear" type="button" (click)="clear()">
+      <mat-icon aria-hidden="true">close</mat-icon>
+      Remove pin
+    </button>
+  } @else {
+    <span class="hint">Tap the map to drop a pin.</span>
+  }
+</div>

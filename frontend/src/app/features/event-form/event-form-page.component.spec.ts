@@ -161,6 +161,8 @@ describe('EventFormPageComponent', () => {
       city: 'Cluj-Napoca',
       capacity: null,
       imageUrl: null,
+      latitude: null,
+      longitude: null,
     });
     pending.flush({ ...EVENT, id: 9 });
 

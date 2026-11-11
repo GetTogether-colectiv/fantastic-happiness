@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import {
   CATEGORY_LABELS,
+  Coordinates,
   EVENT_CATEGORIES,
   EventCategory,
   EventDetails,
@@ -16,6 +17,7 @@ import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
+import { coordinatesOf } from '../../shared/map/map.utils';
 import {
   endAfterStartValidator,
   futureDateValidator,
@@ -24,6 +26,7 @@ import {
   toDateTimeLocal,
   toInstant,
 } from './event-form.validators';
+import { LocationPickerComponent } from './location-picker/location-picker.component';
 
 type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
 
@@ -76,7 +79,7 @@ function isFieldName(name: string): name is FieldName {
 
 @Component({
   selector: 'app-event-form-page',
-  imports: [ReactiveFormsModule, EmptyStateComponent, ErrorStateComponent],
+  imports: [ReactiveFormsModule, EmptyStateComponent, ErrorStateComponent, LocationPickerComponent],
   templateUrl: './event-form-page.component.html',
   styleUrl: './event-form-page.component.scss',
 })
@@ -112,6 +115,7 @@ export class EventFormPageComponent {
       endsAt: ['', Validators.required],
       locationName: ['', [notBlankValidator, Validators.maxLength(LOCATION_NAME_MAX_LENGTH)]],
       city: ['', [notBlankValidator, Validators.maxLength(CITY_MAX_LENGTH)]],
+      location: this.formBuilder.control<Coordinates | null>(null),
       capacity: this.formBuilder.control<number | null>(null, [
         Validators.min(MINIMUM_CAPACITY),
         integerValidator,
@@ -203,6 +207,7 @@ export class EventFormPageComponent {
       endsAt: toDateTimeLocal(event.endsAt),
       locationName: event.locationName,
       city: event.city,
+      location: coordinatesOf(event),
       capacity: event.capacity,
       imageUrl: event.imageUrl ?? '',
     });
@@ -231,6 +236,8 @@ export class EventFormPageComponent {
       city: value.city.trim(),
       capacity: value.capacity,
       imageUrl: value.imageUrl.trim() || null,
+      latitude: value.location?.latitude ?? null,
+      longitude: value.location?.longitude ?? null,
     };
   }
 
