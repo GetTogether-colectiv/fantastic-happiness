@@ -26,7 +26,7 @@ class EventsTests {
 
     private static final long UNKNOWN_EVENT_ID = 999_999L;
     private static final int OVERSIZED_PAGE = 500;
-    private static final int MAX_PAGE_SIZE = 50;
+    private static final int MAX_PAGE_SIZE = 200;
 
     @Autowired
     private MockMvc mockMvc;

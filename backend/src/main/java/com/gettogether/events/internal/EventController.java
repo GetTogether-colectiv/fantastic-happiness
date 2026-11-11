@@ -22,7 +22,7 @@ import java.time.Instant;
 class EventController {
 
     private static final int DEFAULT_PAGE_SIZE = 10;
-    private static final int MAX_PAGE_SIZE = 50;
+    private static final int MAX_PAGE_SIZE = 200;
     private static final Sort ORDER_BY_START = Sort.by("startsAt", "id");
 
     private final EventRepository eventRepository;
