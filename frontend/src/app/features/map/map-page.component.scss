@@ -12,6 +12,16 @@
   isolation: isolate;
 }
 
+.filter {
+  position: absolute;
+  top: var(--space-md);
+  right: 0;
+  left: 0;
+  z-index: 1;
+  width: auto;
+  padding: 0 var(--space-md);
+}
+
 .bottom {
   position: absolute;
   right: var(--space-lg);

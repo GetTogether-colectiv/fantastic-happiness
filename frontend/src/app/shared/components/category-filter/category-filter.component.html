@@ -1,0 +1,16 @@
+<div class="chips" appDragScroll role="group" aria-label="Category">
+  <button
+    type="button"
+    class="all"
+    [class.selected]="!selected()"
+    [attr.aria-pressed]="!selected()"
+    (click)="select(undefined)"
+  >
+    All
+  </button>
+  @for (category of categories; track category) {
+    <button type="button" [attr.aria-pressed]="selected() === category" (click)="select(category)">
+      <app-category-chip [category]="category" [selected]="selected() === category" />
+    </button>
+  }
+</div>

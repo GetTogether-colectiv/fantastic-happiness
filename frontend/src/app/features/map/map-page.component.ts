@@ -14,8 +14,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
-import { EventSummary } from '../../core/models/event.model';
+import { EventCategory, EventSummary } from '../../core/models/event.model';
 import { EventsService } from '../../core/services/events.service';
+import { CategoryFilterComponent } from '../../shared/components/category-filter/category-filter.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import {
   CITY_ZOOM,
@@ -38,7 +39,7 @@ const LOCATION_ERROR_MESSAGE = "We couldn't find your location.";
 
 @Component({
   selector: 'app-map-page',
-  imports: [MatIconModule, ErrorStateComponent, MapEventCardComponent],
+  imports: [MatIconModule, CategoryFilterComponent, ErrorStateComponent, MapEventCardComponent],
   templateUrl: './map-page.component.html',
   styleUrl: './map-page.component.scss',
 })
@@ -54,8 +55,10 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
   private map!: L.Map;
   private readonly markers = L.markerClusterGroup({ maxClusterRadius: CLUSTER_RADIUS_PX });
   private userPosition?: L.CircleMarker;
+  private events: EventSummary[] = [];
 
   protected readonly loadFailed = signal(false);
+  protected readonly selectedCategory = signal<EventCategory | undefined>(undefined);
   protected readonly selectedEvent = signal<EventSummary | null>(null);
   protected readonly canLocate = 'geolocation' in navigator;
 
@@ -89,10 +92,32 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
     this.map.locate({ setView: true, maxZoom: LOCATE_ZOOM });
   }
 
+  protected filterByCategory(category: EventCategory | undefined): void {
+    this.selectedCategory.set(category);
+    const selectedEvent = this.selectedEvent();
+    if (selectedEvent && !this.matchesCategory(selectedEvent)) {
+      this.selectedEvent.set(null);
+    }
+    this.showMarkers();
+  }
+
   private showEvents(events: EventSummary[]): void {
+    this.events = events;
+    this.showMarkers();
+    this.focusRequestedEvent();
+  }
+
+  private showMarkers(): void {
+    const visibleEvents = this.events
+      .filter(hasLocation)
+      .filter((event) => this.matchesCategory(event));
     this.markers.clearLayers();
-    this.markers.addLayers(events.filter(hasLocation).map((event) => this.createMarker(event)));
-    this.focusRequestedEvent(events);
+    this.markers.addLayers(visibleEvents.map((event) => this.createMarker(event)));
+  }
+
+  private matchesCategory(event: EventSummary): boolean {
+    const category = this.selectedCategory();
+    return !category || event.category === category;
   }
 
   private createMarker(event: LocatedEvent): L.Marker {
@@ -102,11 +127,11 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
     }).on('click', () => this.selectedEvent.set(event));
   }
 
-  private focusRequestedEvent(upcomingEvents: EventSummary[]): void {
+  private focusRequestedEvent(): void {
     if (!this.focusedEventId) {
       return;
     }
-    const upcomingEvent = upcomingEvents.find((event) => event.id === this.focusedEventId);
+    const upcomingEvent = this.events.find((event) => event.id === this.focusedEventId);
     if (upcomingEvent) {
       this.focusOn(upcomingEvent);
       return;
@@ -115,9 +140,8 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
       .getEvent(this.focusedEventId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((pastEvent) => {
-        if (hasLocation(pastEvent)) {
-          this.markers.addLayer(this.createMarker(pastEvent));
-        }
+        this.events = [...this.events, pastEvent];
+        this.showMarkers();
         this.focusOn(pastEvent);
       });
   }

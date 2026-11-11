@@ -25,6 +25,10 @@
   }
 }
 
+.events-map .leaflet-top {
+  top: 2.5rem;
+}
+
 .user-position {
   fill: var(--primary-color);
   fill-opacity: 1;

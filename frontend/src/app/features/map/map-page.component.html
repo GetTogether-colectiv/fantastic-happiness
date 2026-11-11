@@ -1,4 +1,10 @@
-<div #map class="map" role="region" aria-label="Map of upcoming events"></div>
+<div #map class="map events-map" role="region" aria-label="Map of upcoming events"></div>
+
+<app-category-filter
+  class="filter"
+  [selected]="selectedCategory()"
+  (selectedChange)="filterByCategory($event)"
+/>
 
 <div class="bottom">
   @if (canLocate) {
