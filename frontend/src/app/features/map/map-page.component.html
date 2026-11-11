@@ -1,0 +1,7 @@
+<div #map class="map" role="region" aria-label="Map of upcoming events"></div>
+
+@if (loadFailed()) {
+  <div class="overlay">
+    <app-error-state message="We couldn't load the events." (retry)="loadEvents()" />
+  </div>
+}

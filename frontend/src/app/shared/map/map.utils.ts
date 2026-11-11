@@ -1,7 +1,7 @@
 import * as L from 'leaflet';
 import { CATEGORY_ICONS, EventCategory, EventSummary } from '../../core/models/event.model';
 
-export const CLUJ_NAPOCA_CENTER: L.LatLngTuple = [46.7712, 23.6236];
+export const CLUJ_NAPOCA_CENTER: L.LatLngTuple = [46.7693, 23.5899];
 export const CITY_ZOOM = 13;
 
 const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';

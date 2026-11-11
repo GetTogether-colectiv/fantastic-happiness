@@ -47,7 +47,8 @@ export const routes: Routes = [
   {
     path: 'map',
     data: { title: 'Map' },
-    loadComponent: () => import('./features/map/map.component').then((m) => m.MapComponent),
+    loadComponent: () =>
+      import('./features/map/map-page.component').then((m) => m.MapPageComponent),
   },
   {
     path: 'my-events',
