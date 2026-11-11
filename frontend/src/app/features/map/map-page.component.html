@@ -1,10 +1,20 @@
 <div #map class="map events-map" role="region" aria-label="Map of upcoming events"></div>
 
-<app-category-filter
-  class="filter"
-  [selected]="selectedCategory()"
-  (selectedChange)="filterByCategory($event)"
-/>
+@if (focusedEventId(); as eventId) {
+  <div class="focus-actions">
+    <a class="pill back-to-event" [routerLink]="['/events', eventId]">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to event
+    </a>
+    <a class="pill show-all" routerLink="/map">Show all events</a>
+  </div>
+} @else {
+  <app-category-filter
+    class="filter"
+    [selected]="selectedCategory()"
+    (selectedChange)="filterByCategory($event)"
+  />
+}
 
 <div class="bottom">
   @if (canLocate) {

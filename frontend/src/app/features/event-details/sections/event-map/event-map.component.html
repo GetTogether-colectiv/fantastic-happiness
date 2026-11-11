@@ -1,0 +1,10 @@
+@if (located()) {
+  <div class="location">
+    <div #map class="map"></div>
+    <a class="address" [routerLink]="['/map']" [queryParams]="{ focus: event().id }">
+      <mat-icon aria-hidden="true">place</mat-icon>
+      <span class="name">{{ event().locationName }}, {{ event().city }}</span>
+      <span class="open">Open map</span>
+    </a>
+  </div>
+}

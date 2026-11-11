@@ -22,6 +22,38 @@
   padding: 0 var(--space-md);
 }
 
+.focus-actions {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  left: var(--space-md);
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-color);
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+
+  mat-icon {
+    width: var(--font-size-lg);
+    height: var(--font-size-lg);
+    font-size: var(--font-size-lg);
+  }
+}
+
 .bottom {
   position: absolute;
   right: var(--space-lg);

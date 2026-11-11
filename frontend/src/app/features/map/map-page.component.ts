@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import { EventCategory, EventSummary } from '../../core/models/event.model';
@@ -39,7 +39,13 @@ const LOCATION_ERROR_MESSAGE = "We couldn't find your location.";
 
 @Component({
   selector: 'app-map-page',
-  imports: [MatIconModule, CategoryFilterComponent, ErrorStateComponent, MapEventCardComponent],
+  imports: [
+    MatIconModule,
+    RouterLink,
+    CategoryFilterComponent,
+    ErrorStateComponent,
+    MapEventCardComponent,
+  ],
   templateUrl: './map-page.component.html',
   styleUrl: './map-page.component.scss',
 })
@@ -48,19 +54,29 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly mapElement = viewChild.required<ElementRef<HTMLElement>>('map');
-  private readonly focusedEventId = Number(
-    inject(ActivatedRoute).snapshot.queryParamMap.get('focus'),
-  );
 
   private map!: L.Map;
   private readonly markers = L.markerClusterGroup({ maxClusterRadius: CLUSTER_RADIUS_PX });
   private userPosition?: L.CircleMarker;
   private events: EventSummary[] = [];
+  private eventsLoaded = false;
 
   protected readonly loadFailed = signal(false);
+  protected readonly focusedEventId = signal<number | null>(null);
   protected readonly selectedCategory = signal<EventCategory | undefined>(undefined);
   protected readonly selectedEvent = signal<EventSummary | null>(null);
   protected readonly canLocate = 'geolocation' in navigator;
+
+  constructor() {
+    inject(ActivatedRoute)
+      .queryParamMap.pipe(takeUntilDestroyed())
+      .subscribe((params) => {
+        this.focusedEventId.set(Number(params.get('focus')) || null);
+        if (this.eventsLoaded) {
+          this.showFocusedEventOrAll();
+        }
+      });
+  }
 
   ngAfterViewInit(): void {
     this.map = L.map(this.mapElement().nativeElement).setView(CLUJ_NAPOCA_CENTER, CITY_ZOOM);
@@ -95,7 +111,7 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
   protected filterByCategory(category: EventCategory | undefined): void {
     this.selectedCategory.set(category);
     const selectedEvent = this.selectedEvent();
-    if (selectedEvent && !this.matchesCategory(selectedEvent)) {
+    if (selectedEvent && !this.isVisible(selectedEvent)) {
       this.selectedEvent.set(null);
     }
     this.showMarkers();
@@ -103,19 +119,31 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
 
   private showEvents(events: EventSummary[]): void {
     this.events = events;
+    this.eventsLoaded = true;
+    this.showFocusedEventOrAll();
+  }
+
+  private showFocusedEventOrAll(): void {
     this.showMarkers();
-    this.focusRequestedEvent();
+    if (this.focusedEventId()) {
+      this.focusRequestedEvent();
+    } else {
+      this.selectedEvent.set(null);
+      this.map.setView(CLUJ_NAPOCA_CENTER, CITY_ZOOM);
+    }
   }
 
   private showMarkers(): void {
-    const visibleEvents = this.events
-      .filter(hasLocation)
-      .filter((event) => this.matchesCategory(event));
+    const visibleEvents = this.events.filter(hasLocation).filter((event) => this.isVisible(event));
     this.markers.clearLayers();
     this.markers.addLayers(visibleEvents.map((event) => this.createMarker(event)));
   }
 
-  private matchesCategory(event: EventSummary): boolean {
+  private isVisible(event: EventSummary): boolean {
+    const focusedEventId = this.focusedEventId();
+    if (focusedEventId) {
+      return event.id === focusedEventId;
+    }
     const category = this.selectedCategory();
     return !category || event.category === category;
   }
@@ -128,20 +156,22 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
   }
 
   private focusRequestedEvent(): void {
-    if (!this.focusedEventId) {
+    const focusedEventId = this.focusedEventId();
+    if (!focusedEventId) {
       return;
     }
-    const upcomingEvent = this.events.find((event) => event.id === this.focusedEventId);
+    const upcomingEvent = this.events.find((event) => event.id === focusedEventId);
     if (upcomingEvent) {
       this.focusOn(upcomingEvent);
       return;
     }
     this.eventsService
-      .getEvent(this.focusedEventId)
+      .getEvent(focusedEventId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((pastEvent) => {
-        this.events = [...this.events, pastEvent];
-        this.showMarkers();
+        if (hasLocation(pastEvent)) {
+          this.markers.addLayer(this.createMarker(pastEvent));
+        }
         this.focusOn(pastEvent);
       });
   }
