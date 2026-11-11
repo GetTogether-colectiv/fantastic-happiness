@@ -36,6 +36,13 @@ export interface EventFilter {
   to?: string;
 }
 
+export interface MapArea {
+  minLatitude: number;
+  maxLatitude: number;
+  minLongitude: number;
+  maxLongitude: number;
+}
+
 export interface Coordinates {
   latitude: number;
   longitude: number;

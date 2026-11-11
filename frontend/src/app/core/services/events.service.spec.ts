@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { EventRequest } from '../models/event.model';
+import { EventRequest, MapArea } from '../models/event.model';
 import { EventsService } from './events.service';
 
 const REQUEST: EventRequest = {
@@ -14,6 +14,8 @@ const REQUEST: EventRequest = {
   city: 'Cluj-Napoca',
   capacity: null,
   imageUrl: null,
+  latitude: 46.7712,
+  longitude: 23.6236,
 };
 
 describe('EventsService', () => {
@@ -34,6 +36,27 @@ describe('EventsService', () => {
     expect(request.params.has('city')).toBe(false);
     expect(request.params.get('page')).toBe('2');
     expect(request.params.get('size')).toBe('5');
+  });
+
+  it('loads the events inside a map area, including edges at zero', () => {
+    const area: MapArea = { minLatitude: 0, maxLatitude: 1, minLongitude: -1, maxLongitude: 0 };
+    service.getEventsInArea(area, 'MUSIC').subscribe();
+
+    const { request } = controller.expectOne((req) => req.url === '/api/events');
+    expect(request.params.get('minLatitude')).toBe('0');
+    expect(request.params.get('maxLatitude')).toBe('1');
+    expect(request.params.get('minLongitude')).toBe('-1');
+    expect(request.params.get('maxLongitude')).toBe('0');
+    expect(request.params.get('category')).toBe('MUSIC');
+    expect(request.params.get('size')).toBe('200');
+  });
+
+  it('loads a map area without a category', () => {
+    const area: MapArea = { minLatitude: 46, maxLatitude: 47, minLongitude: 23, maxLongitude: 24 };
+    service.getEventsInArea(area).subscribe();
+
+    const { request } = controller.expectOne((req) => req.url === '/api/events');
+    expect(request.params.has('category')).toBe(false);
   });
 
   it('loads a single event', () => {

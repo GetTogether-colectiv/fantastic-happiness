@@ -1,9 +1,11 @@
+import * as L from 'leaflet';
 import {
   LocatedEvent,
   coordinatesOf,
   createCategoryIcon,
   hasLocation,
   toLatLng,
+  toMapArea,
 } from './map.utils';
 
 const EVENT: LocatedEvent = {
@@ -34,6 +36,28 @@ describe('map utils', () => {
 
   it('turns an event into Leaflet coordinates', () => {
     expect(toLatLng(EVENT)).toEqual([46.7742, 23.5788]);
+  });
+
+  it('turns the visible part of the map into an area', () => {
+    const bounds = L.latLngBounds([46.7, 23.5], [46.8, 23.7]);
+
+    expect(toMapArea(bounds)).toEqual({
+      minLatitude: 46.7,
+      maxLatitude: 46.8,
+      minLongitude: 23.5,
+      maxLongitude: 23.7,
+    });
+  });
+
+  it('keeps the area inside the valid range when the whole world is visible', () => {
+    const bounds = L.latLngBounds([-120, -400], [120, 400]);
+
+    expect(toMapArea(bounds)).toEqual({
+      minLatitude: -90,
+      maxLatitude: 90,
+      minLongitude: -180,
+      maxLongitude: 180,
+    });
   });
 
   it('colors the pin by category and shows the category icon', () => {

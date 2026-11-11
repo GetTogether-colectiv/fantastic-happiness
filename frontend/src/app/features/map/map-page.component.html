@@ -17,6 +17,9 @@
 }
 
 <div class="bottom">
+  @if (tooManyEvents()) {
+    <p class="hint" role="status">Zoom in to see all events</p>
+  }
   @if (canLocate) {
     <button class="locate" type="button" aria-label="Show my location" (click)="locateUser()">
       <mat-icon aria-hidden="true">my_location</mat-icon>
@@ -29,6 +32,6 @@
 
 @if (loadFailed()) {
   <div class="overlay">
-    <app-error-state message="We couldn't load the events." (retry)="loadEvents()" />
+    <app-error-state message="We couldn't load the events." (retry)="reloadArea()" />
   </div>
 }

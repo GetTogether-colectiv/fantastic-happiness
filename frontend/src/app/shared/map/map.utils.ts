@@ -4,6 +4,7 @@ import {
   Coordinates,
   EventCategory,
   EventSummary,
+  MapArea,
 } from '../../core/models/event.model';
 
 export const CLUJ_NAPOCA_CENTER: L.LatLngTuple = [46.7693, 23.5899];
@@ -13,6 +14,11 @@ const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const OSM_MAX_ZOOM = 19;
+
+const MIN_LATITUDE = -90;
+const MAX_LATITUDE = 90;
+const MIN_LONGITUDE = -180;
+const MAX_LONGITUDE = 180;
 
 const PIN_SIZE: L.PointTuple = [32, 32];
 const PIN_TIP: L.PointTuple = [16, 32];
@@ -36,6 +42,15 @@ export function toLatLng(position: Coordinates): L.LatLngTuple {
 
 export function toCoordinates(position: L.LatLng): Coordinates {
   return { latitude: position.lat, longitude: position.lng };
+}
+
+export function toMapArea(bounds: L.LatLngBounds): MapArea {
+  return {
+    minLatitude: Math.max(bounds.getSouth(), MIN_LATITUDE),
+    maxLatitude: Math.min(bounds.getNorth(), MAX_LATITUDE),
+    minLongitude: Math.max(bounds.getWest(), MIN_LONGITUDE),
+    maxLongitude: Math.min(bounds.getEast(), MAX_LONGITUDE),
+  };
 }
 
 export function addOpenStreetMapTiles(map: L.Map): void {

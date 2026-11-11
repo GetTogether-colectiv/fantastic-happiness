@@ -14,7 +14,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
-import { EventCategory, EventSummary } from '../../core/models/event.model';
+import { EMPTY, Observable, Subject, catchError, debounceTime, switchMap, tap } from 'rxjs';
+import { EventCategory, EventSummary, Page } from '../../core/models/event.model';
 import { EventsService } from '../../core/services/events.service';
 import { CategoryFilterComponent } from '../../shared/components/category-filter/category-filter.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
@@ -26,11 +27,13 @@ import {
   createCategoryIcon,
   hasLocation,
   toLatLng,
+  toMapArea,
 } from '../../shared/map/map.utils';
 import { MapEventCardComponent } from './map-event-card/map-event-card.component';
 
-const MAP_PAGE_SIZE = 200;
 const CLUSTER_RADIUS_PX = 25;
+const AREA_PADDING = 0.25;
+const RELOAD_DELAY_MS = 300;
 const FOCUS_ZOOM = 17;
 const LOCATE_ZOOM = 15;
 const USER_POSITION_RADIUS_PX = 8;
@@ -51,41 +54,44 @@ const LOCATION_ERROR_MESSAGE = "We couldn't find your location.";
 })
 export class MapPageComponent implements AfterViewInit, OnDestroy {
   private readonly eventsService = inject(EventsService);
+  private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly mapElement = viewChild.required<ElementRef<HTMLElement>>('map');
+  private readonly areaRequests = new Subject<void>();
 
   private map!: L.Map;
   private readonly markers = L.markerClusterGroup({ maxClusterRadius: CLUSTER_RADIUS_PX });
   private userPosition?: L.CircleMarker;
-  private events: EventSummary[] = [];
-  private eventsLoaded = false;
 
   protected readonly loadFailed = signal(false);
+  protected readonly tooManyEvents = signal(false);
   protected readonly focusedEventId = signal<number | null>(null);
   protected readonly selectedCategory = signal<EventCategory | undefined>(undefined);
   protected readonly selectedEvent = signal<EventSummary | null>(null);
   protected readonly canLocate = 'geolocation' in navigator;
-
-  constructor() {
-    inject(ActivatedRoute)
-      .queryParamMap.pipe(takeUntilDestroyed())
-      .subscribe((params) => {
-        this.focusedEventId.set(Number(params.get('focus')) || null);
-        if (this.eventsLoaded) {
-          this.showFocusedEventOrAll();
-        }
-      });
-  }
 
   ngAfterViewInit(): void {
     this.map = L.map(this.mapElement().nativeElement).setView(CLUJ_NAPOCA_CENTER, CITY_ZOOM);
     addOpenStreetMapTiles(this.map);
     this.markers.addTo(this.map);
     this.map.on('click', () => this.selectedEvent.set(null));
+    this.map.on('moveend', () => this.reloadArea());
     this.map.on('locationfound', (location) => this.showUserPosition(location.latlng));
     this.map.on('locationerror', () => this.showLocationError());
-    this.loadEvents();
+
+    this.areaRequests
+      .pipe(
+        debounceTime(RELOAD_DELAY_MS),
+        switchMap(() => this.loadVisibleArea()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.focusedEventId.set(Number(params.get('focus')) || null);
+      this.showFocusedEventOrAll();
+    });
   }
 
   // Leaflet keeps its own listeners and DOM, so it has to be cleaned up by hand.
@@ -93,15 +99,10 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
     this.map.remove();
   }
 
-  protected loadEvents(): void {
-    this.loadFailed.set(false);
-    this.eventsService
-      .getEvents({}, 0, MAP_PAGE_SIZE)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (page) => this.showEvents(page.content),
-        error: () => this.loadFailed.set(true),
-      });
+  protected reloadArea(): void {
+    if (!this.focusedEventId()) {
+      this.areaRequests.next();
+    }
   }
 
   protected locateUser(): void {
@@ -111,41 +112,60 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
   protected filterByCategory(category: EventCategory | undefined): void {
     this.selectedCategory.set(category);
     const selectedEvent = this.selectedEvent();
-    if (selectedEvent && !this.isVisible(selectedEvent)) {
+    if (category && selectedEvent && selectedEvent.category !== category) {
       this.selectedEvent.set(null);
     }
-    this.showMarkers();
-  }
-
-  private showEvents(events: EventSummary[]): void {
-    this.events = events;
-    this.eventsLoaded = true;
-    this.showFocusedEventOrAll();
+    this.reloadArea();
   }
 
   private showFocusedEventOrAll(): void {
-    this.showMarkers();
-    if (this.focusedEventId()) {
-      this.focusRequestedEvent();
-    } else {
-      this.selectedEvent.set(null);
-      this.map.setView(CLUJ_NAPOCA_CENTER, CITY_ZOOM);
-    }
-  }
-
-  private showMarkers(): void {
-    const visibleEvents = this.events.filter(hasLocation).filter((event) => this.isVisible(event));
-    this.markers.clearLayers();
-    this.markers.addLayers(visibleEvents.map((event) => this.createMarker(event)));
-  }
-
-  private isVisible(event: EventSummary): boolean {
     const focusedEventId = this.focusedEventId();
     if (focusedEventId) {
-      return event.id === focusedEventId;
+      this.showOnlyEvent(focusedEventId);
+      return;
     }
-    const category = this.selectedCategory();
-    return !category || event.category === category;
+    this.selectedEvent.set(null);
+    this.map.setView(CLUJ_NAPOCA_CENTER, CITY_ZOOM);
+    this.reloadArea();
+  }
+
+  private showOnlyEvent(id: number): void {
+    this.tooManyEvents.set(false);
+    this.markers.clearLayers();
+    this.eventsService
+      .getEvent(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (this.focusedEventId() === event.id) {
+          this.showMarkers([event]);
+          this.focusOn(event);
+        }
+      });
+  }
+
+  private loadVisibleArea(): Observable<Page<EventSummary>> {
+    const area = toMapArea(this.map.getBounds().pad(AREA_PADDING));
+    return this.eventsService.getEventsInArea(area, this.selectedCategory()).pipe(
+      tap((page) => this.showAreaEvents(page)),
+      catchError(() => {
+        this.loadFailed.set(true);
+        return EMPTY;
+      }),
+    );
+  }
+
+  private showAreaEvents(page: Page<EventSummary>): void {
+    if (this.focusedEventId()) {
+      return;
+    }
+    this.loadFailed.set(false);
+    this.tooManyEvents.set(!page.last);
+    this.showMarkers(page.content);
+  }
+
+  private showMarkers(events: EventSummary[]): void {
+    this.markers.clearLayers();
+    this.markers.addLayers(events.filter(hasLocation).map((event) => this.createMarker(event)));
   }
 
   private createMarker(event: LocatedEvent): L.Marker {
@@ -153,27 +173,6 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
       icon: createCategoryIcon(event.category),
       title: event.title,
     }).on('click', () => this.selectedEvent.set(event));
-  }
-
-  private focusRequestedEvent(): void {
-    const focusedEventId = this.focusedEventId();
-    if (!focusedEventId) {
-      return;
-    }
-    const upcomingEvent = this.events.find((event) => event.id === focusedEventId);
-    if (upcomingEvent) {
-      this.focusOn(upcomingEvent);
-      return;
-    }
-    this.eventsService
-      .getEvent(focusedEventId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((pastEvent) => {
-        if (hasLocation(pastEvent)) {
-          this.markers.addLayer(this.createMarker(pastEvent));
-        }
-        this.focusOn(pastEvent);
-      });
   }
 
   private focusOn(event: EventSummary): void {
