@@ -1,5 +1,16 @@
 <div #map class="map" role="region" aria-label="Map of upcoming events"></div>
 
+<div class="bottom">
+  @if (canLocate) {
+    <button class="locate" type="button" aria-label="Show my location" (click)="locateUser()">
+      <mat-icon aria-hidden="true">my_location</mat-icon>
+    </button>
+  }
+  @if (selectedEvent(); as event) {
+    <app-map-event-card [event]="event" (closed)="selectedEvent.set(null)" />
+  }
+</div>
+
 @if (loadFailed()) {
   <div class="overlay">
     <app-error-state message="We couldn't load the events." (retry)="loadEvents()" />
