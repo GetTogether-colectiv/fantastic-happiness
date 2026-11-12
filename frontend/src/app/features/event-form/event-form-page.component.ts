@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject, switchMap } from 'rxjs';
 import {
   CATEGORY_LABELS,
   Coordinates,
@@ -15,6 +15,7 @@ import {
 } from '../../core/models/event.model';
 import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
+import { Address, GeocodingService } from '../../core/services/geocoding.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { coordinatesOf } from '../../shared/map/map.utils';
@@ -86,6 +87,8 @@ function isFieldName(name: string): name is FieldName {
 export class EventFormPageComponent {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly events = inject(EventsService);
+  private readonly geocoding = inject(GeocodingService);
+  private readonly pickedLocations = new Subject<Coordinates>();
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly currentUser = inject(CurrentUserService);
@@ -127,6 +130,16 @@ export class EventFormPageComponent {
 
   constructor() {
     this.loadEvent();
+    this.pickedLocations
+      .pipe(
+        switchMap((position) => this.geocoding.findAddress(position)),
+        takeUntilDestroyed(),
+      )
+      .subscribe((address) => this.fillAddress(address));
+  }
+
+  protected autofillAddress(position: Coordinates): void {
+    this.pickedLocations.next(position);
   }
 
   protected errorMessage(name: FieldName): string | null {
@@ -213,6 +226,20 @@ export class EventFormPageComponent {
     });
     this.form.markAllAsTouched();
     this.loadState.set('ready');
+  }
+
+  private fillAddress(address: Address): void {
+    this.fillField('locationName', address.locationName);
+    this.fillField('city', address.city);
+  }
+
+  private fillField(name: 'locationName' | 'city', value: string | null): void {
+    if (!value) {
+      return;
+    }
+    const control = this.form.controls[name];
+    control.setValue(value);
+    control.markAsTouched();
   }
 
   private save(request: EventRequest): Observable<EventDetails> {

@@ -4,6 +4,7 @@ import {
   ElementRef,
   OnDestroy,
   forwardRef,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -40,6 +41,8 @@ export class LocationPickerComponent implements ControlValueAccessor, AfterViewI
   private map?: L.Map;
   private onChange: (value: Coordinates | null) => void = () => undefined;
   private onTouched: () => void = () => undefined;
+
+  readonly picked = output<Coordinates>();
 
   protected readonly value = signal<Coordinates | null>(null);
 
@@ -82,6 +85,7 @@ export class LocationPickerComponent implements ControlValueAccessor, AfterViewI
     this.map?.addLayer(this.marker);
     this.onChange(value);
     this.onTouched();
+    this.picked.emit(value);
   }
 
   private showValue(): void {
