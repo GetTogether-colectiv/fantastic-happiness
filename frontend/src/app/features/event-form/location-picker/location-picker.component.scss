@@ -1,3 +1,5 @@
+@use 'breakpoints' as *;
+
 :host {
   display: block;
   overflow: hidden;
@@ -9,6 +11,10 @@
 .map {
   height: 14rem;
   isolation: isolate;
+
+  @include tablet-up {
+    height: 20rem;
+  }
   cursor: crosshair;
 }
 

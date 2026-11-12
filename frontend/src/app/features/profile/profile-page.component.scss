@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  max-width: var(--page-width-narrow);
+  margin: 0 auto;
+}
+
 .header {
   display: flex;
   align-items: center;
