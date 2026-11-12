@@ -14,5 +14,4 @@ export class CategoryChipComponent {
 
   protected readonly label = computed(() => CATEGORY_LABELS[this.category()]);
   protected readonly icon = computed(() => CATEGORY_ICONS[this.category()]);
-  protected readonly color = computed(() => `var(--category-${this.category().toLowerCase()})`);
 }

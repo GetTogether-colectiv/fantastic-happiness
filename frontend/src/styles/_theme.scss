@@ -1,22 +1,39 @@
 :root {
-  --primary-color: #4f46e5;
-  --surface-color: #ffffff;
-  --background-color: #f9fafb;
-  --text-color: #111827;
-  --muted-color: #6b7280;
-  --border-color: #e5e7eb;
-  --success-color: #16a34a;
-  --danger-color: #dc2626;
+  --palette-mist: #f1f7f8;
+  --palette-ink: #070c0e;
+  --palette-slate: #152328;
+  --palette-burgundy: #8b1e2d;
+  --palette-teal: #325e6a;
+  --palette-white: #ffffff;
 
-  --category-music: #9333ea;
-  --category-sports: #16a34a;
-  --category-art: #db2777;
-  --category-food: #ea580c;
-  --category-tech: #2563eb;
-  --category-nightlife: #312e81;
-  --category-outdoors: #0d9488;
-  --category-education: #a16207;
-  --category-other: #6b7280;
+  --primary-color: var(--palette-teal);
+  --on-primary-color: var(--palette-white);
+  --primary-hover-color: color-mix(in srgb, var(--palette-teal) 85%, var(--palette-ink));
+  --primary-container-color: color-mix(in srgb, var(--palette-teal) 12%, var(--palette-white));
+
+  --secondary-color: var(--palette-slate);
+  --on-secondary-color: var(--palette-mist);
+
+  --accent-color: var(--palette-burgundy);
+  --on-accent-color: var(--palette-white);
+
+  --background-color: var(--palette-mist);
+  --surface-color: var(--palette-white);
+  --text-color: var(--palette-ink);
+  --muted-color: color-mix(in srgb, var(--palette-slate) 65%, var(--palette-mist));
+  --border-color: color-mix(in srgb, var(--palette-slate) 15%, var(--palette-mist));
+
+  --success-color: #2e7d4f;
+  --warning-color: #e0a526;
+  --warning-container-color: color-mix(in srgb, var(--warning-color) 35%, var(--palette-white));
+  --error-color: var(--palette-burgundy);
+  --on-error-color: var(--palette-white);
+
+  --shadow-color: color-mix(in srgb, var(--palette-ink) 30%, transparent);
+  --backdrop-color: color-mix(in srgb, var(--palette-ink) 40%, transparent);
+
+  --category-color: var(--primary-color);
+  --on-category-color: var(--on-primary-color);
 
   --space-xs: 4px;
   --space-sm: 8px;

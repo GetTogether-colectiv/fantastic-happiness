@@ -60,10 +60,9 @@ describe('map utils', () => {
     });
   });
 
-  it('colors the pin by category and shows the category icon', () => {
+  it('shows the category icon on the pin', () => {
     const html = String(createCategoryIcon('TECH').options.html);
 
-    expect(html).toContain('var(--category-tech)');
     expect(html).toContain('computer');
   });
 });

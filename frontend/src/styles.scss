@@ -36,11 +36,35 @@
   box-sizing: border-box;
 }
 
+:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: var(--space-xs);
+}
+
+::selection {
+  background: var(--primary-container-color);
+  color: var(--text-color);
+}
+
 body {
   margin: 0;
   font-family: var(--font-family), sans-serif;
   color: var(--text-color);
   background: var(--background-color);
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-container-color: var(--surface-color);
+  --mat-dialog-container-shape: var(--radius-md);
+  --mat-dialog-container-elevation-shadow: 0 8px 24px var(--shadow-color);
+  --mat-dialog-subhead-color: var(--text-color);
+  --mat-dialog-subhead-font: var(--font-family);
+  --mat-dialog-supporting-text-color: var(--muted-color);
+  --mat-dialog-supporting-text-font: var(--font-family);
+}
+
+.cdk-overlay-dark-backdrop {
+  background: var(--backdrop-color);
 }
 
 .mat-mdc-snack-bar-container.app-snack-bar {
