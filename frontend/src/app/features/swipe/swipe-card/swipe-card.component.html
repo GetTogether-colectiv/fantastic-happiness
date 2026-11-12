@@ -14,30 +14,29 @@
     (click)="open($event)"
     (keydown.enter)="openWithKeyboard($event)"
     (keydown.space)="openWithKeyboard($event)"
+    aria-keyshortcuts="ArrowLeft ArrowRight"
     (transitionend)="transitionEnd($event)"
     draggable="false"
   >
-    <div class="image">
-      <img [src]="event().imageUrl | eventImage" alt="" draggable="false" />
-      <span
-        class="stamp going"
-        [style.opacity]="offset() > 0 ? stampOpacity() : 0"
-        aria-hidden="true"
-        >GOING</span
-      >
-      <span
-        class="stamp nope"
-        [style.opacity]="offset() < 0 ? stampOpacity() : 0"
-        aria-hidden="true"
-        >NOPE</span
-      >
-    </div>
+    <img class="image" [src]="event().imageUrl | eventImage" alt="" draggable="false" />
     <div class="body">
       <app-category-chip class="category" [category]="event().category" [selected]="true" />
       <h2>{{ event().title }}</h2>
       <p class="date">{{ event().startsAt | eventDate }}</p>
-      <p>{{ event().locationName }}, {{ event().city }}</p>
+      <p class="location">{{ event().locationName }}, {{ event().city }}</p>
       <p>{{ event().goingCount }} going</p>
     </div>
+    <span
+      class="stamp going"
+      [style.opacity]="offset() > 0 ? stampOpacity() : 0"
+      aria-hidden="true"
+      ><span class="stamp-label">Going</span></span
+    >
+    <span
+      class="stamp nope"
+      [style.opacity]="offset() < 0 ? stampOpacity() : 0"
+      aria-hidden="true"
+      ><span class="stamp-label">Skip</span></span
+    >
   </a>
 </div>

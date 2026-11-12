@@ -65,6 +65,13 @@ describe('SwipePageComponent', () => {
     return fixture.debugElement.query(By.directive(SwipeCardComponent)).componentInstance;
   }
 
+  function press(key: 'ArrowRight' | 'ArrowLeft'): void {
+    fixture.nativeElement
+      .querySelector('app-swipe-card .card')
+      .dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    fixture.detectChanges();
+  }
+
   function load(ids: number[]): void {
     feeds[0].next(ids.map(event));
     fixture.detectChanges();
@@ -113,21 +120,34 @@ describe('SwipePageComponent', () => {
     expect(card().event().id).toBe(1);
     expect(service.setStatus).toHaveBeenCalledTimes(1);
     expect(service.getFeed).toHaveBeenCalledTimes(1);
-    expect(fixture.nativeElement.querySelector('button.going').disabled).toBe(true);
+    expect(card().busy()).toBe(true);
     succeed(current);
     expect(card().event().id).toBe(2);
     expect(service.getFeed).toHaveBeenCalledTimes(2);
   });
 
   it.each([
-    ['button.going', 'GOING'],
-    ['button.nope', 'NOT_INTERESTED'],
-  ])('uses the decision flow for %s', (selector, status) => {
+    ['ArrowRight', 'GOING'],
+    ['ArrowLeft', 'NOT_INTERESTED'],
+  ] as const)('uses the decision flow for the %s key', (key, status) => {
     load([1, 2, 3]);
-    fixture.nativeElement.querySelector(selector).click();
-    fixture.detectChanges();
+    press(key);
     expect(service.setStatus).toHaveBeenCalledWith(1, status);
     expect(card().decision()).toBe(status);
+  });
+
+  it('decides with arrow keys pressed anywhere on the page, but not while typing', () => {
+    load([1, 2, 3]);
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(service.setStatus).not.toHaveBeenCalled();
+    input.remove();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    fixture.detectChanges();
+    expect(service.setStatus).toHaveBeenCalledExactlyOnceWith(1, 'NOT_INTERESTED');
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(service.setStatus).toHaveBeenCalledOnce();
   });
 
   it('navigates to details and blocks navigation during a submission', () => {
@@ -150,7 +170,7 @@ describe('SwipePageComponent', () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent.trim()).toBe(
       'This event is full',
     );
-    expect(fixture.nativeElement.querySelector('button.going').disabled).toBe(false);
+    expect(card().busy()).toBe(false);
     expect(service.getFeed).toHaveBeenCalledTimes(1);
   });
 
@@ -207,15 +227,14 @@ describe('SwipePageComponent', () => {
       expect(fixture.nativeElement.querySelector('[role="alert"]').textContent.trim()).toBe(
         'This event is full',
       );
-      expect(fixture.nativeElement.querySelector('button.going').disabled).toBe(false);
-      expect(fixture.nativeElement.querySelector('button.nope').disabled).toBe(false);
+      expect(card().busy()).toBe(false);
     }
 
     it.each([
       ['right swipe', 'before'],
       ['right swipe', 'after'],
-      ['check button', 'before'],
-      ['check button', 'after'],
+      ['right arrow key', 'before'],
+      ['right arrow key', 'after'],
     ] as const)(
       'restores the same card when %s receives 409 %s exit completion',
       (trigger, timing) => {
@@ -224,8 +243,7 @@ describe('SwipePageComponent', () => {
         if (trigger === 'right swipe') {
           swipe(150);
         } else {
-          fixture.nativeElement.querySelector('button.going').click();
-          fixture.detectChanges();
+          press('ArrowRight');
         }
         expect(service.setStatus).toHaveBeenCalledExactlyOnceWith(1, 'GOING');
         expect(cardElement().style.transform).not.toBe('translateX(0px) rotate(0deg)');
@@ -262,8 +280,7 @@ describe('SwipePageComponent', () => {
       expectRestored();
 
       if (status === 'GOING') {
-        fixture.nativeElement.querySelector('button.going').click();
-        fixture.detectChanges();
+        press('ArrowRight');
       } else {
         swipe(-150);
       }
@@ -350,7 +367,7 @@ describe('SwipePageComponent', () => {
       "You're all caught up — check back later or browse Discover",
     );
     expect(fixture.nativeElement.querySelector('app-swipe-card')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.actions')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.hint')).toBeNull();
   });
 
   it('hides the empty state during initial loading', () => {
@@ -393,7 +410,7 @@ describe('SwipePageComponent', () => {
     fixture.detectChanges();
     expect(card().event().id).toBe(2);
     expect(fixture.nativeElement.querySelector('app-empty-state')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.actions')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.hint')).not.toBeNull();
   });
 
   it('navigates to Discover from the empty-state action', () => {

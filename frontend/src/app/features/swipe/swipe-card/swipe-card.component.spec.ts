@@ -75,7 +75,7 @@ describe('SwipeCardComponent', () => {
   });
 
   it.each(['mouse', 'touch'])(
-    'captures %s drags and applies the transform and green stamp',
+    'captures %s drags and applies the transform and going stamp',
     (pointerType) => {
       pointer('pointerdown', 0, { pointerType });
       pointer('pointermove', 60);

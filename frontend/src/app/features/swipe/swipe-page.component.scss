@@ -2,51 +2,65 @@
 
 :host {
   display: block;
+  overflow-x: clip;
 }
 .swipe-page {
+  --swipe-card-height: clamp(
+    22rem,
+    calc(100dvh - var(--top-bar-height) - 2 * var(--content-padding) - 5rem),
+    40rem
+  );
   width: 100%;
   max-width: 30rem;
   margin: 0 auto;
   @include tablet-up {
-    max-width: 36rem;
+    max-width: 34rem;
   }
   @include desktop-up {
-    max-width: 44rem;
+    max-width: 36rem;
   }
 }
 .stack {
-  overflow: clip;
-  padding: var(--space-xs);
+  display: grid;
+  padding: var(--space-sm) var(--space-lg) var(--space-xl);
+  > * {
+    grid-area: 1 / 1;
+  }
 }
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-2xl);
-  margin-top: var(--space-xl);
-  button {
-    display: grid;
-    place-items: center;
-    width: 56px;
-    height: 56px;
-    border: 2px solid currentColor;
-    border-radius: var(--radius-pill);
-    background: var(--surface-color);
-    cursor: pointer;
-    &:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-    &:focus-visible {
-      outline: 3px solid var(--primary-color);
-      outline-offset: var(--space-xs);
+.peek {
+  height: var(--swipe-card-height);
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--secondary-color);
+  box-shadow: 0 8px 16px -4px var(--shadow-color);
+  transform: translateY(var(--space-lg)) scale(0.94);
+  transform-origin: bottom center;
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+  }
+  &.promoted {
+    transform: none;
+    transition: transform 220ms ease-out;
+    img {
+      opacity: 1;
+      transition: opacity 220ms ease-out;
     }
   }
 }
-.going {
-  color: var(--success-color);
-}
-.nope {
+.hint {
+  margin: var(--space-sm) 0 0;
   color: var(--muted-color);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+.keys-hint {
+  @media (pointer: coarse) {
+    display: none;
+  }
 }
 .message {
   color: var(--error-color);
@@ -56,4 +70,10 @@
   color: var(--muted-color);
   text-align: center;
   font-size: var(--font-size-sm);
+}
+@media (prefers-reduced-motion: reduce) {
+  .peek.promoted,
+  .peek.promoted img {
+    transition: none;
+  }
 }

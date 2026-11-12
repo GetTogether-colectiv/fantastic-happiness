@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { EventSummary } from '../../core/models/event.model';
 import { ParticipationStatus } from '../../core/models/participation.model';
@@ -9,21 +8,33 @@ import { ParticipationService } from '../../core/services/participation.service'
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { SkeletonCardComponent } from '../../shared/components/skeleton-card/skeleton-card.component';
+import { EventImagePipe } from '../../shared/pipes/event-image.pipe';
 import { SwipeCardComponent } from './swipe-card/swipe-card.component';
 
 const REFILL_THRESHOLD = 3;
 
+function isTypingTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable || target.closest('input, textarea, select') !== null)
+  );
+}
+
 @Component({
   selector: 'app-swipe-page',
   imports: [
-    MatIconModule,
     EmptyStateComponent,
     ErrorStateComponent,
     SkeletonCardComponent,
     SwipeCardComponent,
+    EventImagePipe,
   ],
   templateUrl: './swipe-page.component.html',
   styleUrl: './swipe-page.component.scss',
+  host: {
+    '(document:keydown.arrowright)': 'decideWithKeyboard($event, "GOING")',
+    '(document:keydown.arrowleft)': 'decideWithKeyboard($event, "NOT_INTERESTED")',
+  },
 })
 export class SwipePageComponent {
   private readonly participation = inject(ParticipationService);
@@ -104,6 +115,14 @@ export class SwipePageComponent {
           this.busy.set(false);
         },
       });
+  }
+
+  protected decideWithKeyboard(event: Event, status: ParticipationStatus): void {
+    if (!this.events().length || isTypingTarget(event.target)) {
+      return;
+    }
+    event.preventDefault();
+    this.decide(status);
   }
 
   protected exited(): void {
