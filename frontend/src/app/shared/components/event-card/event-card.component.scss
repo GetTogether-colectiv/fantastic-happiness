@@ -14,7 +14,6 @@
 }
 
 .image {
-  position: relative;
   aspect-ratio: 16 / 9;
   background: var(--border-color);
 
@@ -27,9 +26,8 @@
 }
 
 .chip {
-  position: absolute;
-  top: var(--space-md);
-  left: var(--space-md);
+  display: block;
+  margin-bottom: var(--space-sm);
 }
 
 .body {

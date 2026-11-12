@@ -1,9 +1,9 @@
 <a class="card" [routerLink]="['/events', event().id]">
   <div class="image">
     <img [src]="event().imageUrl | eventImage" alt="" loading="lazy" />
-    <app-category-chip class="chip" [category]="event().category" [selected]="true" />
   </div>
   <div class="body">
+    <app-category-chip class="chip" [category]="event().category" [selected]="true" />
     <h3>{{ event().title }}</h3>
     <p class="date">{{ event().startsAt | eventDate }}</p>
     <p class="location">{{ event().locationName }}</p>

@@ -19,7 +19,6 @@
   >
     <div class="image">
       <img [src]="event().imageUrl | eventImage" alt="" draggable="false" />
-      <app-category-chip class="category" [category]="event().category" [selected]="true" />
       <span
         class="stamp going"
         [style.opacity]="offset() > 0 ? stampOpacity() : 0"
@@ -34,6 +33,7 @@
       >
     </div>
     <div class="body">
+      <app-category-chip class="category" [category]="event().category" [selected]="true" />
       <h2>{{ event().title }}</h2>
       <p class="date">{{ event().startsAt | eventDate }}</p>
       <p>{{ event().locationName }}, {{ event().city }}</p>

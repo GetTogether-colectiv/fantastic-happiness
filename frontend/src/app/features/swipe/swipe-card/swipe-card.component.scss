@@ -46,9 +46,8 @@
   }
 }
 .category {
-  position: absolute;
-  top: var(--space-md);
-  left: var(--space-md);
+  display: block;
+  margin-bottom: var(--space-sm);
 }
 .stamp {
   position: absolute;
