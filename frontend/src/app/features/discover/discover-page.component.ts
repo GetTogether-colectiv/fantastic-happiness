@@ -1,6 +1,5 @@
 import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EMPTY, Subject, catchError, map, merge, switchMap, tap } from 'rxjs';
 import { EventSummary, Page } from '../../core/models/event.model';
@@ -26,7 +25,6 @@ const PREFETCH_THRESHOLD = 0.6;
 @Component({
   selector: 'app-discover-page',
   imports: [
-    MatIconModule,
     RouterLink,
     CategoryFilterComponent,
     DateRangeComponent,

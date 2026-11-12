@@ -49,6 +49,19 @@
       </svg>
       <span>My events</span>
     </a>
+    <a
+      routerLink="/events/new"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="close()"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="16" />
+        <line x1="8" y1="12" x2="16" y2="12" />
+      </svg>
+      <span>New event</span>
+    </a>
     <a routerLink="/profile" routerLinkActive="active" (click)="close()">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
