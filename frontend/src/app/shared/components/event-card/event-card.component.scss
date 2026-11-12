@@ -39,7 +39,6 @@
 h3 {
   margin: 0 0 var(--space-xs);
   font-size: var(--font-size-lg);
-  overflow-wrap: anywhere;
 }
 
 p {
@@ -51,4 +50,11 @@ p {
 .date {
   color: var(--primary-color);
   font-weight: 600;
+}
+
+h3,
+.location {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
 }
