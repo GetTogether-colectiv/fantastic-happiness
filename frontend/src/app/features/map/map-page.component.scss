@@ -1,10 +1,8 @@
 :host {
   position: relative;
   display: block;
-  height: calc(
-    100dvh - var(--top-bar-height) - var(--bottom-nav-height) - env(safe-area-inset-bottom)
-  );
-  margin: -1rem;
+  height: calc(100dvh - var(--top-bar-height));
+  margin: calc(-1 * var(--content-padding));
 }
 
 .map {
@@ -69,6 +67,12 @@
 
   > * {
     pointer-events: auto;
+  }
+
+  app-map-event-card {
+    align-self: flex-start;
+    width: 100%;
+    max-width: 26rem;
   }
 }
 

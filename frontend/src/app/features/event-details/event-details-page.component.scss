@@ -1,12 +1,24 @@
+@use 'breakpoints' as *;
+
 :host {
   display: block;
+  max-width: var(--page-width-wide);
+  margin: 0 auto;
 }
 
 .cover {
   position: relative;
-  margin: calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)) 0;
+  margin: calc(-1 * var(--content-padding)) calc(-1 * var(--content-padding)) 0;
   aspect-ratio: 16 / 9;
   background: var(--border-color);
+
+  @include tablet-up {
+    margin: 0;
+    max-height: 26rem;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
 }
 
 .cover-image {
@@ -40,6 +52,21 @@
 .details {
   padding-top: var(--space-xl);
   overflow-wrap: anywhere;
+
+  @include desktop-up {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    align-items: start;
+    gap: var(--space-2xl);
+  }
+}
+
+.aside {
+  @include desktop-up {
+    position: sticky;
+    top: calc(var(--top-bar-height) + var(--space-lg));
+    margin-top: calc(-1 * var(--space-xl));
+  }
 }
 
 h2 {
