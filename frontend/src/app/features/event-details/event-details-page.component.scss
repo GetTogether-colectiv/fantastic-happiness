@@ -52,21 +52,6 @@
 .details {
   padding-top: var(--space-xl);
   overflow-wrap: anywhere;
-
-  @include desktop-up {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 22rem;
-    align-items: start;
-    gap: var(--space-2xl);
-  }
-}
-
-.aside {
-  @include desktop-up {
-    position: sticky;
-    top: calc(var(--top-bar-height) + var(--space-lg));
-    margin-top: calc(-1 * var(--space-xl));
-  }
 }
 
 h2 {
