@@ -11,7 +11,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import * as L from 'leaflet';
 import 'leaflet.markercluster';
 import { EMPTY, Observable, Subject, catchError, debounceTime, switchMap, tap } from 'rxjs';
@@ -55,6 +56,8 @@ const LOCATION_ERROR_MESSAGE = "We couldn't find your location.";
 export class MapPageComponent implements AfterViewInit, OnDestroy {
   private readonly eventsService = inject(EventsService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly mapElement = viewChild.required<ElementRef<HTMLElement>>('map');
@@ -97,6 +100,15 @@ export class MapPageComponent implements AfterViewInit, OnDestroy {
   // Leaflet keeps its own listeners and DOM, so it has to be cleaned up by hand.
   ngOnDestroy(): void {
     this.map.remove();
+  }
+
+  protected backToEvent(eventId: number): void {
+    const state = this.location.getState() as { navigationId?: number } | null;
+    if ((state?.navigationId ?? 0) > 1) {
+      this.location.back();
+    } else {
+      void this.router.navigate(['/events', eventId], { replaceUrl: true });
+    }
   }
 
   protected reloadArea(): void {

@@ -2,10 +2,10 @@
 
 @if (focusedEventId(); as eventId) {
   <div class="focus-actions">
-    <a class="pill back-to-event" [routerLink]="['/events', eventId]">
+    <button class="pill back-to-event" type="button" (click)="backToEvent(eventId)">
       <mat-icon aria-hidden="true">arrow_back</mat-icon>
       Back to event
-    </a>
+    </button>
     <a class="pill show-all" routerLink="/map">Show all events</a>
   </div>
 } @else {

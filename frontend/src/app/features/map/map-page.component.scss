@@ -45,7 +45,9 @@
   color: var(--primary-color);
   font-size: var(--font-size-sm);
   font-weight: 600;
+  font-family: inherit;
   text-decoration: none;
+  cursor: pointer;
 
   mat-icon {
     width: var(--font-size-lg);
