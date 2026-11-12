@@ -36,6 +36,18 @@ export interface EventFilter {
   to?: string;
 }
 
+export interface MapArea {
+  minLatitude: number;
+  maxLatitude: number;
+  minLongitude: number;
+  maxLongitude: number;
+}
+
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
 export interface EventRequest {
   title: string;
   description: string | null;
@@ -46,6 +58,8 @@ export interface EventRequest {
   city: string;
   capacity: number | null;
   imageUrl: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export const CATEGORY_LABELS: Record<EventCategory, string> = {

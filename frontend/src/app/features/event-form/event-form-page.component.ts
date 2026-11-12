@@ -4,9 +4,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject, switchMap } from 'rxjs';
 import {
   CATEGORY_LABELS,
+  Coordinates,
   EVENT_CATEGORIES,
   EventCategory,
   EventDetails,
@@ -14,8 +15,10 @@ import {
 } from '../../core/models/event.model';
 import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
+import { Address, GeocodingService } from '../../core/services/geocoding.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
+import { coordinatesOf } from '../../shared/map/map.utils';
 import {
   endAfterStartValidator,
   futureDateValidator,
@@ -24,6 +27,7 @@ import {
   toDateTimeLocal,
   toInstant,
 } from './event-form.validators';
+import { LocationPickerComponent } from './location-picker/location-picker.component';
 
 type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
 
@@ -76,13 +80,15 @@ function isFieldName(name: string): name is FieldName {
 
 @Component({
   selector: 'app-event-form-page',
-  imports: [ReactiveFormsModule, EmptyStateComponent, ErrorStateComponent],
+  imports: [ReactiveFormsModule, EmptyStateComponent, ErrorStateComponent, LocationPickerComponent],
   templateUrl: './event-form-page.component.html',
   styleUrl: './event-form-page.component.scss',
 })
 export class EventFormPageComponent {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly events = inject(EventsService);
+  private readonly geocoding = inject(GeocodingService);
+  private readonly pickedLocations = new Subject<Coordinates>();
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly currentUser = inject(CurrentUserService);
@@ -112,6 +118,7 @@ export class EventFormPageComponent {
       endsAt: ['', Validators.required],
       locationName: ['', [notBlankValidator, Validators.maxLength(LOCATION_NAME_MAX_LENGTH)]],
       city: ['', [notBlankValidator, Validators.maxLength(CITY_MAX_LENGTH)]],
+      location: this.formBuilder.control<Coordinates | null>(null),
       capacity: this.formBuilder.control<number | null>(null, [
         Validators.min(MINIMUM_CAPACITY),
         integerValidator,
@@ -123,6 +130,16 @@ export class EventFormPageComponent {
 
   constructor() {
     this.loadEvent();
+    this.pickedLocations
+      .pipe(
+        switchMap((position) => this.geocoding.findAddress(position)),
+        takeUntilDestroyed(),
+      )
+      .subscribe((address) => this.fillAddress(address));
+  }
+
+  protected autofillAddress(position: Coordinates): void {
+    this.pickedLocations.next(position);
   }
 
   protected errorMessage(name: FieldName): string | null {
@@ -203,11 +220,26 @@ export class EventFormPageComponent {
       endsAt: toDateTimeLocal(event.endsAt),
       locationName: event.locationName,
       city: event.city,
+      location: coordinatesOf(event),
       capacity: event.capacity,
       imageUrl: event.imageUrl ?? '',
     });
     this.form.markAllAsTouched();
     this.loadState.set('ready');
+  }
+
+  private fillAddress(address: Address): void {
+    this.fillField('locationName', address.locationName);
+    this.fillField('city', address.city);
+  }
+
+  private fillField(name: 'locationName' | 'city', value: string | null): void {
+    if (!value) {
+      return;
+    }
+    const control = this.form.controls[name];
+    control.setValue(value);
+    control.markAsTouched();
   }
 
   private save(request: EventRequest): Observable<EventDetails> {
@@ -231,6 +263,8 @@ export class EventFormPageComponent {
       city: value.city.trim(),
       capacity: value.capacity,
       imageUrl: value.imageUrl.trim() || null,
+      latitude: value.location?.latitude ?? null,
+      longitude: value.location?.longitude ?? null,
     };
   }
 

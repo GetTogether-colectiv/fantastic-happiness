@@ -1,0 +1,11 @@
+<article class="card" [attr.aria-label]="event().title">
+  <img class="image" [src]="event().imageUrl | eventImage" alt="" />
+  <div class="info">
+    <h3 class="title">{{ event().title }}</h3>
+    <p class="date">{{ event().startsAt | eventDate }}</p>
+    <a class="view" [routerLink]="['/events', event().id]">View event</a>
+  </div>
+  <button class="close" type="button" aria-label="Close" (click)="closed.emit()">
+    <mat-icon aria-hidden="true">close</mat-icon>
+  </button>
+</article>

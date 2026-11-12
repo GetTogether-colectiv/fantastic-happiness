@@ -1,0 +1,47 @@
+:host {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+}
+
+.map {
+  height: 14rem;
+  isolation: isolate;
+  cursor: crosshair;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 2.75rem;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.hint {
+  color: var(--muted-color);
+  font-size: var(--font-size-sm);
+}
+
+.clear {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--danger-color);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  mat-icon {
+    width: var(--font-size-lg);
+    height: var(--font-size-lg);
+    font-size: var(--font-size-lg);
+  }
+}

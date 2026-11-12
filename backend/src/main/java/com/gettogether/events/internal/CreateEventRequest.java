@@ -1,6 +1,8 @@
 package com.gettogether.events.internal;
 
 import com.gettogether.shared.EventCategory;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,6 +12,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 
 @EndsAfterStart
+@LatitudeWithLongitude
 public record CreateEventRequest(
         @NotBlank(message = "Title is required")
         @Size(max = EventConstraints.TITLE_MAX_LENGTH, message = "Title is too long")
@@ -31,5 +34,11 @@ public record CreateEventRequest(
         @Positive(message = "Capacity must be a positive number")
         Integer capacity,
         @Size(max = EventConstraints.IMAGE_URL_MAX_LENGTH, message = "Image URL is too long")
-        String imageUrl) {
+        String imageUrl,
+        @DecimalMin(value = EventConstraints.LATITUDE_MIN, message = "Latitude must be between -90 and 90")
+        @DecimalMax(value = EventConstraints.LATITUDE_MAX, message = "Latitude must be between -90 and 90")
+        Double latitude,
+        @DecimalMin(value = EventConstraints.LONGITUDE_MIN, message = "Longitude must be between -180 and 180")
+        @DecimalMax(value = EventConstraints.LONGITUDE_MAX, message = "Longitude must be between -180 and 180")
+        Double longitude) {
 }

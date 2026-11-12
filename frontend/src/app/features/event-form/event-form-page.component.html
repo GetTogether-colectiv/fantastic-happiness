@@ -77,6 +77,11 @@
       </div>
 
       <div class="field">
+        <span class="label">Pick location <span class="optional">(optional)</span></span>
+        <app-location-picker formControlName="location" (picked)="autofillAddress($event)" />
+      </div>
+
+      <div class="field">
         <label for="locationName">Location name</label>
         <input
           id="locationName"

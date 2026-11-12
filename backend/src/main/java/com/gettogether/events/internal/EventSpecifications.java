@@ -26,6 +26,15 @@ final class EventSpecifications {
                 : (event, query, builder) -> event.get("id").in(excludedIds).not();
     }
 
+    static Specification<Event> insideArea(MapArea area) {
+        if (!area.isGiven()) {
+            return Specification.unrestricted();
+        }
+        return (event, query, builder) -> builder.and(
+                builder.between(event.get("latitude"), area.minLatitude(), area.maxLatitude()),
+                builder.between(event.get("longitude"), area.minLongitude(), area.maxLongitude()));
+    }
+
     static Specification<Event> matching(EventCategory category, String city, Instant from, Instant to) {
         List<Specification<Event>> filters = new ArrayList<>();
         if (category != null) {

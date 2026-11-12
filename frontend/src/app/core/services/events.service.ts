@@ -2,9 +2,18 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../api.config';
-import { EventDetails, EventFilter, EventRequest, EventSummary, Page } from '../models/event.model';
+import {
+  EventCategory,
+  EventDetails,
+  EventFilter,
+  EventRequest,
+  EventSummary,
+  MapArea,
+  Page,
+} from '../models/event.model';
 
 const DEFAULT_PAGE_SIZE = 10;
+const MAP_AREA_LIMIT = 200;
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
@@ -16,6 +25,19 @@ export class EventsService {
       if (value) {
         params = params.set(name, value);
       }
+    }
+    return this.http.get<Page<EventSummary>>(`${API_BASE_URL}/events`, { params });
+  }
+
+  getEventsInArea(area: MapArea, category?: EventCategory): Observable<Page<EventSummary>> {
+    let params = new HttpParams()
+      .set('minLatitude', area.minLatitude)
+      .set('maxLatitude', area.maxLatitude)
+      .set('minLongitude', area.minLongitude)
+      .set('maxLongitude', area.maxLongitude)
+      .set('size', MAP_AREA_LIMIT);
+    if (category) {
+      params = params.set('category', category);
     }
     return this.http.get<Page<EventSummary>>(`${API_BASE_URL}/events`, { params });
   }

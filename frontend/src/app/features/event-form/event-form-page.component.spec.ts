@@ -2,13 +2,16 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { EventDetails } from '../../core/models/event.model';
 import { CurrentUserService } from '../../core/services/current-user.service';
+import { NOMINATIM_REVERSE_URL } from '../../core/services/geocoding.service';
 import { EventFormPageComponent } from './event-form-page.component';
 import { toInstant } from './event-form.validators';
+import { LocationPickerComponent } from './location-picker/location-picker.component';
 
 @Component({ selector: 'app-details-stub', template: '' })
 class DetailsStubComponent {}
@@ -161,6 +164,8 @@ describe('EventFormPageComponent', () => {
       city: 'Cluj-Napoca',
       capacity: null,
       imageUrl: null,
+      latitude: null,
+      longitude: null,
     });
     pending.flush({ ...EVENT, id: 9 });
 
@@ -221,5 +226,26 @@ describe('EventFormPageComponent', () => {
 
     await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe(`/events/${EVENT.id}`));
     expect(harness.routeNativeElement?.querySelector('form')).toBeNull();
+  });
+
+  it('fills in the location name and city from the picked point, keeping them editable', async () => {
+    const harness = await openForm('/events/new');
+    const root = harness.routeNativeElement as HTMLElement;
+    const picker = harness.fixture.debugElement.query(By.directive(LocationPickerComponent))
+      .componentInstance as LocationPickerComponent;
+
+    picker.picked.emit({ latitude: 46.77, longitude: 23.59 });
+    http
+      .expectOne((request) => request.url === NOMINATIM_REVERSE_URL)
+      .flush({ name: 'Central Park', address: { city: 'Cluj-Napoca' } });
+    harness.detectChanges();
+
+    expect(field(root, 'locationName').value).toBe('Central Park');
+    expect(field(root, 'city').value).toBe('Cluj-Napoca');
+
+    fill(root, 'city', 'Florești');
+    harness.detectChanges();
+
+    expect(field(root, 'city').value).toBe('Florești');
   });
 });

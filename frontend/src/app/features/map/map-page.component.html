@@ -1,0 +1,37 @@
+<div #map class="map events-map" role="region" aria-label="Map of upcoming events"></div>
+
+@if (focusedEventId(); as eventId) {
+  <div class="focus-actions">
+    <button class="pill back-to-event" type="button" (click)="backToEvent(eventId)">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to event
+    </button>
+    <a class="pill show-all" routerLink="/map">Show all events</a>
+  </div>
+} @else {
+  <app-category-filter
+    class="filter"
+    [selected]="selectedCategory()"
+    (selectedChange)="filterByCategory($event)"
+  />
+}
+
+<div class="bottom">
+  @if (tooManyEvents()) {
+    <p class="hint" role="status">Zoom in to see all events</p>
+  }
+  @if (canLocate) {
+    <button class="locate" type="button" aria-label="Show my location" (click)="locateUser()">
+      <mat-icon aria-hidden="true">my_location</mat-icon>
+    </button>
+  }
+  @if (selectedEvent(); as event) {
+    <app-map-event-card [event]="event" (closed)="selectedEvent.set(null)" />
+  }
+</div>
+
+@if (loadFailed()) {
+  <div class="overlay">
+    <app-error-state message="We couldn't load the events." (retry)="reloadArea()" />
+  </div>
+}

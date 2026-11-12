@@ -67,6 +67,8 @@ public class Event {
         this.endsAt = request.endsAt();
         this.city = request.city();
         this.locationName = request.locationName();
+        this.latitude = request.latitude();
+        this.longitude = request.longitude();
         this.imageUrl = request.imageUrl();
         this.capacity = request.capacity();
     }

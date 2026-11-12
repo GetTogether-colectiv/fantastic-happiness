@@ -40,6 +40,9 @@ class EventManagementTests {
     private static final long UNKNOWN_EVENT_ID = 999_999L;
     private static final double LATITUDE = 46.77;
     private static final double LONGITUDE = 23.59;
+    private static final double NEW_LATITUDE = 46.7712;
+    private static final double NEW_LONGITUDE = 23.6236;
+    private static final String NO_COORDINATE = "null";
     private static final int CAPACITY = 30;
     private static final long EVENT_LENGTH_HOURS = 2;
 
@@ -165,22 +168,69 @@ class EventManagementTests {
     }
 
     @Test
-    void letsTheOrganizerEditAndKeepsTheMapPosition() throws Exception {
+    void savesTheMapPositionOfANewEvent() throws Exception {
+        MvcResult result = create(OTHER_USER, validJson(TEST_TITLE_PREFIX + " located", "10",
+                String.valueOf(LATITUDE), String.valueOf(LONGITUDE)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.latitude").value(LATITUDE))
+                .andExpect(jsonPath("$.longitude").value(LONGITUDE))
+                .andReturn();
+        Number id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+
+        mockMvc.perform(get("/events/{id}", id))
+                .andExpect(jsonPath("$.latitude").value(LATITUDE))
+                .andExpect(jsonPath("$.longitude").value(LONGITUDE));
+    }
+
+    @Test
+    void allowsAnEventWithoutAMapPosition() throws Exception {
+        create(OTHER_USER, validJson(TEST_TITLE_PREFIX + " no location", "10"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.latitude").value(nullValue()))
+                .andExpect(jsonPath("$.longitude").value(nullValue()));
+    }
+
+    @Test
+    void rejectsALatitudeOutOfRange() throws Exception {
+        create(OTHER_USER, validJson(TEST_TITLE_PREFIX + " far north", "10", "91", String.valueOf(LONGITUDE)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.latitude").value("Latitude must be between -90 and 90"));
+    }
+
+    @Test
+    void rejectsALongitudeOutOfRange() throws Exception {
+        create(OTHER_USER, validJson(TEST_TITLE_PREFIX + " far east", "10", String.valueOf(LATITUDE), "181"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.longitude").value("Longitude must be between -180 and 180"));
+    }
+
+    @Test
+    void rejectsALatitudeWithoutALongitude() throws Exception {
+        create(OTHER_USER, validJson(TEST_TITLE_PREFIX + " half location", "10",
+                String.valueOf(LATITUDE), NO_COORDINATE))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors.latitude").value("Latitude and longitude must be given together"));
+    }
+
+    @Test
+    void letsTheOrganizerEditTheEventAndItsMapPosition() throws Exception {
         Long eventId = insertEvent();
         String title = TEST_TITLE_PREFIX + " edited";
 
-        edit(eventId, ORGANIZER, validJson(title, "10"))
+        edit(eventId, ORGANIZER, validJson(title, "10", String.valueOf(NEW_LATITUDE), String.valueOf(NEW_LONGITUDE)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(eventId))
                 .andExpect(jsonPath("$.title").value(title))
-                .andExpect(jsonPath("$.capacity").value(10));
+                .andExpect(jsonPath("$.capacity").value(10))
+                .andExpect(jsonPath("$.latitude").value(NEW_LATITUDE))
+                .andExpect(jsonPath("$.longitude").value(NEW_LONGITUDE));
 
         assertThat(jdbc.queryForObject("SELECT title FROM events WHERE id = ?", String.class, eventId))
                 .isEqualTo(title);
         assertThat(jdbc.queryForObject("SELECT latitude FROM events WHERE id = ?", Double.class, eventId))
-                .isEqualTo(LATITUDE);
+                .isEqualTo(NEW_LATITUDE);
         assertThat(jdbc.queryForObject("SELECT longitude FROM events WHERE id = ?", Double.class, eventId))
-                .isEqualTo(LONGITUDE);
+                .isEqualTo(NEW_LONGITUDE);
     }
 
     @Test
@@ -232,11 +282,21 @@ class EventManagementTests {
     }
 
     private static String validJson(String title, String capacity) {
+        return validJson(title, capacity, NO_COORDINATE, NO_COORDINATE);
+    }
+
+    private static String validJson(String title, String capacity, String latitude, String longitude) {
         Instant startsAt = Instant.now().plus(1, ChronoUnit.DAYS);
-        return eventJson(title, startsAt, startsAt.plus(EVENT_LENGTH_HOURS, ChronoUnit.HOURS), capacity);
+        return eventJson(title, startsAt, startsAt.plus(EVENT_LENGTH_HOURS, ChronoUnit.HOURS), capacity,
+                latitude, longitude);
     }
 
     private static String eventJson(String title, Instant startsAt, Instant endsAt, String capacity) {
+        return eventJson(title, startsAt, endsAt, capacity, NO_COORDINATE, NO_COORDINATE);
+    }
+
+    private static String eventJson(String title, Instant startsAt, Instant endsAt, String capacity,
+                                    String latitude, String longitude) {
         return """
                 {
                   "title": "%s",
@@ -247,8 +307,10 @@ class EventManagementTests {
                   "locationName": "Test location",
                   "city": "Cluj-Napoca",
                   "capacity": %s,
-                  "imageUrl": null
+                  "imageUrl": null,
+                  "latitude": %s,
+                  "longitude": %s
                 }
-                """.formatted(title, startsAt, endsAt, capacity);
+                """.formatted(title, startsAt, endsAt, capacity, latitude, longitude);
     }
 }

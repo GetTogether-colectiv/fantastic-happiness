@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.chips {
+  display: flex;
+  gap: var(--space-sm);
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  button {
+    flex: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .all {
+    padding: var(--space-xs) var(--space-md);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-pill);
+    background: var(--surface-color);
+    color: var(--primary-color);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+
+    &.selected {
+      background: var(--primary-color);
+      color: #ffffff;
+    }
+  }
+}

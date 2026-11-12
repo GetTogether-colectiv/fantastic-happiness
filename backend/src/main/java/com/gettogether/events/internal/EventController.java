@@ -7,6 +7,8 @@ import com.gettogether.shared.NotFoundException;
 import com.gettogether.shared.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +24,7 @@ import java.time.Instant;
 class EventController {
 
     private static final int DEFAULT_PAGE_SIZE = 10;
-    private static final int MAX_PAGE_SIZE = 50;
+    private static final int MAX_PAGE_SIZE = 200;
     private static final Sort ORDER_BY_START = Sort.by("startsAt", "id");
 
     private final EventRepository eventRepository;
@@ -34,7 +36,8 @@ class EventController {
     }
 
     @GetMapping
-    @Operation(summary = "List upcoming events, ordered by start time, optionally filtered. Events that already ended are left out")
+    @Operation(summary = "List upcoming events, ordered by start time, optionally filtered by category, city, "
+            + "dates and map area. Events that already ended are left out")
     PageResponse<EventSummary> findAll(
             @RequestParam(required = false) EventCategory category,
             @RequestParam(required = false) String city,
@@ -42,11 +45,12 @@ class EventController {
             @RequestParam(required = false) Instant from,
             @Parameter(description = "Only events starting at or before this instant (ISO-8601)")
             @RequestParam(required = false) Instant to,
+            @ParameterObject @Valid MapArea area,
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size, between 1 and " + MAX_PAGE_SIZE)
             @RequestParam(defaultValue = "" + DEFAULT_PAGE_SIZE) int size) {
         PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), ORDER_BY_START);
-        return PageResponse.from(eventService.findUpcoming(category, city, from, to, pageRequest));
+        return PageResponse.from(eventService.findUpcoming(category, city, from, to, area, pageRequest));
     }
 
     @GetMapping("/{id}")

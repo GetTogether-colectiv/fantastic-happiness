@@ -1,0 +1,110 @@
+:host {
+  position: relative;
+  display: block;
+  height: calc(
+    100dvh - var(--top-bar-height) - var(--bottom-nav-height) - env(safe-area-inset-bottom)
+  );
+  margin: -1rem;
+}
+
+.map {
+  height: 100%;
+  isolation: isolate;
+}
+
+.filter {
+  position: absolute;
+  top: var(--space-md);
+  right: 0;
+  left: 0;
+  z-index: 1;
+  width: auto;
+  padding: 0 var(--space-md);
+}
+
+.focus-actions {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  left: var(--space-md);
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-color);
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+
+  mat-icon {
+    width: var(--font-size-lg);
+    height: var(--font-size-lg);
+    font-size: var(--font-size-lg);
+  }
+}
+
+.bottom {
+  position: absolute;
+  right: var(--space-lg);
+  bottom: var(--space-xl);
+  left: var(--space-lg);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.hint {
+  align-self: center;
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-pill);
+  background: var(--text-color);
+  color: var(--surface-color);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+
+.locate {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-color);
+  color: var(--primary-color);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+  cursor: pointer;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(255 255 255 / 0.85);
+  z-index: 1;
+}

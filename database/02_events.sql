@@ -23,6 +23,7 @@ CREATE TABLE events (
 
 CREATE INDEX idx_events_starts_at ON events (starts_at);
 CREATE INDEX idx_events_city_category ON events (city, category);
+CREATE INDEX idx_events_location ON events (latitude, longitude);
 
 INSERT INTO events (title, description, category, starts_at, ends_at, city, location_name, latitude, longitude, capacity, organizer_id)
 SELECT v.title,

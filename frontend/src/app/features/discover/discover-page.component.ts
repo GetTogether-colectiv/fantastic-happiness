@@ -3,16 +3,15 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EMPTY, Subject, catchError, map, merge, switchMap, tap } from 'rxjs';
-import { EVENT_CATEGORIES, EventSummary, Page } from '../../core/models/event.model';
+import { EventSummary, Page } from '../../core/models/event.model';
 import { EventsService } from '../../core/services/events.service';
-import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
+import { CategoryFilterComponent } from '../../shared/components/category-filter/category-filter.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { EventCardComponent } from '../../shared/components/event-card/event-card.component';
 import { SkeletonCardComponent } from '../../shared/components/skeleton-card/skeleton-card.component';
 import { DateRangeComponent } from './date-range/date-range.component';
 import { DiscoverFilter, parseDiscoverFilter, toEventFilter } from './discover-filter';
-import { DragScrollDirective } from './drag-scroll.directive';
 
 type DiscoverState = 'loading' | 'loaded' | 'empty' | 'error';
 
@@ -29,9 +28,8 @@ const PREFETCH_THRESHOLD = 0.6;
   imports: [
     MatIconModule,
     RouterLink,
-    CategoryChipComponent,
+    CategoryFilterComponent,
     DateRangeComponent,
-    DragScrollDirective,
     EmptyStateComponent,
     ErrorStateComponent,
     EventCardComponent,
@@ -47,7 +45,6 @@ export class DiscoverPageComponent {
   private readonly pageRequests = new Subject<PageRequest>();
   private readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
 
-  protected readonly categories = EVENT_CATEGORIES;
   protected readonly skeletons = Array.from({ length: SKELETON_CARD_COUNT });
   private readonly filter$ = this.route.queryParamMap.pipe(map(parseDiscoverFilter));
 
@@ -85,10 +82,6 @@ export class DiscoverPageComponent {
       observer.observe(sentinel);
       onCleanup(() => observer.disconnect());
     });
-  }
-
-  protected selectCategory(category: DiscoverFilter['category']): void {
-    this.updateFilter({ category: this.filter().category === category ? undefined : category });
   }
 
   protected updateFilter(changes: Partial<DiscoverFilter>): void {

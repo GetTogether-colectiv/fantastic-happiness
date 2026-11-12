@@ -29,10 +29,12 @@ class EventService {
         this.participationApi = participationApi;
     }
 
-    Page<EventSummary> findUpcoming(EventCategory category, String city, Instant from, Instant to, Pageable pageable) {
+    Page<EventSummary> findUpcoming(EventCategory category, String city, Instant from, Instant to, MapArea area,
+                                    Pageable pageable) {
         Specification<Event> filters = Specification.allOf(
                 EventSpecifications.notEndedBefore(Instant.now()),
-                EventSpecifications.matching(category, city, from, to));
+                EventSpecifications.matching(category, city, from, to),
+                EventSpecifications.insideArea(area));
         Page<Event> events = eventRepository.findAll(filters, pageable);
         Map<Long, Integer> goingCounts = countGoing(events.getContent());
         return events.map(event -> EventMapper.toSummary(event, goingCounts.getOrDefault(event.getId(), NOBODY_GOING)));

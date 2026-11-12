@@ -1,24 +1,8 @@
 <section class="filters">
-  <div class="chips" appDragScroll role="group" aria-label="Category">
-    <button
-      type="button"
-      class="all"
-      [class.selected]="!filter().category"
-      [attr.aria-pressed]="!filter().category"
-      (click)="selectCategory(undefined)"
-    >
-      All
-    </button>
-    @for (category of categories; track category) {
-      <button
-        type="button"
-        [attr.aria-pressed]="filter().category === category"
-        (click)="selectCategory(category)"
-      >
-        <app-category-chip [category]="category" [selected]="filter().category === category" />
-      </button>
-    }
-  </div>
+  <app-category-filter
+    [selected]="filter().category"
+    (selectedChange)="updateFilter({ category: $event })"
+  />
   <app-date-range [from]="filter().from" [to]="filter().to" (rangeChange)="updateFilter($event)" />
 </section>
 

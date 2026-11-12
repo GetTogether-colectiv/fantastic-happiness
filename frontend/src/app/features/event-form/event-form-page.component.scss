@@ -14,7 +14,8 @@ form {
   gap: var(--space-xs);
 }
 
-label {
+label,
+.label {
   font-size: var(--font-size-sm);
   font-weight: 600;
 }
