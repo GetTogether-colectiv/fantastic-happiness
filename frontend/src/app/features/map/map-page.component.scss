@@ -1,10 +1,9 @@
 :host {
   position: relative;
   display: block;
-  height: calc(
-    100dvh - var(--top-bar-height) - var(--bottom-nav-height) - env(safe-area-inset-bottom)
-  );
-  margin: -1rem;
+  height: calc(100dvh - var(--top-bar-height));
+  margin: calc(-1 * var(--content-padding));
+  container-type: inline-size;
 }
 
 .map {
@@ -62,18 +61,38 @@
   bottom: var(--space-xl);
   left: var(--space-lg);
   z-index: 1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'hint hint'
+    '.    locate'
+    'card card';
   gap: var(--space-md);
   pointer-events: none;
 
   > * {
     pointer-events: auto;
   }
+
+  app-map-event-card {
+    grid-area: card;
+    justify-self: start;
+    width: 100%;
+    max-width: 26rem;
+  }
+}
+
+@container (min-width: 32rem) {
+  .bottom {
+    grid-template-areas:
+      'hint hint'
+      'card locate';
+  }
 }
 
 .hint {
-  align-self: center;
+  grid-area: hint;
+  justify-self: center;
   margin: 0;
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-pill);
@@ -85,7 +104,9 @@
 }
 
 .locate {
-  align-self: flex-end;
+  grid-area: locate;
+  align-self: end;
+  justify-self: end;
   display: flex;
   align-items: center;
   justify-content: center;

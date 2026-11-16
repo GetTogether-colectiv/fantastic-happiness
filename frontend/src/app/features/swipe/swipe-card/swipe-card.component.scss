@@ -1,3 +1,5 @@
+@use 'breakpoints' as *;
+
 :host {
   display: block;
   width: 100%;
@@ -28,8 +30,12 @@
 }
 .image {
   position: relative;
+  width: 100%;
   aspect-ratio: 4 / 3;
   max-height: 42dvh;
+  @include desktop-up {
+    max-height: 55dvh;
+  }
   background: var(--border-color);
   img {
     width: 100%;
@@ -67,6 +73,9 @@
 }
 .body {
   padding: var(--space-lg);
+  @include desktop-up {
+    padding: var(--space-xl);
+  }
 }
 h2 {
   margin: 0 0 var(--space-md);

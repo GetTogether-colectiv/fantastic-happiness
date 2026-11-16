@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  max-width: var(--page-width-wide);
+  margin: 0 auto;
+}
+
 .filters {
   display: flex;
   flex-direction: column;
@@ -7,8 +13,8 @@
 }
 
 .list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
   gap: var(--space-lg);
 }
 
@@ -50,8 +56,8 @@
 .create-button {
   position: fixed;
   z-index: 2;
-  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-lg));
-  right: max(var(--space-lg), calc((100vw - var(--app-max-width)) / 2 + var(--space-lg)));
+  bottom: var(--content-padding);
+  right: var(--content-padding);
   display: grid;
   place-items: center;
   width: 56px;

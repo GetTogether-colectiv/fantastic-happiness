@@ -1,5 +1,6 @@
 @use './styles/theme';
 @use './styles/map';
+@use './styles/breakpoints' as *;
 @use '@fontsource/material-icons/index.css';
 
 .material-icons {
@@ -18,9 +19,15 @@
 }
 
 :root {
-  --app-max-width: 480px;
   --top-bar-height: 4rem;
-  --bottom-nav-height: 4rem;
+  --content-padding: var(--space-lg);
+  --page-width-narrow: 40rem;
+  --page-width-medium: 60rem;
+  --page-width-wide: 80rem;
+
+  @include tablet-up {
+    --content-padding: var(--space-xl);
+  }
 }
 
 *,
@@ -43,5 +50,4 @@ body {
   --mat-snack-bar-container-shape: var(--radius-md);
   --mat-snack-bar-supporting-text-font: var(--font-family);
   --mat-snack-bar-supporting-text-size: var(--font-size-sm);
-  margin-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-lg));
 }

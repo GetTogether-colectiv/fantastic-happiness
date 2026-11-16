@@ -1,5 +1,12 @@
+:host {
+  display: block;
+  max-width: var(--page-width-medium);
+  margin: 0 auto;
+}
+
 .tabs {
   display: flex;
+  max-width: 24rem;
   gap: var(--space-sm);
   margin-bottom: var(--space-lg);
 }
@@ -29,8 +36,8 @@
 }
 
 .list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
   gap: var(--space-sm);
 }
 

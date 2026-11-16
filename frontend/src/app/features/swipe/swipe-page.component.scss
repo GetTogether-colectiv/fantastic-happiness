@@ -1,8 +1,18 @@
+@use 'breakpoints' as *;
+
 :host {
   display: block;
 }
 .swipe-page {
   width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  @include tablet-up {
+    max-width: 36rem;
+  }
+  @include desktop-up {
+    max-width: 44rem;
+  }
 }
 .stack {
   overflow: clip;

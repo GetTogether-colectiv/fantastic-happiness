@@ -50,30 +50,32 @@
         }
       </div>
 
-      <div class="field">
-        <label for="startsAt">Starts</label>
-        <input
-          id="startsAt"
-          type="datetime-local"
-          formControlName="startsAt"
-          [attr.aria-invalid]="!!errorMessage('startsAt')"
-        />
-        @if (errorMessage('startsAt'); as message) {
-          <p class="error" role="alert">{{ message }}</p>
-        }
-      </div>
+      <div class="row">
+        <div class="field">
+          <label for="startsAt">Starts</label>
+          <input
+            id="startsAt"
+            type="datetime-local"
+            formControlName="startsAt"
+            [attr.aria-invalid]="!!errorMessage('startsAt')"
+          />
+          @if (errorMessage('startsAt'); as message) {
+            <p class="error" role="alert">{{ message }}</p>
+          }
+        </div>
 
-      <div class="field">
-        <label for="endsAt">Ends</label>
-        <input
-          id="endsAt"
-          type="datetime-local"
-          formControlName="endsAt"
-          [attr.aria-invalid]="!!errorMessage('endsAt')"
-        />
-        @if (errorMessage('endsAt'); as message) {
-          <p class="error" role="alert">{{ message }}</p>
-        }
+        <div class="field">
+          <label for="endsAt">Ends</label>
+          <input
+            id="endsAt"
+            type="datetime-local"
+            formControlName="endsAt"
+            [attr.aria-invalid]="!!errorMessage('endsAt')"
+          />
+          @if (errorMessage('endsAt'); as message) {
+            <p class="error" role="alert">{{ message }}</p>
+          }
+        </div>
       </div>
 
       <div class="field">
@@ -81,62 +83,68 @@
         <app-location-picker formControlName="location" (picked)="autofillAddress($event)" />
       </div>
 
-      <div class="field">
-        <label for="locationName">Location name</label>
-        <input
-          id="locationName"
-          type="text"
-          formControlName="locationName"
-          autocomplete="off"
-          [attr.aria-invalid]="!!errorMessage('locationName')"
-        />
-        @if (errorMessage('locationName'); as message) {
-          <p class="error" role="alert">{{ message }}</p>
-        }
+      <div class="row">
+        <div class="field">
+          <label for="locationName">Location name</label>
+          <input
+            id="locationName"
+            type="text"
+            formControlName="locationName"
+            autocomplete="off"
+            [attr.aria-invalid]="!!errorMessage('locationName')"
+          />
+          @if (errorMessage('locationName'); as message) {
+            <p class="error" role="alert">{{ message }}</p>
+          }
+        </div>
+
+        <div class="field">
+          <label for="city">City</label>
+          <input
+            id="city"
+            type="text"
+            formControlName="city"
+            autocomplete="off"
+            [attr.aria-invalid]="!!errorMessage('city')"
+          />
+          @if (errorMessage('city'); as message) {
+            <p class="error" role="alert">{{ message }}</p>
+          }
+        </div>
       </div>
 
-      <div class="field">
-        <label for="city">City</label>
-        <input
-          id="city"
-          type="text"
-          formControlName="city"
-          autocomplete="off"
-          [attr.aria-invalid]="!!errorMessage('city')"
-        />
-        @if (errorMessage('city'); as message) {
-          <p class="error" role="alert">{{ message }}</p>
-        }
-      </div>
+      <div class="row">
+        <div class="field">
+          <label for="capacity"
+            >Capacity <span class="optional">(empty means unlimited)</span></label
+          >
+          <input
+            id="capacity"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            step="1"
+            formControlName="capacity"
+            [attr.aria-invalid]="!!errorMessage('capacity')"
+          />
+          @if (errorMessage('capacity'); as message) {
+            <p class="error" role="alert">{{ message }}</p>
+          }
+        </div>
 
-      <div class="field">
-        <label for="capacity">Capacity <span class="optional">(empty means unlimited)</span></label>
-        <input
-          id="capacity"
-          type="number"
-          inputmode="numeric"
-          min="1"
-          step="1"
-          formControlName="capacity"
-          [attr.aria-invalid]="!!errorMessage('capacity')"
-        />
-        @if (errorMessage('capacity'); as message) {
-          <p class="error" role="alert">{{ message }}</p>
-        }
-      </div>
-
-      <div class="field">
-        <label for="imageUrl">Cover image URL <span class="optional">(optional)</span></label>
-        <input
-          id="imageUrl"
-          type="url"
-          formControlName="imageUrl"
-          autocomplete="off"
-          [attr.aria-invalid]="!!errorMessage('imageUrl')"
-        />
-        @if (errorMessage('imageUrl'); as message) {
-          <p class="error" role="alert">{{ message }}</p>
-        }
+        <div class="field">
+          <label for="imageUrl">Cover image URL <span class="optional">(optional)</span></label>
+          <input
+            id="imageUrl"
+            type="url"
+            formControlName="imageUrl"
+            autocomplete="off"
+            [attr.aria-invalid]="!!errorMessage('imageUrl')"
+          />
+          @if (errorMessage('imageUrl'); as message) {
+            <p class="error" role="alert">{{ message }}</p>
+          }
+        </div>
       </div>
 
       @if (submitError()) {

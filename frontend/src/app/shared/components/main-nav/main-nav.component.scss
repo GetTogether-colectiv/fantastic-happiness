@@ -1,0 +1,110 @@
+@use 'breakpoints' as *;
+
+.burger {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: calc(-1 * var(--space-sm));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-color);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--background-color);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -3px;
+  }
+
+  @include tablet-up {
+    display: none;
+  }
+}
+
+.links {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 8px 16px rgb(0 0 0 / 10%);
+
+  &.open {
+    display: flex;
+  }
+
+  @include tablet-up {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+}
+
+a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  color: var(--muted-color);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--background-color);
+  }
+
+  &.active {
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--primary-color);
+    outline-offset: -3px;
+  }
+
+  @include tablet-up {
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    font-size: 0.875rem;
+  }
+
+  @include desktop-up {
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+}
+
+svg {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  @include tablet-up {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
