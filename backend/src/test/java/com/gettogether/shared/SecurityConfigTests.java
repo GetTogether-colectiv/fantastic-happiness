@@ -67,7 +67,7 @@ class SecurityConfigTests {
 
     @Test
     void allowsAuthRequestsToReachRouting() throws Exception {
-        mockMvc.perform(post(contextPath + "/auth/login").contextPath(contextPath))
+        mockMvc.perform(post(contextPath + "/auth/unmapped").contextPath(contextPath))
                 .andExpect(status().isNotFound());
     }
 

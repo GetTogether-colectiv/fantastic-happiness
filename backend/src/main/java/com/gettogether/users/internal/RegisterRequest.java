@@ -5,11 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.util.Locale;
-
 record RegisterRequest(
         @NotBlank @Size(max = 100) String name,
-        @NotBlank @Email @Size(max = 255) String email,
+        @NotBlank @Email @Size(max = EmailAddress.MAX_LENGTH) String email,
         @NotBlank @Pattern(regexp = "(?s)(?=.*[0-9]).{8,}",
                 message = "Password must contain at least 8 characters and one digit") String password) {
 
@@ -17,8 +15,6 @@ record RegisterRequest(
         if (name != null) {
             name = name.strip();
         }
-        if (email != null) {
-            email = email.strip().toLowerCase(Locale.ROOT);
-        }
+        email = EmailAddress.normalize(email);
     }
 }

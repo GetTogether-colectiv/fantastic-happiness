@@ -56,6 +56,10 @@ public class User {
         return email;
     }
 
+    String getPasswordHash() {
+        return passwordHash;
+    }
+
     public String getAvatarUrl() {
         return avatarUrl;
     }
