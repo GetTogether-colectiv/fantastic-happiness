@@ -26,9 +26,7 @@
       >
         @if (row.message.userId !== currentUserId() && row.startsGroup) {
           <div class="author">
-            @if (row.message.userAvatarUrl) {
-              <img [src]="row.message.userAvatarUrl" alt="" />
-            }
+            <app-avatar [name]="row.message.userName" [imageUrl]="row.message.userAvatarUrl" />
             <span>{{ row.message.userName }}</span>
           </div>
         }

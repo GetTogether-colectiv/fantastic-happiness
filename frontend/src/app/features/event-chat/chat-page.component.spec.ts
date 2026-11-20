@@ -94,6 +94,8 @@ describe('ChatPageComponent', () => {
     expect(texts()).toEqual(['Hello', 'Hi']);
     expect(messages[0].classList).not.toContain('own');
     expect(messages[1].classList).toContain('own');
+    expect(messages[0].querySelector('app-avatar')?.textContent?.trim()).toBe('U2');
+    expect(messages[1].querySelector('app-avatar')).toBeNull();
   });
 
   it('sends a trimmed message and ignores blank input', () => {

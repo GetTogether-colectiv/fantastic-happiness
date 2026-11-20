@@ -93,20 +93,6 @@ dd {
   gap: var(--space-sm);
 }
 
-.avatar {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-pill);
-  object-fit: cover;
-}
-
-.avatar-placeholder {
-  display: grid;
-  place-items: center;
-  background: var(--border-color);
-}
-
 h3 {
   font-size: var(--font-size-lg);
 }

@@ -5,6 +5,11 @@
       <a class="logo" routerLink="/discover" aria-label="Home">
         <img src="LOGO.svg" alt="Logo" />
       </a>
+      @if (profileUser(); as user) {
+        <a class="profile-shortcut" routerLink="/profile" aria-label="Go to your profile">
+          <app-avatar [name]="user.displayName" [imageUrl]="user.avatarUrl" />
+        </a>
+      }
     </header>
   }
   <main [class.content]="showNavigation()">

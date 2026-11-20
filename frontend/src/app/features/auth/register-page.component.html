@@ -38,7 +38,8 @@
         }
       </div>
 
-      @let passwordInvalid = form.controls.password.touched && form.controls.password.invalid;
+      @let password = form.controls.password;
+      @let passwordInvalid = password.touched && password.invalid;
       <div class="field">
         <label for="register-password">Password</label>
         <div class="password-field">
@@ -67,14 +68,42 @@
           </button>
         </div>
         <p class="hint" id="password-requirements">
-          Use at least {{ passwordMinLength }} characters, including one digit, and no more than
-          {{ passwordMaxBytes }} UTF-8 bytes.
+          Use at least {{ passwordMinLength }} characters, including an uppercase letter, a
+          lowercase letter, a digit, and a special character such as !, @, or #.
         </p>
         @if (passwordInvalid) {
           <p class="error" id="register-password-error" role="alert">
-            Enter a password that meets these requirements.
+            {{
+              password.hasError('required')
+                ? 'Enter a password.'
+                : password.getError('passwordRequirements')
+            }}
           </p>
         }
+        <div class="password-actions">
+          <button
+            type="button"
+            aria-controls="register-password register-confirmation"
+            (click)="generateStrongPassword()"
+          >
+            {{ passwordGenerated() ? 'Generate another password' : 'Generate strong password' }}
+          </button>
+          @if (passwordGenerated()) {
+            <button type="button" [disabled]="copyStatus() === 'copying'" (click)="copyPassword()">
+              Copy password
+            </button>
+          }
+        </div>
+        <p class="hint password-copy-status" role="status">
+          @switch (copyStatus()) {
+            @case ('copied') {
+              Password copied.
+            }
+            @case ('failed') {
+              Couldn't copy. Show the password to copy it manually.
+            }
+          }
+        </p>
       </div>
 
       @let confirmationInvalid =

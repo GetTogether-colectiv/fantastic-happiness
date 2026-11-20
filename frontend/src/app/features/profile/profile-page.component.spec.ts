@@ -45,6 +45,7 @@ describe('Profile authentication actions', () => {
     profile.flush({ ...user, preferredCategories: [] });
     harness.detectChanges();
     expect(TestBed.inject(UsersService).profile()?.id).toBe(user.id);
+    expect(harness.routeNativeElement?.querySelector('app-avatar')?.textContent?.trim()).toBe('A');
 
     const logout = harness.routeNativeElement!.querySelector<HTMLButtonElement>('footer button')!;
     expect(logout.textContent?.trim()).toBe('Log out');
@@ -65,8 +66,8 @@ describe('Profile authentication actions', () => {
     for (const [field, value] of Object.entries({
       name: 'New User',
       email: 'new@example.com',
-      password: 'password1',
-      confirmPassword: 'password1',
+      password: 'Password1!',
+      confirmPassword: 'Password1!',
     })) {
       const input = form.querySelector<HTMLInputElement>(`[formControlName="${field}"]`)!;
       input.value = value;

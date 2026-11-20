@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, linkedSignal } from '@angular/core';
-import { MonoTypeOperatorFunction, Observable, defer, filter, tap } from 'rxjs';
+import { MonoTypeOperatorFunction, Observable, defer, filter, finalize, shareReplay, tap } from 'rxjs';
 import { API_BASE_URL } from '../api.config';
+import { AuthResponse } from '../models/auth.model';
 import { EventCategory } from '../models/event.model';
 import { ProfileUpdate, User, UserProfile } from '../models/user.model';
 import { AuthService } from './auth.service';
@@ -14,6 +15,7 @@ export class UsersService {
     source: this.auth.session,
     computation: (): UserProfile | null => null,
   });
+  private profileRequest?: { session: AuthResponse | null; response$: Observable<UserProfile> };
 
   readonly profile = this.currentProfile.asReadonly();
 
@@ -22,7 +24,20 @@ export class UsersService {
   }
 
   loadProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${API_BASE_URL}/users/me`).pipe(this.keepProfile());
+    return defer(() => {
+      const session = this.auth.session();
+      if (this.profileRequest?.session === session) return this.profileRequest.response$;
+
+      const response$ = this.http.get<UserProfile>(`${API_BASE_URL}/users/me`).pipe(
+        this.keepProfile(),
+        finalize(() => {
+          if (this.profileRequest?.response$ === response$) this.profileRequest = undefined;
+        }),
+        shareReplay({ bufferSize: 1, refCount: true }),
+      );
+      this.profileRequest = { session, response$ };
+      return response$;
+    });
   }
 
   updateProfile(update: ProfileUpdate): Observable<UserProfile> {

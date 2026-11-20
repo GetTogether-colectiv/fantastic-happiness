@@ -61,7 +61,7 @@ class LoginTests {
     @Transactional
     void signsInANewlyRegisteredUserAndEnforcesTheBcryptByteLimit() throws Exception {
         String email = "login.test@gettogether.test";
-        String password = " " + "é".repeat(34) + "12 ";
+        String password = " " + "é".repeat(33) + "Aa1! ";
         String registration = mockMvc.perform(post(contextPath + "/auth/register").contextPath(contextPath)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMapper.writeValueAsString(Map.of(

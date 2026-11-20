@@ -114,7 +114,7 @@ describe('Event details navigation', () => {
     expect(page.querySelector('.cover-image')?.getAttribute('src')).toBe(EVENT.imageUrl);
     expect(page.querySelectorAll('time')[0].getAttribute('datetime')).toBe(EVENT.startsAt);
     expect(page.querySelectorAll('time')[1].getAttribute('datetime')).toBe(EVENT.endsAt);
-    expect(page.querySelector('.avatar')?.getAttribute('src')).toBe('/alex.jpg');
+    expect(page.querySelector('.organizer app-avatar img')?.getAttribute('src')).toBe('/alex.jpg');
   });
 
   it('loads another event when only the route id changes', async () => {

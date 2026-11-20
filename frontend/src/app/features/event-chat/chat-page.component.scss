@@ -1,5 +1,3 @@
-$avatar-size: 20px;
-
 .chat {
   position: relative;
   display: flex;
@@ -91,18 +89,14 @@ $avatar-size: 20px;
 }
 
 .author {
+  --avatar-size: 20px;
+
   display: flex;
   align-items: center;
   gap: var(--space-xs);
   margin-bottom: var(--space-xs);
   color: var(--muted-color);
   font-size: var(--font-size-xs);
-
-  img {
-    width: $avatar-size;
-    height: $avatar-size;
-    border-radius: var(--radius-pill);
-  }
 }
 
 .new-messages {

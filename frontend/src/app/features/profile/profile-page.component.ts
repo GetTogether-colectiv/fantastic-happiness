@@ -9,11 +9,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { PROFILE_PREFERENCES_FRAGMENT } from '../../core/auth/auth-navigation';
 import { SessionExitService } from '../../core/services/session-exit.service';
 import { UsersService } from '../../core/services/users.service';
+import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { SkeletonCardComponent } from '../../shared/components/skeleton-card/skeleton-card.component';
 import { CategoryPickerComponent } from '../../shared/components/category-picker/category-picker.component';
@@ -31,7 +31,7 @@ const NOT_BLANK_PATTERN = /\S/;
   selector: 'app-profile-page',
   imports: [
     ReactiveFormsModule,
-    MatIcon,
+    AvatarComponent,
     CategoryPickerComponent,
     ErrorStateComponent,
     SkeletonCardComponent,

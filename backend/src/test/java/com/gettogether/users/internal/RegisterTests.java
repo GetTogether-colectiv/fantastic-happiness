@@ -42,7 +42,7 @@ class RegisterTests {
 
     private static final String NAME = "New User";
     private static final String EMAIL = "new.user@gettogether.test";
-    private static final String PASSWORD = " ValidPass1 ";
+    private static final String PASSWORD = " ValidPass1! ";
     private static final int TIMEOUT_SECONDS = 10;
 
     @Autowired
@@ -109,13 +109,22 @@ class RegisterTests {
                 Arguments.of("a".repeat(101), EMAIL, PASSWORD, "name"),
                 Arguments.of(NAME, "", PASSWORD, "email"),
                 Arguments.of(NAME, "invalid-email", PASSWORD, "email"),
-                Arguments.of(NAME, EMAIL, "short1", "password"),
-                Arguments.of(NAME, EMAIL, "longenough", "password"));
+                Arguments.of(NAME, EMAIL, "Aa1!😀bc", "password"),
+                Arguments.of(NAME, EMAIL, "abcdef1!", "password"),
+                Arguments.of(NAME, EMAIL, "ABCDEF1!", "password"),
+                Arguments.of(NAME, EMAIL, "Abcdefg!", "password"),
+                Arguments.of(NAME, EMAIL, "Abcdef1\u00a0", "password"));
+    }
+
+    @Test
+    void acceptsUnicodeLettersDigitsAndSymbols() throws Exception {
+        register(NAME, EMAIL, "Åé中١😀漢字文").andExpect(status().isCreated());
+        assertThat(registeredUserCount()).isOne();
     }
 
     @Test
     void rejectsPasswordsExceedingTheBcryptByteLimit() throws Exception {
-        register(NAME, EMAIL, "é".repeat(36) + "1")
+        register(NAME, EMAIL, "é".repeat(34) + "Aa1!x")
                 .andExpect(status().isBadRequest());
         assertThat(registeredUserCount()).isZero();
     }

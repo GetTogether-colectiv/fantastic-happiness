@@ -55,6 +55,22 @@ describe('UsersService', () => {
       expect(service.profile()).toEqual(PROFILE);
     });
 
+    it('shares an in-flight profile request and allows a later refresh', () => {
+      signIn();
+      const header = vi.fn();
+      const page = vi.fn();
+      service.loadProfile().subscribe(header);
+      service.loadProfile().subscribe(page);
+      http.expectOne('/api/users/me').flush(PROFILE);
+      expect(header).toHaveBeenCalledWith(PROFILE);
+      expect(page).toHaveBeenCalledWith(PROFILE);
+
+      service.loadProfile().subscribe();
+      const updatedProfile = { ...PROFILE, avatarUrl: '/updated.jpg' };
+      http.expectOne('/api/users/me').flush(updatedProfile);
+      expect(service.profile()).toEqual(updatedProfile);
+    });
+
     it('sends the profile update and replaces the signal with the response', () => {
       const update = { displayName: 'Alex D', city: null, avatarUrl: null };
       service.updateProfile(update).subscribe();

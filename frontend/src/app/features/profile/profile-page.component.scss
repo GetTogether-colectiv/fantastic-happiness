@@ -12,19 +12,7 @@
 }
 
 .avatar {
-  flex: none;
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--border-color);
-  color: var(--muted-color);
+  --avatar-size: 4.5rem;
 }
 
 .identity {

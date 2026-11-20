@@ -60,13 +60,7 @@
             <dt><mat-icon aria-hidden="true">person</mat-icon> Organizer</dt>
             <dd class="organizer">
               @if (details.organizer; as organizer) {
-                @if (organizer.avatarUrl) {
-                  <img class="avatar" [src]="organizer.avatarUrl" alt="" />
-                } @else {
-                  <span class="avatar avatar-placeholder" aria-hidden="true">{{
-                    organizer.displayName.slice(0, 1)
-                  }}</span>
-                }
+                <app-avatar [name]="organizer.displayName" [imageUrl]="organizer.avatarUrl" />
                 {{ organizer.displayName }}
               } @else {
                 Organizer information unavailable

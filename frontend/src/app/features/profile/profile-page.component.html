@@ -39,13 +39,7 @@
             </div>
           </form>
         } @else {
-          @if (user.avatarUrl) {
-            <img class="avatar" [src]="user.avatarUrl" alt="" />
-          } @else {
-            <div class="avatar placeholder">
-              <mat-icon aria-hidden="true">person</mat-icon>
-            </div>
-          }
+          <app-avatar class="avatar" [name]="user.displayName" [imageUrl]="user.avatarUrl" />
           <div class="identity">
             <h1>{{ user.displayName }}</h1>
             @if (user.city) {

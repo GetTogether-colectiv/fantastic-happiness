@@ -64,7 +64,7 @@ describe('AuthService', () => {
 
   it('authenticates directly from the registration response', () => {
     const service = TestBed.inject(AuthService);
-    const registration = { name: 'Alex', email: 'alex@example.com', password: 'password1' };
+    const registration = { name: 'Alex', email: 'alex@example.com', password: 'Password1!' };
     service.register(registration).subscribe();
 
     const request = http.expectOne('/api/auth/register');

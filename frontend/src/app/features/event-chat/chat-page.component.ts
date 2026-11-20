@@ -21,6 +21,7 @@ import { ChatMessage, JOIN_TO_CHAT_MESSAGE, MAX_MESSAGE_LENGTH } from '../../cor
 import { AuthService } from '../../core/services/auth.service';
 import { ChatService, HISTORY_PAGE_SIZE } from '../../core/services/chat.service';
 import { EventsService } from '../../core/services/events.service';
+import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 const NEAR_BOTTOM_PX = 100;
 
@@ -32,7 +33,7 @@ interface ChatRow {
 
 @Component({
   selector: 'app-chat-page',
-  imports: [DatePipe, FormsModule, MatIconModule],
+  imports: [AvatarComponent, DatePipe, FormsModule, MatIconModule],
   templateUrl: './chat-page.component.html',
   styleUrl: './chat-page.component.scss',
 })

@@ -18,6 +18,7 @@ import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { EventsService } from '../../core/services/events.service';
 import { UsersService } from '../../core/services/users.service';
+import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
@@ -37,6 +38,7 @@ type DetailsState =
 @Component({
   selector: 'app-event-details-page',
   imports: [
+    AvatarComponent,
     CategoryChipComponent,
     DatePipe,
     EmptyStateComponent,

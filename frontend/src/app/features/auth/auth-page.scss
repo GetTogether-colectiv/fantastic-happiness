@@ -104,6 +104,38 @@ input {
   }
 }
 
+.password-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+
+  button {
+    min-height: 2rem;
+    padding: var(--space-xs) 0;
+    border: 0;
+    border-radius: var(--space-xs);
+    background: none;
+    color: var(--primary-color);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+}
+
+.password-copy-status:empty {
+  position: absolute;
+}
+
 .hint,
 .error {
   margin: 0;
