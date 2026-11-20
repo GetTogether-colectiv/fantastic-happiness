@@ -58,10 +58,9 @@ export function addOpenStreetMapTiles(map: L.Map): void {
 }
 
 export function createCategoryIcon(category: EventCategory): L.DivIcon {
-  const color = `var(--category-${category.toLowerCase()})`;
   return L.divIcon({
     className: 'category-pin',
-    html: `<span class="category-pin__body" style="--pin-color: ${color}">
+    html: `<span class="category-pin__body">
              <span class="material-icons" aria-hidden="true">${CATEGORY_ICONS[category]}</span>
            </span>`,
     iconSize: PIN_SIZE,

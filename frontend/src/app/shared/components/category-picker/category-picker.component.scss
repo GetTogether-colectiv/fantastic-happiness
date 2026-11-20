@@ -24,7 +24,7 @@
 .tile.selected {
   border-color: var(--primary-color);
   background: var(--primary-color);
-  color: var(--on-primary-color, #fff);
+  color: var(--on-primary-color);
 }
 
 .check {
@@ -44,5 +44,5 @@
 }
 
 .hint.error {
-  color: var(--error-color, #b3261e);
+  color: var(--error-color);
 }

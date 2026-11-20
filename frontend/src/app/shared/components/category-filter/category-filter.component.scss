@@ -36,7 +36,7 @@
 
     &.selected {
       background: var(--primary-color);
-      color: #ffffff;
+      color: var(--on-primary-color);
     }
   }
 }

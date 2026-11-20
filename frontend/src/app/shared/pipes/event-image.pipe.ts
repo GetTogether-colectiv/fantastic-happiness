@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-export const DEFAULT_EVENT_IMAGE_URL = '/images/event-placeholder.png';
+export const DEFAULT_EVENT_IMAGE_URL = '/images/event-placeholder.svg';
 
 @Pipe({ name: 'eventImage' })
 export class EventImagePipe implements PipeTransform {

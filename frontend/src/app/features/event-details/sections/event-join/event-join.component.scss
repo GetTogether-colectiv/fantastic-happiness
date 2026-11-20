@@ -24,12 +24,12 @@ p {
   font-size: var(--font-size-sm);
 }
 .message {
-  color: var(--danger-color);
+  color: var(--error-color);
   font-size: var(--font-size-sm);
 }
 .success {
   color: var(--text-color);
-  border-left: 3px solid var(--success-color);
+  border-left: 3px solid var(--primary-color);
   padding-left: var(--space-sm);
   font-size: var(--font-size-sm);
 }
@@ -57,19 +57,14 @@ button {
   border: 1px solid var(--primary-color);
   border-radius: var(--radius-pill);
   background: var(--primary-color);
-  color: var(--surface-color);
+  color: var(--on-primary-color);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-  &.join {
-    border-color: var(--success-color);
-    background: var(--success-color);
-    color: var(--text-color);
-  }
   &.leave {
     background: var(--surface-color);
-    border-color: var(--danger-color);
-    color: var(--danger-color);
+    border-color: var(--error-color);
+    color: var(--error-color);
   }
   &.cancel-leave {
     background: var(--surface-color);

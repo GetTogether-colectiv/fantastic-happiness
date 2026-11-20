@@ -3,6 +3,11 @@
     <div role="status" aria-label="Loading events"><app-skeleton-card /></div>
   }
   <div class="stack">
+    @if (events()[1]; as next) {
+      <div class="peek" [class.promoted]="decision()" aria-hidden="true">
+        <img [src]="next.imageUrl | eventImage" alt="" />
+      </div>
+    }
     @for (event of currentEvents(); track event.id) {
       <app-swipe-card
         [event]="event"
@@ -15,26 +20,9 @@
     }
   </div>
   @if (events().length) {
-    <div class="actions" aria-label="Choose participation">
-      <button
-        type="button"
-        class="nope"
-        aria-label="Not interested"
-        [disabled]="busy()"
-        (click)="decide('NOT_INTERESTED')"
-      >
-        <mat-icon aria-hidden="true">close</mat-icon>
-      </button>
-      <button
-        type="button"
-        class="going"
-        aria-label="Going"
-        [disabled]="busy()"
-        (click)="decide('GOING')"
-      >
-        <mat-icon aria-hidden="true">check</mat-icon>
-      </button>
-    </div>
+    <p class="hint">
+      Swipe right if you're going, left to skip<span class="keys-hint"> · or use the ← → keys</span>
+    </p>
   }
   @if (message()) {
     <p class="message" role="alert">{{ message() }}</p>

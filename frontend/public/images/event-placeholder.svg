@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1024">
+  <rect width="1280" height="1024" fill="#d0d7d9"/>
+  <path transform="translate(520 280) scale(10)" fill="#325e6a" d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+  <text x="640" y="660" fill="#626d71" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="64" text-anchor="middle">No image selected</text>
+</svg>
