@@ -131,6 +131,18 @@ describe('ChatPageComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Join the event to chat');
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
+  });
+
+  it('shows the join message instead of reconnecting after a subscription denial', () => {
+    chat.connectionState$.next(RxStompState.OPEN);
+    chat.connectionState$.next(RxStompState.CLOSED);
+    chat.errors.next('NOT_GOING');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Join the event to chat');
+    expect(fixture.nativeElement.querySelector('.reconnecting')).toBeNull();
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
   });
 
   it('disconnects when the page is closed', () => {

@@ -78,7 +78,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.chat
       .watchErrors()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.error.set(true));
+      .subscribe(() => this.showChatError());
     this.chat
       .watchMessages(this.eventId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -91,7 +91,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
           this.prepend(history);
           this.afterRender(() => this.scrollToBottom());
         },
-        error: () => this.error.set(true),
+        error: () => this.showChatError(),
       });
   }
 
@@ -101,7 +101,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   protected send(): void {
     const content = this.draft().trim();
-    if (content) {
+    if (content && !this.error()) {
       this.chat.send(this.eventId, content);
       this.draft.set('');
     }
@@ -129,9 +129,14 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     if (state === RxStompState.OPEN) {
       this.wasConnected = true;
       this.reconnecting.set(false);
-    } else if (this.wasConnected) {
+    } else if (this.wasConnected && !this.error()) {
       this.reconnecting.set(true);
     }
+  }
+
+  private showChatError(): void {
+    this.error.set(true);
+    this.reconnecting.set(false);
   }
 
   private onMessage(message: ChatMessage): void {

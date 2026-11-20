@@ -32,7 +32,7 @@ class JwtServiceTests {
         assertThat(parsed.getPayload().getSubject()).isEqualTo(Long.toString(USER_ID));
         assertThat(Duration.between(parsed.getPayload().getIssuedAt().toInstant(),
                 parsed.getPayload().getExpiration().toInstant())).isEqualTo(Duration.ofDays(7));
-        assertThat(jwtService.verifyToken(token)).isEqualTo(USER_ID);
+        assertThat(jwtService.verifyToken(token).userId()).isEqualTo(USER_ID);
     }
 
     @Test
@@ -73,7 +73,7 @@ class JwtServiceTests {
                 .signWith(longerKey, Jwts.SIG.HS512)
                 .compact();
 
-        assertThat(service.verifyToken(service.issueToken(USER_ID))).isEqualTo(USER_ID);
+        assertThat(service.verifyToken(service.issueToken(USER_ID)).userId()).isEqualTo(USER_ID);
         assertThatThrownBy(() -> service.verifyToken(token)).isInstanceOf(JwtException.class);
     }
 

@@ -17,9 +17,6 @@ import java.security.Principal;
 @Controller
 class ChatMessageController {
 
-    private static final String EVENT_TOPIC = "/topic/events/%d/chat";
-    private static final String ERROR_QUEUE = "/queue/errors";
-
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -28,14 +25,14 @@ class ChatMessageController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    @MessageMapping("/events/{eventId}/chat")
+    @MessageMapping(ChatDestinations.CHAT_PATH)
     void send(@DestinationVariable Long eventId, @Valid @Payload SendChatMessageRequest request, Principal principal) {
         ChatMessageDto message = chatService.save(eventId, Long.valueOf(principal.getName()), request.content());
-        messagingTemplate.convertAndSend(EVENT_TOPIC.formatted(eventId), message);
+        messagingTemplate.convertAndSend(ChatDestinations.eventTopic(eventId), message);
     }
 
     @MessageExceptionHandler(ForbiddenException.class)
-    @SendToUser(destinations = ERROR_QUEUE, broadcast = false)
+    @SendToUser(destinations = ChatDestinations.ERROR_QUEUE, broadcast = false)
     ErrorResponse handleForbidden(ForbiddenException exception) {
         return new ErrorResponse(HttpStatus.FORBIDDEN.value(), exception.getMessage());
     }

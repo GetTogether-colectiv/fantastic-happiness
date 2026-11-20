@@ -19,10 +19,14 @@ describe('passwordMatchValidator', () => {
 describe('passwordRequirementsValidator', () => {
   it.each([
     ['Aa1!😀bc', 'Use at least 8 characters.'],
-    ['abcdef1!', 'Add an uppercase letter.'],
-    ['ABCDEF1!', 'Add a lowercase letter.'],
-    ['Abcdefg!', 'Add a digit.'],
-    ['Abcdef1\u00a0', 'Add a special character.'],
+    ['abcdef1!', 'Add an uppercase letter (A–Z).'],
+    ['ABCDEF1!', 'Add a lowercase letter (a–z).'],
+    ['Abcdefg!', 'Add a digit (0–9).'],
+    ['Abcdef1\u00a0', 'Add a special character such as !, @, or #.'],
+    ['Àbcdef1!', 'Add an uppercase letter (A–Z).'],
+    ['ABCDÉF1!', 'Add a lowercase letter (a–z).'],
+    ['Abcdef١!', 'Add a digit (0–9).'],
+    ['Abcdef1🫩', 'Add a special character such as !, @, or #.'],
     ['Aa1!abcd\ud800', 'Remove invalid characters.'],
   ])('rejects %s with a specific message', (password, message) => {
     expect(passwordRequirementsValidator(new FormControl(password))).toEqual({
@@ -30,7 +34,7 @@ describe('passwordRequirementsValidator', () => {
     });
   });
 
-  it.each(['Abc!def1', 'Åé中١😀漢字文'])('accepts %s', (password) => {
+  it.each(['Abc!def1', 'Aa1[é中🫩字'])('accepts %s', (password) => {
     expect(passwordRequirementsValidator(new FormControl(password))).toBeNull();
   });
 

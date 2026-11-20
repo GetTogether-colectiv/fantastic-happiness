@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { RxStomp } from '@stomp/rx-stomp';
+import { EMPTY } from 'rxjs';
 import { AUTH_STORAGE_KEY, signIn } from '../testing/auth-fixtures';
 import { AuthService } from './auth.service';
 import { ChatService } from './chat.service';
@@ -43,6 +44,33 @@ describe('ChatService', () => {
     service.getMessageCount(7).subscribe(next);
     http.expectOne('/api/events/7/messages/count').flush(12);
     expect(next).toHaveBeenCalledWith(12);
+  });
+
+  it('surfaces a STOMP denial and discards the client before the next connection', () => {
+    const activate = vi.spyOn(RxStomp.prototype, 'activate').mockImplementation(() => undefined);
+    const deactivate = vi.spyOn(RxStomp.prototype, 'deactivate').mockResolvedValue();
+    vi.spyOn(RxStomp.prototype, 'watch').mockReturnValue(EMPTY);
+    const next = vi.fn();
+
+    signIn();
+    service.connect();
+    const client = activate.mock.contexts[0] as RxStomp;
+    const errors = service.watchErrors().subscribe(next);
+    client.stompErrors$.next({
+      command: 'ERROR',
+      headers: { message: 'NOT_GOING' },
+      body: '',
+      binaryBody: new Uint8Array(),
+      isBinaryBody: false,
+    });
+
+    expect(next).toHaveBeenCalledWith('NOT_GOING');
+    expect(deactivate.mock.contexts).toEqual([client]);
+    expect(deactivate).toHaveBeenCalledWith({ force: true });
+    errors.unsubscribe();
+
+    service.connect();
+    expect(activate.mock.contexts[1]).not.toBe(client);
   });
 
   it('uses the owning session JWT on each connection and retires the client at session end', async () => {

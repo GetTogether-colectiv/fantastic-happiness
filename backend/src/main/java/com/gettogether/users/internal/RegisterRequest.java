@@ -8,8 +8,9 @@ import jakarta.validation.constraints.Size;
 record RegisterRequest(
         @NotBlank @Size(max = 100) String name,
         @NotBlank @Email @Size(max = EmailAddress.MAX_LENGTH) String email,
-        @NotBlank @Pattern(regexp = "(?s)(?!.*\\p{Cs})(?=.*\\p{Lu})(?=.*\\p{Ll})(?=.*\\p{Nd})(?=.*[\\p{P}\\p{S}]).{8,}",
-                message = "Use at least 8 characters, including an uppercase letter, a lowercase letter, a digit, and a special character.")
+        @NotBlank @Pattern(regexp = "(?s)(?!.*[\\x{D800}-\\x{DFFF}])(?=.*[A-Z])(?=.*[a-z])"
+                + "(?=.*[0-9])(?=.*[!-/:-@\\x5B-\\x60{-~]).{8,}",
+                message = "Use at least 8 characters, including A–Z, a–z, 0–9, and an ASCII symbol such as !, @, or #.")
         String password) {
 
     RegisterRequest {

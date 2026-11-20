@@ -21,21 +21,21 @@ class JwtUserTokenAuthenticator implements UserTokenAuthenticator {
     }
 
     @Override
-    public Long authenticate(@Nullable String authorization) {
+    public AuthenticatedUser authenticate(@Nullable String authorization) {
         if (authorization == null || !authorization.regionMatches(true, 0, BEARER_PREFIX, 0, BEARER_PREFIX.length())) {
             throw new UnauthorizedException(INVALID_TOKEN);
         }
 
-        long userId;
+        AuthenticatedUser user;
         try {
-            userId = jwtService.verifyToken(authorization.substring(BEARER_PREFIX.length()).strip());
+            user = jwtService.verifyToken(authorization.substring(BEARER_PREFIX.length()).strip());
         } catch (JwtException | IllegalArgumentException exception) {
             throw new UnauthorizedException(INVALID_TOKEN);
         }
 
-        if (!userRepository.existsById(userId)) {
+        if (!userRepository.existsById(user.userId())) {
             throw new UnauthorizedException(INVALID_TOKEN);
         }
-        return userId;
+        return user;
     }
 }

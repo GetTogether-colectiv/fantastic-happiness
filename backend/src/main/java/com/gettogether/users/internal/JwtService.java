@@ -1,5 +1,6 @@
 package com.gettogether.users.internal;
 
+import com.gettogether.users.UserTokenAuthenticator.AuthenticatedUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
@@ -40,11 +41,12 @@ class JwtService {
                 .compact();
     }
 
-    long verifyToken(String token) {
+    AuthenticatedUser verifyToken(String token) {
         Claims claims = parser.parseSignedClaims(token).getPayload();
-        if (claims.getExpiration() == null) {
+        Date expiration = claims.getExpiration();
+        if (expiration == null) {
             throw new JwtException("Token expiration is required");
         }
-        return Long.parseLong(claims.getSubject());
+        return new AuthenticatedUser(Long.parseLong(claims.getSubject()), expiration.toInstant());
     }
 }

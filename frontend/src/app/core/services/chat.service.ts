@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, effect, inject } from '@angular/core';
 import { RxStomp } from '@stomp/rx-stomp';
-import { Observable, map } from 'rxjs';
+import { Observable, map, merge, tap } from 'rxjs';
 import { API_BASE_URL, AUTHORIZATION_HEADER, bearerToken } from '../api.config';
 import { AuthResponse } from '../models/auth.model';
 import { ChatMessage } from '../models/chat.model';
@@ -88,7 +88,15 @@ export class ChatService {
   }
 
   watchErrors(): Observable<string> {
-    return this.rxStomp.watch(ERROR_QUEUE).pipe(map((message) => message.body));
+    const client = this.rxStomp;
+    const queueErrors = client.watch(ERROR_QUEUE).pipe(map((message) => message.body));
+    const protocolErrors = client.stompErrors$.pipe(
+      tap(() => {
+        if (client === this.rxStomp) this.endSession();
+      }),
+      map((frame) => frame.headers['message'] ?? frame.body),
+    );
+    return merge(queueErrors, protocolErrors);
   }
 
   send(eventId: number, content: string): void {

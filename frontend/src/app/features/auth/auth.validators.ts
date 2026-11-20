@@ -18,7 +18,7 @@ export const passwordRequirementsValidator: ValidatorFn = (control) => {
   const password = String(control.value ?? '');
   if (!password) return null;
 
-  if (/\p{Cs}/u.test(password)) {
+  if (/[\uD800-\uDFFF]/u.test(password)) {
     return { passwordRequirements: 'Remove invalid characters.' };
   }
   if (new TextEncoder().encode(password).length > PASSWORD_MAX_BYTES) {
@@ -27,10 +27,12 @@ export const passwordRequirementsValidator: ValidatorFn = (control) => {
   if ([...password].length < PASSWORD_MIN_LENGTH) {
     return { passwordRequirements: `Use at least ${PASSWORD_MIN_LENGTH} characters.` };
   }
-  if (!/\p{Lu}/u.test(password)) return { passwordRequirements: 'Add an uppercase letter.' };
-  if (!/\p{Ll}/u.test(password)) return { passwordRequirements: 'Add a lowercase letter.' };
-  if (!/\p{Nd}/u.test(password)) return { passwordRequirements: 'Add a digit.' };
-  if (!/[\p{P}\p{S}]/u.test(password)) return { passwordRequirements: 'Add a special character.' };
+  if (!/[A-Z]/.test(password)) return { passwordRequirements: 'Add an uppercase letter (A–Z).' };
+  if (!/[a-z]/.test(password)) return { passwordRequirements: 'Add a lowercase letter (a–z).' };
+  if (!/[0-9]/.test(password)) return { passwordRequirements: 'Add a digit (0–9).' };
+  if (!/[!-/:-@\x5B-\x60{-~]/.test(password)) {
+    return { passwordRequirements: 'Add a special character such as !, @, or #.' };
+  }
   return null;
 };
 

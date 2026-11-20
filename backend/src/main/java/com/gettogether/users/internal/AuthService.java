@@ -36,7 +36,7 @@ class AuthService {
     @Transactional
     AuthResponse register(RegisterRequest request) {
         if (exceedsBcryptLimit(request.password())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password exceeds the BCrypt length limit");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is too long");
         }
         if (userRepository.existsByEmailIgnoreCase(request.email())) {
             throw new ConflictException(EMAIL_ALREADY_REGISTERED);

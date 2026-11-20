@@ -45,10 +45,11 @@
       [maxlength]="maxMessageLength"
       placeholder="Write a message"
       aria-label="Message"
+      [disabled]="error()"
       [ngModel]="draft()"
       (ngModelChange)="draft.set($event)"
     />
-    <button type="submit" aria-label="Send">
+    <button type="submit" aria-label="Send" [disabled]="error()">
       <mat-icon aria-hidden="true">send</mat-icon>
     </button>
   </form>

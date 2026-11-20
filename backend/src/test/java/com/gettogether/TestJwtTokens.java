@@ -19,7 +19,11 @@ public final class TestJwtTokens {
     }
 
     public String bearer(long userId) {
-        return bearer(Long.toString(userId), Instant.now().plus(TOKEN_LIFETIME), key);
+        return bearer(userId, Instant.now().plus(TOKEN_LIFETIME));
+    }
+
+    public String bearer(long userId, Instant expiration) {
+        return bearer(Long.toString(userId), expiration, key);
     }
 
     public String expiredBearer(long userId) {

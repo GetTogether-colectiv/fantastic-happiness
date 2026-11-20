@@ -110,7 +110,7 @@ class LoginTests {
 
         var response = JsonPath.parse(body);
         assertThat(response.read("$.user.id", Long.class)).isEqualTo(userId);
-        assertThat(jwtService.verifyToken(response.read("$.token", String.class))).isEqualTo(userId);
+        assertThat(jwtService.verifyToken(response.read("$.token", String.class)).userId()).isEqualTo(userId);
         String hash = jdbc.queryForObject("SELECT password_hash FROM users WHERE id = ?", String.class, userId);
         assertThat(body).doesNotContain(password, hash);
     }

@@ -81,7 +81,7 @@ class RegisterTests {
 
         Long userId = jdbc.queryForObject("SELECT id FROM users WHERE email = ?", Long.class, EMAIL);
         assertThat(JsonPath.parse(body).read("$.user.id", Long.class)).isEqualTo(userId);
-        assertThat(jwtService.verifyToken(JsonPath.parse(body).read("$.token", String.class))).isEqualTo(userId);
+        assertThat(jwtService.verifyToken(JsonPath.parse(body).read("$.token", String.class)).userId()).isEqualTo(userId);
 
         String hash = jdbc.queryForObject("SELECT password_hash FROM users WHERE id = ?", String.class, userId);
         assertThat(passwordEncoder.matches(PASSWORD, hash)).isTrue();
@@ -113,12 +113,16 @@ class RegisterTests {
                 Arguments.of(NAME, EMAIL, "abcdef1!", "password"),
                 Arguments.of(NAME, EMAIL, "ABCDEF1!", "password"),
                 Arguments.of(NAME, EMAIL, "Abcdefg!", "password"),
-                Arguments.of(NAME, EMAIL, "Abcdef1\u00a0", "password"));
+                Arguments.of(NAME, EMAIL, "Abcdef1\u00a0", "password"),
+                Arguments.of(NAME, EMAIL, "Àbcdef1!", "password"),
+                Arguments.of(NAME, EMAIL, "ABCDÉF1!", "password"),
+                Arguments.of(NAME, EMAIL, "Abcdef١!", "password"),
+                Arguments.of(NAME, EMAIL, "Abcdef1🫩", "password"));
     }
 
     @Test
-    void acceptsUnicodeLettersDigitsAndSymbols() throws Exception {
-        register(NAME, EMAIL, "Åé中١😀漢字文").andExpect(status().isCreated());
+    void allowsUnicodeAlongsideTheRequiredAsciiCharacters() throws Exception {
+        register(NAME, EMAIL, "Aa1[é中🫩字").andExpect(status().isCreated());
         assertThat(registeredUserCount()).isOne();
     }
 

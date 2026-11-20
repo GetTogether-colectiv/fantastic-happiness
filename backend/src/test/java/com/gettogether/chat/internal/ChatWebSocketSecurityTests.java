@@ -2,8 +2,12 @@ package com.gettogether.chat.internal;
 
 import com.gettogether.TestJwtTokens;
 import com.gettogether.TestcontainersConfiguration;
+import com.gettogether.participation.ParticipationApi;
+import com.gettogether.participation.ParticipationStatus;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +21,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -55,6 +61,9 @@ class ChatWebSocketSecurityTests {
 
     @Autowired
     private SimpMessagingTemplate messaging;
+
+    @Autowired
+    private ParticipationApi participation;
 
     @Test
     void rejectsMissingAndInvalidCredentialsOnConnect() throws Exception {
@@ -122,6 +131,117 @@ class ChatWebSocketSecurityTests {
             assertThat(jdbc.queryForList("SELECT user_id FROM chat_messages WHERE event_id = ? AND content = ?",
                     Long.class, eventId, content)).isEmpty();
         }
+    }
+
+    @Test
+    void deliversChatToAnAuthorizedSubscriber() throws Exception {
+        long eventId = masterclassId();
+        String content = "Message delivered to the event subscription";
+        try (HttpClient client = HttpClient.newHttpClient(); StompConnection connection = open(client)) {
+            connectAs(connection, MEMBER);
+            subscribeToChat(connection, eventId);
+            sendChatWithConflictingCredentials(connection, eventId, NON_MEMBER, content);
+
+            String frame = receiveChat(connection);
+            assertThat(frame).startsWith("MESSAGE\n");
+            String body = frame.substring(frame.indexOf("\n\n") + 2, frame.length() - 1);
+            assertThat(JsonPath.parse(body).read("$.content", String.class)).isEqualTo(content);
+            assertThat(JsonPath.parse(body).read("$.userId", Long.class)).isEqualTo(MEMBER);
+        } finally {
+            jdbc.update("DELETE FROM chat_messages WHERE event_id = ? AND content = ?", eventId, content);
+        }
+    }
+
+    @Test
+    void rejectsSubscriptionsWithoutMembershipAndDestinationsOutsideTheChatAllowlist() throws Exception {
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            for (String destination : List.of(ChatDestinations.eventTopic(masterclassId()),
+                    "/topic/events/*/chat", "/queue/errors", "/user/2/queue/errors")) {
+                try (StompConnection connection = open(client)) {
+                    connectAs(connection, NON_MEMBER);
+                    connection.send("SUBSCRIBE", List.of("id:denied", "destination:" + destination), "");
+                    assertPolicyRejected(connection);
+                }
+            }
+        }
+    }
+
+    @Test
+    void rejectsDirectPublishesToBrokerDestinations() throws Exception {
+        long eventId = masterclassId();
+        try (HttpClient client = HttpClient.newHttpClient(); StompConnection receiver = open(client)) {
+            connectAs(receiver, MEMBER);
+            subscribeToChat(receiver, eventId);
+            for (String destination : List.of(ChatDestinations.eventTopic(eventId), ERROR_QUEUE)) {
+                try (StompConnection sender = open(client)) {
+                    connectAs(sender, MEMBER);
+                    sender.send("SEND", List.of("destination:" + destination), "Untrusted broadcast");
+                    assertPolicyRejected(sender);
+                }
+            }
+            assertThat(receiver.frames.stream()).noneMatch(frame -> frame.contains("Untrusted broadcast"));
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void closesAnExistingSubscriptionAfterMembershipEnds(boolean remove) throws Exception {
+        long eventId = masterclassId();
+        try (HttpClient client = HttpClient.newHttpClient(); StompConnection connection = open(client)) {
+            connectAs(connection, MEMBER);
+            subscribeToChat(connection, eventId);
+            if (remove) {
+                participation.remove(MEMBER, eventId);
+            } else {
+                participation.setStatus(MEMBER, eventId, ParticipationStatus.NOT_INTERESTED);
+            }
+
+            assertThat(connection.closed.get(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(1008);
+        } finally {
+            participation.setStatus(MEMBER, eventId, ParticipationStatus.GOING);
+        }
+    }
+
+    @Test
+    void closesAnIdleAuthenticatedSocketWhenItsTokenExpires() throws Exception {
+        try (HttpClient client = HttpClient.newHttpClient(); StompConnection connection = open(client)) {
+            Instant expiry = Instant.now().plusSeconds(3).truncatedTo(ChronoUnit.SECONDS);
+            String bearer = tokens.bearer(MEMBER, expiry);
+            connection.connect("CONNECT", List.of(AUTHORIZATION_HEADER + bearer));
+            assertThat(connection.receiveFrame()).startsWith("CONNECTED\n");
+            subscribeToChat(connection, masterclassId());
+            assertThat(connection.closed.isDone()).isFalse();
+            assertThat(connection.closed.get(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(1008);
+            assertThat(Instant.now()).isAfterOrEqualTo(expiry);
+        }
+    }
+
+    private void connectAs(StompConnection connection, long userId) throws Exception {
+        connection.connect("CONNECT", List.of(AUTHORIZATION_HEADER + tokens.bearer(userId)));
+        assertThat(connection.receiveFrame()).startsWith("CONNECTED\n");
+    }
+
+    private void subscribeToChat(StompConnection connection, long eventId) throws Exception {
+        String destination = ChatDestinations.eventTopic(eventId);
+        connection.send("SUBSCRIBE", List.of("id:chat", "destination:" + destination), "");
+        await().atMost(Duration.ofSeconds(TIMEOUT_SECONDS)).until(() -> {
+            messaging.convertAndSend(destination, SUBSCRIPTION_PROBE);
+            String frame = connection.frames.poll(100, TimeUnit.MILLISECONDS);
+            return frame != null && frame.endsWith(SUBSCRIPTION_PROBE + '\0');
+        });
+    }
+
+    private static String receiveChat(StompConnection connection) throws InterruptedException {
+        String frame;
+        do {
+            frame = connection.receiveFrame();
+        } while (frame.endsWith(SUBSCRIPTION_PROBE + '\0'));
+        return frame;
+    }
+
+    private static void assertPolicyRejected(StompConnection connection) throws Exception {
+        assertThat(connection.receiveFrame()).startsWith("ERROR\n");
+        assertThat(connection.closed.get(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(1002);
     }
 
     private StompConnection open(HttpClient client) throws Exception {
