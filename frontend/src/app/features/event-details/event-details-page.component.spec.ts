@@ -8,6 +8,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from '../../app.routes';
 import { EventDetails } from '../../core/models/event.model';
+import { AUTH_STORAGE_KEY, signIn } from '../../core/testing/auth-fixtures';
 import { EventCardComponent } from '../../shared/components/event-card/event-card.component';
 import { DEFAULT_EVENT_IMAGE_URL } from '../../shared/pipes/event-image.pipe';
 import { EventDetailsPageComponent } from './event-details-page.component';
@@ -72,9 +73,13 @@ describe('Event details navigation', () => {
       add: { imports: [JoinStubComponent, ChatStubComponent] },
     });
     http = TestBed.inject(HttpTestingController);
+    signIn();
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  });
 
   async function loadEvent(harness: RouterTestingHarness, event = EVENT): Promise<void> {
     await harness.navigateByUrl(`/events/${event.id}`, EventDetailsPageComponent);
@@ -305,6 +310,8 @@ describe('Event details navigation', () => {
 });
 
 describe('Event details section extension', () => {
+  afterEach(() => localStorage.removeItem(AUTH_STORAGE_KEY));
+
   it('renders a section implemented by its owner without changing the page layout', async () => {
     TestBed.configureTestingModule({
       imports: [EventDetailsPageComponent],
@@ -315,6 +322,7 @@ describe('Event details section extension', () => {
       add: { imports: [PopulatedJoinComponent, ChatStubComponent] },
     });
     const http = TestBed.inject(HttpTestingController);
+    signIn();
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/events/7', EventDetailsPageComponent);
     TestBed.tick();

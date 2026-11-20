@@ -1,11 +1,23 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterRenderEffect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute } from '@angular/router';
+import { PROFILE_PREFERENCES_FRAGMENT } from '../../core/auth/auth-navigation';
+import { SessionExitService } from '../../core/services/session-exit.service';
 import { UsersService } from '../../core/services/users.service';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
 import { SkeletonCardComponent } from '../../shared/components/skeleton-card/skeleton-card.component';
-import { CategoryPickerComponent } from '../../shared/components/category-picker/category-picker.component'
+import { CategoryPickerComponent } from '../../shared/components/category-picker/category-picker.component';
+
 type ProfileState = 'loading' | 'loaded' | 'error';
 
 // These limits must match the validation in UpdateProfileRequest on the backend.
@@ -29,7 +41,10 @@ const NOT_BLANK_PATTERN = /\S/;
 })
 export class ProfilePageComponent {
   private readonly usersService = inject(UsersService);
+  private readonly sessionExit = inject(SessionExitService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly fragment = toSignal(inject(ActivatedRoute).fragment);
+  private readonly preferences = viewChild<ElementRef<HTMLElement>>('preferences');
 
   protected readonly profile = this.usersService.profile;
   protected readonly state = signal<ProfileState>('loading');
@@ -37,6 +52,7 @@ export class ProfilePageComponent {
   protected readonly saving = signal(false);
   protected readonly saveFailed = signal(false);
   protected readonly nameMaxLength = NAME_MAX_LENGTH;
+  protected readonly preferencesFragment = PROFILE_PREFERENCES_FRAGMENT;
   protected readonly form = inject(NonNullableFormBuilder).group({
     displayName: [
       '',
@@ -55,6 +71,17 @@ export class ProfilePageComponent {
 
   constructor() {
     this.load();
+    afterRenderEffect({
+      write: () => {
+        if (this.fragment() === this.preferencesFragment) {
+          this.preferences()?.nativeElement.scrollIntoView?.();
+        }
+      },
+    });
+  }
+
+  protected logout(): void {
+    this.sessionExit.logout();
   }
 
   protected load(): void {

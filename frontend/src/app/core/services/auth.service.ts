@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { API_BASE_URL } from '../api.config';
+import { AUTH_API_URL } from '../api.config';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { User } from '../models/user.model';
 
 const SESSION_KEY = 'gettogether.auth';
-const AUTH_URL = `${API_BASE_URL}/auth`;
 const MS_PER_SECOND = 1_000;
 const MAX_TIMEOUT_MS = 2_147_483_647;
 const BASE64_URL_SEGMENT = /^[A-Za-z0-9_-]+$/;
@@ -18,9 +17,10 @@ interface Session extends AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly session = signal<Session | null>(null);
+  private readonly storedSession = signal<Session | null>(null);
   private expiryTimer: ReturnType<typeof setTimeout> | undefined;
 
+  readonly session = this.storedSession.asReadonly();
   readonly currentUser = computed(() => this.session()?.user ?? null);
 
   constructor() {
@@ -28,7 +28,7 @@ export class AuthService {
 
     const restored = this.readStoredSession();
     if (restored) {
-      this.session.set(restored);
+      this.storedSession.set(restored);
       this.scheduleExpiry();
     }
   }
@@ -46,18 +46,25 @@ export class AuthService {
     return session !== null && session.expiresAt > Date.now();
   }
 
+  clearSession(): void {
+    const session = this.session();
+    clearTimeout(this.expiryTimer);
+    this.storedSession.set(null);
+    if (session) this.removeStoredSession(session.token);
+  }
+
   private authenticate(
     action: 'login' | 'register',
     request: LoginRequest | RegisterRequest,
   ): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${AUTH_URL}/${action}`, request).pipe(
+    return this.http.post<AuthResponse>(`${AUTH_API_URL}/${action}`, request).pipe(
       tap((response) => {
         const session = readSession(response);
         if (!session) {
           throw new Error('Invalid authentication response');
         }
 
-        this.session.set(session);
+        this.storedSession.set(session);
         try {
           const { token, user } = session;
           localStorage.setItem(SESSION_KEY, JSON.stringify({ token, user }));
@@ -91,8 +98,7 @@ export class AuthService {
 
     const remaining = session.expiresAt - Date.now();
     if (remaining <= 0) {
-      this.session.set(null);
-      this.removeStoredSession(session.token);
+      this.clearSession();
       return;
     }
 

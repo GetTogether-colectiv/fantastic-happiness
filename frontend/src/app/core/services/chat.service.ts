@@ -1,10 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, effect, inject } from '@angular/core';
 import { RxStomp } from '@stomp/rx-stomp';
 import { Observable, map } from 'rxjs';
-import { API_BASE_URL, USER_ID_HEADER } from '../api.config';
+import { API_BASE_URL, AUTHORIZATION_HEADER, bearerToken } from '../api.config';
+import { AuthResponse } from '../models/auth.model';
 import { ChatMessage } from '../models/chat.model';
-import { CurrentUserService } from './current-user.service';
+import { AuthService } from './auth.service';
 
 export const HISTORY_PAGE_SIZE = 30;
 const RECONNECT_DELAY_MS = 3000;
@@ -14,16 +15,42 @@ const ERROR_QUEUE = '/user/queue/errors';
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
-  private readonly currentUser = inject(CurrentUserService);
-  private readonly rxStomp = new RxStomp();
+  private readonly auth = inject(AuthService);
+  private rxStomp = new RxStomp();
+  private clientSession: AuthResponse | null = null;
 
-  readonly connectionState$ = this.rxStomp.connectionState$;
+  constructor() {
+    effect(() => {
+      const session = this.auth.session();
+      if (this.clientSession && this.clientSession !== session) this.endSession();
+    });
+  }
+
+  get connectionState$() {
+    return this.rxStomp.connectionState$;
+  }
 
   connect(): void {
+    const session = this.auth.session();
+    if (!session || !this.auth.isLoggedIn()) return;
+
+    if (this.clientSession !== session) {
+      this.endSession();
+      this.clientSession = session;
+    }
+
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     this.rxStomp.configure({
       brokerURL: `${protocol}://${location.host}${WEBSOCKET_PATH}`,
-      connectHeaders: { [USER_ID_HEADER]: String(this.currentUser.userId()) },
+      beforeConnect: async (client) => {
+        if (this.auth.session() !== session || !this.auth.isLoggedIn()) {
+          await client.deactivate({ force: true });
+          return;
+        }
+        client.configure({
+          connectHeaders: { [AUTHORIZATION_HEADER]: bearerToken(session.token) },
+        });
+      },
       reconnectDelay: RECONNECT_DELAY_MS,
     });
     this.rxStomp.activate();
@@ -31,6 +58,15 @@ export class ChatService {
 
   disconnect(): Promise<void> {
     return this.rxStomp.deactivate();
+  }
+
+  endSession(): void {
+    if (!this.clientSession) return;
+
+    const previous = this.rxStomp;
+    this.clientSession = null;
+    this.rxStomp = new RxStomp();
+    void previous.deactivate({ force: true }).catch(() => undefined);
   }
 
   getHistory(eventId: number, before?: string): Observable<ChatMessage[]> {
@@ -56,6 +92,14 @@ export class ChatService {
   }
 
   send(eventId: number, content: string): void {
+    if (
+      !this.clientSession ||
+      this.clientSession !== this.auth.session() ||
+      !this.auth.isLoggedIn()
+    ) {
+      return;
+    }
+
     this.rxStomp.publish({
       destination: `/app/events/${eventId}/chat`,
       body: JSON.stringify({ content }),

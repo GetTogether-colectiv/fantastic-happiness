@@ -6,7 +6,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from '../../app.routes';
 import { EventDetails } from '../../core/models/event.model';
-import { CurrentUserService } from '../../core/services/current-user.service';
+import { AUTH_STORAGE_KEY, signIn } from '../../core/testing/auth-fixtures';
 import { EventDetailsPageComponent } from './event-details-page.component';
 import { EventChatComponent } from './sections/event-chat/event-chat.component';
 import { EventJoinComponent } from './sections/event-join/event-join.component';
@@ -24,7 +24,6 @@ class ChatStubComponent {
 
 const ORGANIZER_ID = 3;
 const OTHER_USER_ID = 1;
-const USER_STORAGE_KEY = 'currentUserId';
 
 const EVENT: EventDetails = {
   id: 7,
@@ -60,11 +59,11 @@ describe('Event details edit button', () => {
 
   afterEach(() => {
     http.verify();
-    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   });
 
   async function openAs(userId: number): Promise<HTMLElement> {
-    TestBed.inject(CurrentUserService).select(userId);
+    signIn(userId);
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl(`/events/${EVENT.id}`, EventDetailsPageComponent);
     TestBed.tick();

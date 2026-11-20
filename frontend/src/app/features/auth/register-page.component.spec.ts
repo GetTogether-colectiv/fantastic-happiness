@@ -6,8 +6,8 @@ import { Subject } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { RegisterPageComponent } from './register-page.component';
 
-@Component({ selector: 'app-discover-stub', template: '' })
-class DiscoverStub {}
+@Component({ selector: 'app-profile-stub', template: '' })
+class ProfileStub {}
 
 describe('RegisterPageComponent', () => {
   let fixture: ComponentFixture<RegisterPageComponent>;
@@ -20,10 +20,7 @@ describe('RegisterPageComponent', () => {
     TestBed.configureTestingModule({
       imports: [RegisterPageComponent],
       providers: [
-        provideRouter([
-          { path: '', redirectTo: 'discover', pathMatch: 'full' },
-          { path: 'discover', component: DiscoverStub },
-        ]),
+        provideRouter([{ path: 'profile', component: ProfileStub }]),
         { provide: AuthService, useValue: { register } },
       ],
     });
@@ -126,7 +123,7 @@ describe('RegisterPageComponent', () => {
     expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(false);
   });
 
-  it('submits once without the confirmation and navigates to Discover on success', async () => {
+  it('submits once without the confirmation and opens Profile preferences on success', async () => {
     fillValidForm();
     submit();
     submit();
@@ -143,6 +140,6 @@ describe('RegisterPageComponent', () => {
     result.complete();
     await fixture.whenStable();
 
-    expect(TestBed.inject(Router).url).toBe('/discover');
+    expect(TestBed.inject(Router).url).toBe('/profile#preferences');
   });
 });

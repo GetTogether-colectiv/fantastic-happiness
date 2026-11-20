@@ -2,6 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { User, UserProfile } from '../models/user.model';
+import { AUTH_STORAGE_KEY, signIn } from '../testing/auth-fixtures';
+import { AuthService } from './auth.service';
 import { UsersService } from './users.service';
 
 const PROFILE: UserProfile = {
@@ -23,7 +25,10 @@ describe('UsersService', () => {
     service = TestBed.inject(UsersService);
     http = TestBed.inject(HttpTestingController);
   });
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  });
 
   it('lists all users', () => {
     const users: User[] = [{ id: 1, displayName: 'Alex', avatarUrl: null, city: null }];
@@ -92,6 +97,26 @@ describe('UsersService', () => {
 
       expect(error).toHaveBeenCalledWith(expect.objectContaining({ status: 500 }));
       expect(service.profile()).toEqual(PROFILE);
+    });
+
+    it('clears the old profile and ignores its late updates across a new login', () => {
+      signIn();
+      service.loadProfile().subscribe();
+      http.expectOne('/api/users/me').flush(PROFILE);
+      const oldResponse = vi.fn();
+      service.updatePreferences(['TECH']).subscribe(oldResponse);
+      const pending = http.expectOne('/api/users/me/preferences');
+
+      TestBed.inject(AuthService).clearSession();
+      expect(service.profile()).toBeNull();
+      signIn(2);
+      service.loadProfile().subscribe();
+      const newProfile = { ...PROFILE, id: 2, preferredCategories: [] };
+      http.expectOne('/api/users/me').flush(newProfile);
+      pending.flush({ ...PROFILE, preferredCategories: ['TECH'] });
+
+      expect(oldResponse).not.toHaveBeenCalled();
+      expect(service.profile()).toEqual(newProfile);
     });
   });
 });

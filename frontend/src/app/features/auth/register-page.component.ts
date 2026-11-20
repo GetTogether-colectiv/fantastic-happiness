@@ -5,6 +5,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
+import { PROFILE_PREFERENCES_FRAGMENT } from '../../core/auth/auth-navigation';
 import { AuthService } from '../../core/services/auth.service';
 import {
   NAME_MAX_LENGTH,
@@ -62,7 +63,11 @@ export class RegisterPageComponent {
         finalize(() => this.submitting.set(false)),
       )
       .subscribe({
-        next: () => void this.router.navigateByUrl('/', { replaceUrl: true }),
+        next: () =>
+          void this.router.navigate(['/profile'], {
+            fragment: PROFILE_PREFERENCES_FRAGMENT,
+            replaceUrl: true,
+          }),
         error: (error: unknown) =>
           this.submitError.set(
             error instanceof HttpErrorResponse && error.status === 409

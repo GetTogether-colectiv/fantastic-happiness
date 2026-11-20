@@ -23,6 +23,8 @@ describe('LoginPageComponent', () => {
         provideRouter([
           { path: '', redirectTo: 'discover', pathMatch: 'full' },
           { path: 'discover', component: DiscoverStub },
+          { path: 'login', component: LoginPageComponent },
+          { path: 'my-events', component: DiscoverStub },
         ]),
         { provide: AuthService, useValue: { login } },
       ],
@@ -103,5 +105,23 @@ describe('LoginPageComponent', () => {
     await fixture.whenStable();
 
     expect(TestBed.inject(Router).url).toBe('/discover');
+  });
+
+  it.each([
+    ['/my-events?view=list#upcoming', '/my-events?view=list#upcoming'],
+    ['//example.test/landing', '/discover'],
+    ['/register', '/discover'],
+  ])('uses a safe return destination for %s', async (returnUrl, expected) => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl(router.createUrlTree(['/login'], { queryParams: { returnUrl } }));
+    fill('email', 'alex@example.com');
+    fill('password', 'password1');
+    submit();
+
+    result.next();
+    result.complete();
+    await fixture.whenStable();
+
+    expect(router.url).toBe(expected);
   });
 });

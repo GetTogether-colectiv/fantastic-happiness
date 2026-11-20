@@ -97,7 +97,17 @@ input {
   color: var(--error-color);
 }
 
+.preferences {
+  scroll-margin-top: calc(var(--top-bar-height) + var(--space-lg));
+}
+
 .preferences h2 {
   margin: 0 0 var(--space-md);
   font-size: 1rem;
+}
+
+.profile-footer {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-color);
 }

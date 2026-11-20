@@ -15,7 +15,9 @@
               <input type="text" formControlName="displayName" autocomplete="name" />
             </label>
             @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
-              <p class="error" role="alert">Enter a name of up to {{ nameMaxLength }} characters.</p>
+              <p class="error" role="alert">
+                Enter a name of up to {{ nameMaxLength }} characters.
+              </p>
             }
             <label>
               City
@@ -54,10 +56,19 @@
         }
       </section>
 
-      <section class="preferences" aria-labelledby="likes-title">
+      <section
+        #preferences
+        class="preferences"
+        [id]="preferencesFragment"
+        aria-labelledby="likes-title"
+      >
         <h2 id="likes-title">What do you like?</h2>
         <app-category-picker [initial]="user.preferredCategories" />
       </section>
     }
   }
 }
+
+<footer class="profile-footer">
+  <button type="button" (click)="logout()">Log out</button>
+</footer>

@@ -3,8 +3,9 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
+import { RETURN_URL, safeReturnUrl } from '../../core/auth/auth-navigation';
 import { AuthService } from '../../core/services/auth.service';
 import { emailValidators, notBlankValidator } from './auth.validators';
 
@@ -17,6 +18,7 @@ import { emailValidators, notBlankValidator } from './auth.validators';
 export class LoginPageComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly form = inject(NonNullableFormBuilder).group({
@@ -45,7 +47,10 @@ export class LoginPageComponent {
         finalize(() => this.submitting.set(false)),
       )
       .subscribe({
-        next: () => void this.router.navigateByUrl('/', { replaceUrl: true }),
+        next: () => {
+          const destination = safeReturnUrl(this.route.snapshot.queryParamMap.get(RETURN_URL));
+          void this.router.navigateByUrl(destination ?? '/', { replaceUrl: true });
+        },
         error: (error: unknown) =>
           this.submitError.set(
             error instanceof HttpErrorResponse && error.status === 401

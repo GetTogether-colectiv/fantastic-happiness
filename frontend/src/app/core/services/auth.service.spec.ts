@@ -77,6 +77,19 @@ describe('AuthService', () => {
     http.expectNone('/api/auth/login');
   });
 
+  it('clears the active session and its stored token on logout', () => {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(authResponse()));
+    const service = TestBed.inject(AuthService);
+    expect(service.session()).not.toBeNull();
+
+    service.clearSession();
+
+    expect(service.session()).toBeNull();
+    expect(service.currentUser()).toBeNull();
+    expect(service.isLoggedIn()).toBe(false);
+    expect(localStorage.getItem(SESSION_KEY)).toBeNull();
+  });
+
   it('checks the clock on each login check and clears the session when the timer expires', () => {
     localStorage.setItem(SESSION_KEY, JSON.stringify(authResponse()));
     const service = TestBed.inject(AuthService);

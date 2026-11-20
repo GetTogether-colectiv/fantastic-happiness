@@ -1,14 +1,19 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Injectable, inject, linkedSignal } from '@angular/core';
+import { MonoTypeOperatorFunction, Observable, defer, filter, tap } from 'rxjs';
 import { API_BASE_URL } from '../api.config';
 import { EventCategory } from '../models/event.model';
 import { ProfileUpdate, User, UserProfile } from '../models/user.model';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly http = inject(HttpClient);
-  private readonly currentProfile = signal<UserProfile | null>(null);
+  private readonly auth = inject(AuthService);
+  private readonly currentProfile = linkedSignal({
+    source: this.auth.session,
+    computation: (): UserProfile | null => null,
+  });
 
   readonly profile = this.currentProfile.asReadonly();
 
@@ -34,7 +39,14 @@ export class UsersService {
       .pipe(this.keepProfile());
   }
 
-  private keepProfile() {
-    return tap((profile: UserProfile) => this.currentProfile.set(profile));
+  private keepProfile(): MonoTypeOperatorFunction<UserProfile> {
+    return (source) =>
+      defer(() => {
+        const session = this.auth.session();
+        return source.pipe(
+          filter(() => this.auth.session() === session),
+          tap((profile) => this.currentProfile.set(profile)),
+        );
+      });
   }
 }

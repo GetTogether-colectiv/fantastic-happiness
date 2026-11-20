@@ -4,16 +4,21 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Router, provideRouter } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
+import { AUTH_STORAGE_KEY, signIn } from './core/testing/auth-fixtures';
 
 describe('App', () => {
   beforeEach(async () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
   });
 
-  afterEach(() => TestBed.inject(HttpTestingController).verify());
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  });
 
   it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
@@ -39,6 +44,7 @@ describe('App', () => {
   });
 
   it('keeps the existing navigation and page layout on app routes', async () => {
+    signIn();
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/profile');
@@ -54,5 +60,8 @@ describe('App', () => {
     expect(root.querySelector('app-main-nav')).not.toBeNull();
     expect(root.querySelector('app-user-switcher')).not.toBeNull();
     expect(root.querySelector('.content app-profile-page')).not.toBeNull();
+    expect(root.querySelector<HTMLButtonElement>('app-user-switcher .current')?.disabled).toBe(
+      true,
+    );
   });
 });
