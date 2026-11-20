@@ -10,6 +10,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
+@WithMockUser
 class EventParticipationTests {
 
     private static final String USER_ID_HEADER = "X-User-Id";
@@ -202,7 +205,8 @@ class EventParticipationTests {
     }
 
     private ResultActions setStatus(long userId, String participationStatus) throws Exception {
-        return mockMvc.perform(put(url()).header(USER_ID_HEADER, userId).contentType(MediaType.APPLICATION_JSON)
+        return mockMvc.perform(put(url()).with(user(Long.toString(userId)))
+                .header(USER_ID_HEADER, userId).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"status\":\"" + participationStatus + "\"}"));
     }
 
