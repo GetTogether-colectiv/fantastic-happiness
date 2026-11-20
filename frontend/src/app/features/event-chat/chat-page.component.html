@@ -26,9 +26,7 @@
       >
         @if (row.message.userId !== currentUserId() && row.startsGroup) {
           <div class="author">
-            @if (row.message.userAvatarUrl) {
-              <img [src]="row.message.userAvatarUrl" alt="" />
-            }
+            <app-avatar [name]="row.message.userName" [imageUrl]="row.message.userAvatarUrl" />
             <span>{{ row.message.userName }}</span>
           </div>
         }
@@ -47,10 +45,11 @@
       [maxlength]="maxMessageLength"
       placeholder="Write a message"
       aria-label="Message"
+      [disabled]="error()"
       [ngModel]="draft()"
       (ngModelChange)="draft.set($event)"
     />
-    <button type="submit" aria-label="Send">
+    <button type="submit" aria-label="Send" [disabled]="error()">
       <mat-icon aria-hidden="true">send</mat-icon>
     </button>
   </form>

@@ -13,7 +13,7 @@ import {
   EventDetails,
   EventRequest,
 } from '../../core/models/event.model';
-import { CurrentUserService } from '../../core/services/current-user.service';
+import { AuthService } from '../../core/services/auth.service';
 import { EventsService } from '../../core/services/events.service';
 import { Address, GeocodingService } from '../../core/services/geocoding.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -91,7 +91,7 @@ export class EventFormPageComponent {
   private readonly pickedLocations = new Subject<Coordinates>();
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly currentUser = inject(CurrentUserService);
+  private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly rawId = inject(ActivatedRoute).snapshot.paramMap.get('id');
   private readonly eventId = this.rawId === null ? null : Number(this.rawId);
@@ -208,7 +208,7 @@ export class EventFormPageComponent {
   }
 
   private fillForm(event: EventDetails): void {
-    if (event.organizerId !== this.currentUser.userId()) {
+    if (event.organizerId !== this.auth.currentUser()?.id) {
       void this.router.navigate(['/events', event.id], { replaceUrl: true });
       return;
     }

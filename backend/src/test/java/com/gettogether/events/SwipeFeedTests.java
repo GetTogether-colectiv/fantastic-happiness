@@ -1,5 +1,6 @@
 package com.gettogether.events;
 
+import com.gettogether.TestJwtTokens;
 import com.gettogether.TestcontainersConfiguration;
 import com.gettogether.participation.ParticipationApi;
 import com.gettogether.participation.ParticipationStatus;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SwipeFeedTests {
 
     private static final String FEED_URL = "/participation/feed";
-    private static final String USER_ID_HEADER = "X-User-Id";
     private static final long USER_ID = 1L;
     private static final long OTHER_USER_ID = 2L;
     private static final long UNKNOWN_USER_ID = 999_999L;
@@ -46,6 +47,9 @@ class SwipeFeedTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TestJwtTokens tokens;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -73,7 +77,7 @@ class SwipeFeedTests {
 
     @Test
     void defaultsToTenEventsAndReturnsEventSummaries() throws Exception {
-        mockMvc.perform(get(FEED_URL).header(USER_ID_HEADER, USER_ID))
+        mockMvc.perform(get(FEED_URL).header(HttpHeaders.AUTHORIZATION, tokens.bearer(USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(DEFAULT_SIZE)))
                 .andExpect(jsonPath("$[0].id").value(feedEventIds.getFirst()))
@@ -94,7 +98,7 @@ class SwipeFeedTests {
     @Test
     void rejectsNonPositiveAndInvalidSizes() throws Exception {
         for (String size : List.of("0", "-1", "invalid", "1.5", "2147483648")) {
-            mockMvc.perform(get(FEED_URL).header(USER_ID_HEADER, USER_ID).param("size", size))
+            mockMvc.perform(get(FEED_URL).header(HttpHeaders.AUTHORIZATION, tokens.bearer(USER_ID)).param("size", size))
                     .andExpect(status().isBadRequest());
         }
     }
@@ -171,12 +175,12 @@ class SwipeFeedTests {
     void newSwipesDisappearAndDeletingTheDecisionAllowsTheEventToReappear() throws Exception {
         Long eventId = feedEventIds.getFirst();
         feed(1).andExpect(jsonPath("$[0].id").value(eventId));
-        mockMvc.perform(put("/events/{id}/participation", eventId).header(USER_ID_HEADER, USER_ID)
+        mockMvc.perform(put("/events/{id}/participation", eventId).header(HttpHeaders.AUTHORIZATION, tokens.bearer(USER_ID))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"GOING\"}"))
                 .andExpect(status().isOk());
         expectIds(feed(LARGE_SIZE), feedEventIds.subList(1, EVENT_COUNT));
 
-        mockMvc.perform(delete("/events/{id}/participation", eventId).header(USER_ID_HEADER, USER_ID))
+        mockMvc.perform(delete("/events/{id}/participation", eventId).header(HttpHeaders.AUTHORIZATION, tokens.bearer(USER_ID)))
                 .andExpect(status().isNoContent());
         feed(1).andExpect(jsonPath("$[0].id").value(eventId));
     }
@@ -184,12 +188,12 @@ class SwipeFeedTests {
     @Test
     void requiresAValidCurrentUser() throws Exception {
         mockMvc.perform(get(FEED_URL)).andExpect(status().isUnauthorized());
-        mockMvc.perform(get(FEED_URL).header(USER_ID_HEADER, "invalid")).andExpect(status().isUnauthorized());
-        mockMvc.perform(get(FEED_URL).header(USER_ID_HEADER, UNKNOWN_USER_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(get(FEED_URL).header(HttpHeaders.AUTHORIZATION, "Bearer invalid")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get(FEED_URL).header(HttpHeaders.AUTHORIZATION, tokens.bearer(UNKNOWN_USER_ID))).andExpect(status().isUnauthorized());
     }
 
     private ResultActions feed(int size) throws Exception {
-        return mockMvc.perform(get(FEED_URL).header(USER_ID_HEADER, USER_ID).param("size", String.valueOf(size)))
+        return mockMvc.perform(get(FEED_URL).header(HttpHeaders.AUTHORIZATION, tokens.bearer(USER_ID)).param("size", String.valueOf(size)))
                 .andExpect(status().isOk());
     }
 

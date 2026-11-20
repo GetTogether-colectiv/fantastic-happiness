@@ -18,9 +18,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { RxStompState } from '@stomp/rx-stomp';
 import { ChatMessage, JOIN_TO_CHAT_MESSAGE, MAX_MESSAGE_LENGTH } from '../../core/models/chat.model';
+import { AuthService } from '../../core/services/auth.service';
 import { ChatService, HISTORY_PAGE_SIZE } from '../../core/services/chat.service';
-import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
+import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 const NEAR_BOTTOM_PX = 100;
 
@@ -32,7 +33,7 @@ interface ChatRow {
 
 @Component({
   selector: 'app-chat-page',
-  imports: [DatePipe, FormsModule, MatIconModule],
+  imports: [AvatarComponent, DatePipe, FormsModule, MatIconModule],
   templateUrl: './chat-page.component.html',
   styleUrl: './chat-page.component.scss',
 })
@@ -41,6 +42,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
+  private readonly auth = inject(AuthService);
   private readonly chat = inject(ChatService);
   private readonly events = inject(EventsService);
   private readonly eventId = Number(this.route.snapshot.paramMap.get('id'));
@@ -50,7 +52,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   private hasOlderMessages = true;
   private loadingOlder = false;
 
-  protected readonly currentUserId = inject(CurrentUserService).userId;
+  protected readonly currentUserId = computed(() => this.auth.currentUser()?.id);
   protected readonly maxMessageLength = MAX_MESSAGE_LENGTH;
   protected readonly joinToChatMessage = JOIN_TO_CHAT_MESSAGE;
   protected readonly title = signal('');
@@ -76,7 +78,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.chat
       .watchErrors()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.error.set(true));
+      .subscribe(() => this.showChatError());
     this.chat
       .watchMessages(this.eventId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -89,7 +91,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
           this.prepend(history);
           this.afterRender(() => this.scrollToBottom());
         },
-        error: () => this.error.set(true),
+        error: () => this.showChatError(),
       });
   }
 
@@ -99,7 +101,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
   protected send(): void {
     const content = this.draft().trim();
-    if (content) {
+    if (content && !this.error()) {
       this.chat.send(this.eventId, content);
       this.draft.set('');
     }
@@ -127,9 +129,14 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     if (state === RxStompState.OPEN) {
       this.wasConnected = true;
       this.reconnecting.set(false);
-    } else if (this.wasConnected) {
+    } else if (this.wasConnected && !this.error()) {
       this.reconnecting.set(true);
     }
+  }
+
+  private showChatError(): void {
+    this.error.set(true);
+    this.reconnecting.set(false);
   }
 
   private onMessage(message: ChatMessage): void {

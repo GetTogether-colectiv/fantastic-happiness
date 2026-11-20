@@ -29,6 +29,15 @@
     }
   }
 
+  .profile-shortcut {
+    display: grid;
+    flex: none;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    place-items: center;
+    border-radius: var(--radius-pill);
+  }
+
   @include tablet-up {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -44,7 +53,7 @@
       grid-row: 1;
     }
 
-    app-user-switcher {
+    .profile-shortcut {
       grid-column: 3;
       grid-row: 1;
       justify-self: end;

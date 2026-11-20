@@ -1,16 +1,17 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { RxStompState } from '@stomp/rx-stomp';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 import { ChatMessage } from '../../core/models/chat.model';
 import { ChatService } from '../../core/services/chat.service';
-import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
+import { AUTH_STORAGE_KEY, signIn } from '../../core/testing/auth-fixtures';
 import { ChatPageComponent } from './chat-page.component';
 
 const EVENT_ID = 6;
-const CURRENT_USER = 1;
+const CURRENT_USER = 8;
 const OTHER_USER = 2;
 
 function message(id: number, userId: number, content: string): ChatMessage {
@@ -43,11 +44,13 @@ describe('ChatPageComponent', () => {
   let chat: FakeChatService;
 
   beforeEach(() => {
-    localStorage.clear();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     chat = new FakeChatService();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ChatService, useValue: chat },
         { provide: EventsService, useValue: { getEvent: () => of({ title: 'Morning Run' }) } },
         {
@@ -56,9 +59,14 @@ describe('ChatPageComponent', () => {
         },
       ],
     });
-    TestBed.inject(CurrentUserService).select(CURRENT_USER);
+    signIn(CURRENT_USER);
     fixture = TestBed.createComponent(ChatPageComponent);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   });
 
   function texts(): string[] {
@@ -86,6 +94,8 @@ describe('ChatPageComponent', () => {
     expect(texts()).toEqual(['Hello', 'Hi']);
     expect(messages[0].classList).not.toContain('own');
     expect(messages[1].classList).toContain('own');
+    expect(messages[0].querySelector('app-avatar')?.textContent?.trim()).toBe('U2');
+    expect(messages[1].querySelector('app-avatar')).toBeNull();
   });
 
   it('sends a trimmed message and ignores blank input', () => {
@@ -121,6 +131,18 @@ describe('ChatPageComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Join the event to chat');
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
+  });
+
+  it('shows the join message instead of reconnecting after a subscription denial', () => {
+    chat.connectionState$.next(RxStompState.OPEN);
+    chat.connectionState$.next(RxStompState.CLOSED);
+    chat.errors.next('NOT_GOING');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Join the event to chat');
+    expect(fixture.nativeElement.querySelector('.reconnecting')).toBeNull();
+    expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
   });
 
   it('disconnects when the page is closed', () => {

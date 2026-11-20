@@ -1,5 +1,6 @@
 package com.gettogether.events;
 
+import com.gettogether.TestJwtTokens;
 import com.gettogether.TestcontainersConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestcontainersConfiguration.class)
 class EventParticipationTests {
 
-    private static final String USER_ID_HEADER = "X-User-Id";
     private static final long FIRST_USER = 1L;
     private static final long SECOND_USER = 2L;
     private static final long UNKNOWN_ID = 999_999L;
@@ -40,6 +41,9 @@ class EventParticipationTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TestJwtTokens tokens;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -64,7 +68,7 @@ class EventParticipationTests {
 
     @Test
     void returnsExplicitNullStatusWhenThereIsNoParticipation() throws Exception {
-        mockMvc.perform(get(url()).header(USER_ID_HEADER, FIRST_USER))
+        mockMvc.perform(get(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(FIRST_USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", org.hamcrest.Matchers.hasKey("status")))
                 .andExpect(jsonPath("$.status").value(nullValue()))
@@ -83,7 +87,7 @@ class EventParticipationTests {
         setStatus(FIRST_USER, "GOING").andExpect(status().isOk())
                 .andExpect(jsonPath("$.goingCount").value(1));
         setStatus(FIRST_USER, "GOING").andExpect(status().isOk());
-        mockMvc.perform(get(url()).header(USER_ID_HEADER, FIRST_USER))
+        mockMvc.perform(get(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(FIRST_USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("GOING"));
 
@@ -108,7 +112,7 @@ class EventParticipationTests {
 
         setStatus(SECOND_USER, "NOT_INTERESTED").andExpect(status().isOk());
         setStatus(SECOND_USER, "GOING").andExpect(status().isConflict());
-        mockMvc.perform(get(url()).header(USER_ID_HEADER, SECOND_USER))
+        mockMvc.perform(get(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(SECOND_USER)))
                 .andExpect(jsonPath("$.status").value("NOT_INTERESTED"))
                 .andExpect(jsonPath("$.goingCount").value(1));
     }
@@ -127,14 +131,14 @@ class EventParticipationTests {
         setStatus(FIRST_USER, "GOING").andExpect(status().isOk());
         setStatus(SECOND_USER, "NOT_INTERESTED").andExpect(status().isOk());
         for (int attempt = 0; attempt < 2; attempt++) {
-            mockMvc.perform(delete(url()).header(USER_ID_HEADER, FIRST_USER))
+            mockMvc.perform(delete(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(FIRST_USER)))
                     .andExpect(status().isNoContent());
         }
         assertThat(rowCount()).isEqualTo(1);
-        mockMvc.perform(get(url()).header(USER_ID_HEADER, FIRST_USER))
+        mockMvc.perform(get(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(FIRST_USER)))
                 .andExpect(jsonPath("$.status").value(nullValue()))
                 .andExpect(jsonPath("$.goingCount").value(0));
-        mockMvc.perform(get(url()).header(USER_ID_HEADER, SECOND_USER))
+        mockMvc.perform(get(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(SECOND_USER)))
                 .andExpect(jsonPath("$.status").value("NOT_INTERESTED"));
         setStatus(SECOND_USER, "GOING").andExpect(status().isOk());
     }
@@ -142,7 +146,7 @@ class EventParticipationTests {
     @Test
     void rejectsMissingNullAndInvalidStatuses() throws Exception {
         for (String body : List.of("{}", "{\"status\":null}", "{\"status\":\"INVALID\"}")) {
-            mockMvc.perform(put(url()).header(USER_ID_HEADER, FIRST_USER)
+            mockMvc.perform(put(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(FIRST_USER))
                             .contentType(MediaType.APPLICATION_JSON).content(body))
                     .andExpect(status().isBadRequest());
         }
@@ -154,9 +158,9 @@ class EventParticipationTests {
         for (var request : List.of(get(url()), put(url()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"status\":\"GOING\"}"), delete(url()))) {
             mockMvc.perform(request).andExpect(status().isUnauthorized());
-            mockMvc.perform(request.header(USER_ID_HEADER, "invalid")).andExpect(status().isUnauthorized());
+            mockMvc.perform(request.header(HttpHeaders.AUTHORIZATION, "Bearer invalid")).andExpect(status().isUnauthorized());
         }
-        mockMvc.perform(get(url()).header(USER_ID_HEADER, UNKNOWN_ID)).andExpect(status().isNotFound());
+        mockMvc.perform(get(url()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(UNKNOWN_ID))).andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -164,7 +168,7 @@ class EventParticipationTests {
         String missingUrl = "/events/" + UNKNOWN_ID + "/participation";
         for (var request : List.of(get(missingUrl), delete(missingUrl),
                 put(missingUrl).contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"GOING\"}"))) {
-            mockMvc.perform(request.header(USER_ID_HEADER, FIRST_USER)).andExpect(status().isNotFound());
+            mockMvc.perform(request.header(HttpHeaders.AUTHORIZATION, tokens.bearer(FIRST_USER))).andExpect(status().isNotFound());
         }
     }
 
@@ -202,7 +206,8 @@ class EventParticipationTests {
     }
 
     private ResultActions setStatus(long userId, String participationStatus) throws Exception {
-        return mockMvc.perform(put(url()).header(USER_ID_HEADER, userId).contentType(MediaType.APPLICATION_JSON)
+        return mockMvc.perform(put(url())
+                .header(HttpHeaders.AUTHORIZATION, tokens.bearer(userId)).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"status\":\"" + participationStatus + "\"}"));
     }
 

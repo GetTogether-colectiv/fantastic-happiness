@@ -1,12 +1,18 @@
-<div class="shell">
-  <header class="top-bar">
-    <app-main-nav />
-    <a class="logo" routerLink="/discover" aria-label="Home">
-      <img src="LOGO.svg" alt="Logo" />
-    </a>
-    <app-user-switcher />
-  </header>
-  <main class="content">
+<div [class.shell]="showNavigation()">
+  @if (showNavigation()) {
+    <header class="top-bar">
+      <app-main-nav />
+      <a class="logo" routerLink="/discover" aria-label="Home">
+        <img src="LOGO.svg" alt="Logo" />
+      </a>
+      @if (profileUser(); as user) {
+        <a class="profile-shortcut" routerLink="/profile" aria-label="Go to your profile">
+          <app-avatar [name]="user.displayName" [imageUrl]="user.avatarUrl" />
+        </a>
+      }
+    </header>
+  }
+  <main [class.content]="showNavigation()">
     <router-outlet />
   </main>
 </div>

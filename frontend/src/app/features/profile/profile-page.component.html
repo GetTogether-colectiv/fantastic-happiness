@@ -15,7 +15,9 @@
               <input type="text" formControlName="displayName" autocomplete="name" />
             </label>
             @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
-              <p class="error" role="alert">Enter a name of up to {{ nameMaxLength }} characters.</p>
+              <p class="error" role="alert">
+                Enter a name of up to {{ nameMaxLength }} characters.
+              </p>
             }
             <label>
               City
@@ -37,13 +39,7 @@
             </div>
           </form>
         } @else {
-          @if (user.avatarUrl) {
-            <img class="avatar" [src]="user.avatarUrl" alt="" />
-          } @else {
-            <div class="avatar placeholder">
-              <mat-icon aria-hidden="true">person</mat-icon>
-            </div>
-          }
+          <app-avatar class="avatar" [name]="user.displayName" [imageUrl]="user.avatarUrl" />
           <div class="identity">
             <h1>{{ user.displayName }}</h1>
             @if (user.city) {
@@ -54,10 +50,19 @@
         }
       </section>
 
-      <section class="preferences" aria-labelledby="likes-title">
+      <section
+        #preferences
+        class="preferences"
+        [id]="preferencesFragment"
+        aria-labelledby="likes-title"
+      >
         <h2 id="likes-title">What do you like?</h2>
         <app-category-picker [initial]="user.preferredCategories" />
       </section>
     }
   }
 }
+
+<footer class="profile-footer">
+  <button type="button" (click)="logout()">Log out</button>
+</footer>
