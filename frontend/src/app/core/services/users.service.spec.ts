@@ -30,16 +30,6 @@ describe('UsersService', () => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   });
 
-  it('lists all users', () => {
-    const users: User[] = [{ id: 1, displayName: 'Alex', avatarUrl: null, city: null }];
-    const received = vi.fn();
-    service.findAll().subscribe(received);
-    const request = http.expectOne('/api/users');
-    expect(request.request.method).toBe('GET');
-    request.flush(users);
-    expect(received).toHaveBeenCalledWith(users);
-  });
-
   it('loads one user by id', () => {
     const user: User = { id: 7, displayName: 'Alex', avatarUrl: null, city: null };
     const received = vi.fn();

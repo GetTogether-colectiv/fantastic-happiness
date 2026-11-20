@@ -43,16 +43,15 @@ describe('authInterceptor', () => {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   });
 
-  it('attaches the current JWT to the backend API and strips caller-supplied identity', () => {
+  it('uses the session JWT for protected API requests regardless of a supplied Authorization header', () => {
     const { token } = signIn();
     client
       .get('/api/users/me', {
-        headers: new HttpHeaders({ Authorization: 'Bearer another-token', 'X-User-Id': '99' }),
+        headers: new HttpHeaders({ Authorization: 'Bearer another-token' }),
       })
       .subscribe();
     const protectedRequest = http.expectOne('/api/users/me');
     expect(protectedRequest.request.headers.get('Authorization')).toBe(`Bearer ${token}`);
-    expect(protectedRequest.request.headers.has('X-User-Id')).toBe(false);
     protectedRequest.flush({});
 
     for (const url of ['/apix/users', 'https://example.test/api/users', '/LOGO.svg']) {

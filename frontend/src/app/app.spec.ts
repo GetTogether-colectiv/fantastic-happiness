@@ -29,7 +29,7 @@ describe('App', () => {
   it.each([
     ['/login', 'app-login-page'],
     ['/register', 'app-register-page'],
-  ])('loads %s without the navigation or user switcher', async (url, selector) => {
+  ])('loads %s without the navigation', async (url, selector) => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl(url);
@@ -38,30 +38,25 @@ describe('App', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector(selector)).not.toBeNull();
     expect(root.querySelector('app-main-nav')).toBeNull();
-    expect(root.querySelector('app-user-switcher')).toBeNull();
     expect(root.querySelector('.content')).toBeNull();
     TestBed.inject(HttpTestingController).expectNone('/api/users');
   });
 
   it('keeps the existing navigation and page layout on app routes', async () => {
-    signIn();
+    const { user } = signIn();
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await TestBed.inject(Router).navigateByUrl('/profile');
     fixture.detectChanges();
 
     const http = TestBed.inject(HttpTestingController);
-    const profile = { id: 1, displayName: 'Alex', city: null, avatarUrl: null };
-    http.expectOne('/api/users').flush([profile]);
-    http.expectOne('/api/users/me').flush({ ...profile, preferredCategories: [] });
+    http.expectNone('/api/users');
+    http.expectOne('/api/users/me').flush({ ...user, preferredCategories: [] });
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('app-main-nav')).not.toBeNull();
-    expect(root.querySelector('app-user-switcher')).not.toBeNull();
+    expect(root.querySelector('.top-bar a.logo')?.getAttribute('href')).toBe('/discover');
     expect(root.querySelector('.content app-profile-page')).not.toBeNull();
-    expect(root.querySelector<HTMLButtonElement>('app-user-switcher .current')?.disabled).toBe(
-      true,
-    );
   });
 });

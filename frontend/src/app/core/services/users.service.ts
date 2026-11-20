@@ -17,10 +17,6 @@ export class UsersService {
 
   readonly profile = this.currentProfile.asReadonly();
 
-  findAll(): Observable<User[]> {
-    return this.http.get<User[]>(`${API_BASE_URL}/users`);
-  }
-
   getUser(id: number): Observable<User> {
     return this.http.get<User>(`${API_BASE_URL}/users/${id}`);
   }

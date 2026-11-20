@@ -18,8 +18,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
 import { RxStompState } from '@stomp/rx-stomp';
 import { ChatMessage, JOIN_TO_CHAT_MESSAGE, MAX_MESSAGE_LENGTH } from '../../core/models/chat.model';
+import { AuthService } from '../../core/services/auth.service';
 import { ChatService, HISTORY_PAGE_SIZE } from '../../core/services/chat.service';
-import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
 
 const NEAR_BOTTOM_PX = 100;
@@ -41,6 +41,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
+  private readonly auth = inject(AuthService);
   private readonly chat = inject(ChatService);
   private readonly events = inject(EventsService);
   private readonly eventId = Number(this.route.snapshot.paramMap.get('id'));
@@ -50,7 +51,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   private hasOlderMessages = true;
   private loadingOlder = false;
 
-  protected readonly currentUserId = inject(CurrentUserService).userId;
+  protected readonly currentUserId = computed(() => this.auth.currentUser()?.id);
   protected readonly maxMessageLength = MAX_MESSAGE_LENGTH;
   protected readonly joinToChatMessage = JOIN_TO_CHAT_MESSAGE;
   protected readonly title = signal('');

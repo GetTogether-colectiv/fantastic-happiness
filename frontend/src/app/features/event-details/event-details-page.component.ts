@@ -1,7 +1,7 @@
 import { DatePipe, Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -15,7 +15,7 @@ import {
 } from 'rxjs';
 import { EventDetails } from '../../core/models/event.model';
 import { User } from '../../core/models/user.model';
-import { CurrentUserService } from '../../core/services/current-user.service';
+import { AuthService } from '../../core/services/auth.service';
 import { EventsService } from '../../core/services/events.service';
 import { UsersService } from '../../core/services/users.service';
 import { CategoryChipComponent } from '../../shared/components/category-chip/category-chip.component';
@@ -57,11 +57,12 @@ export class EventDetailsPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
+  private readonly auth = inject(AuthService);
   private readonly events = inject(EventsService);
   private readonly users = inject(UsersService);
   private readonly retryCount = signal(0);
 
-  protected readonly currentUserId = inject(CurrentUserService).userId;
+  protected readonly currentUserId = computed(() => this.auth.currentUser()?.id);
 
   protected readonly state = toSignal(
     combineLatest([

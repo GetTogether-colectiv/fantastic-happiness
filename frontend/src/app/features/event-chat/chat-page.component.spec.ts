@@ -1,17 +1,17 @@
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { RxStompState } from '@stomp/rx-stomp';
 import { BehaviorSubject, Subject, of } from 'rxjs';
 import { ChatMessage } from '../../core/models/chat.model';
 import { ChatService } from '../../core/services/chat.service';
-import { CurrentUserService } from '../../core/services/current-user.service';
 import { EventsService } from '../../core/services/events.service';
+import { AUTH_STORAGE_KEY, signIn } from '../../core/testing/auth-fixtures';
 import { ChatPageComponent } from './chat-page.component';
 
 const EVENT_ID = 6;
-const CURRENT_USER = 1;
+const CURRENT_USER = 8;
 const OTHER_USER = 2;
 
 function message(id: number, userId: number, content: string): ChatMessage {
@@ -44,7 +44,7 @@ describe('ChatPageComponent', () => {
   let chat: FakeChatService;
 
   beforeEach(() => {
-    localStorage.clear();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     chat = new FakeChatService();
     TestBed.configureTestingModule({
       providers: [
@@ -59,9 +59,14 @@ describe('ChatPageComponent', () => {
         },
       ],
     });
-    TestBed.inject(CurrentUserService).select(CURRENT_USER);
+    signIn(CURRENT_USER);
     fixture = TestBed.createComponent(ChatPageComponent);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   });
 
   function texts(): string[] {

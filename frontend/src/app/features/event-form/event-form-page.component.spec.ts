@@ -7,8 +7,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { EventDetails } from '../../core/models/event.model';
-import { CurrentUserService } from '../../core/services/current-user.service';
 import { NOMINATIM_REVERSE_URL } from '../../core/services/geocoding.service';
+import { AUTH_STORAGE_KEY, signIn } from '../../core/testing/auth-fixtures';
 import { EventFormPageComponent } from './event-form-page.component';
 import { toInstant } from './event-form.validators';
 import { LocationPickerComponent } from './location-picker/location-picker.component';
@@ -20,7 +20,6 @@ const ORGANIZER_ID = 3;
 const OTHER_USER_ID = 1;
 const START = '2999-01-01T10:00';
 const END = '2999-01-01T12:00';
-const USER_STORAGE_KEY = 'currentUserId';
 
 const EVENT: EventDetails = {
   id: 7,
@@ -45,6 +44,7 @@ describe('EventFormPageComponent', () => {
   let http: HttpTestingController;
 
   beforeEach(() => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     snackBar.open.mockClear();
     TestBed.configureTestingModule({
       providers: [
@@ -63,7 +63,7 @@ describe('EventFormPageComponent', () => {
 
   afterEach(() => {
     http.verify();
-    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   });
 
   function field(
@@ -194,7 +194,7 @@ describe('EventFormPageComponent', () => {
   });
 
   it('fills the form for the organizer and saves the changes', async () => {
-    TestBed.inject(CurrentUserService).select(ORGANIZER_ID);
+    signIn(ORGANIZER_ID);
     const harness = await openForm(`/events/${EVENT.id}/edit`);
     http.expectOne(`/api/events/${EVENT.id}`).flush(EVENT);
     harness.detectChanges();
@@ -220,7 +220,7 @@ describe('EventFormPageComponent', () => {
   });
 
   it('sends anyone but the organizer back to the details page', async () => {
-    TestBed.inject(CurrentUserService).select(OTHER_USER_ID);
+    signIn(OTHER_USER_ID);
     const harness = await openForm(`/events/${EVENT.id}/edit`);
     http.expectOne(`/api/events/${EVENT.id}`).flush(EVENT);
 

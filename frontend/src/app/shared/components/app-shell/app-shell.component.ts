@@ -3,11 +3,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { MainNavComponent } from '../main-nav/main-nav.component';
-import { UserSwitcherComponent } from '../user-switcher/user-switcher.component';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, MainNavComponent, UserSwitcherComponent],
+  imports: [RouterOutlet, RouterLink, MainNavComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })

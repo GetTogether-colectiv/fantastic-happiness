@@ -1,13 +1,7 @@
 import { DOCUMENT, inject } from '@angular/core';
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
-import {
-  API_BASE_URL,
-  AUTH_API_URL,
-  AUTHORIZATION_HEADER,
-  USER_ID_HEADER,
-  bearerToken,
-} from '../api.config';
+import { API_BASE_URL, AUTH_API_URL, AUTHORIZATION_HEADER, bearerToken } from '../api.config';
 import { LOGIN_PATH, REGISTER_PATH } from '../auth/auth-navigation';
 import { AuthService } from '../services/auth.service';
 import { SessionExitService } from '../services/session-exit.service';
@@ -34,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
   const sessionExit = inject(SessionExitService);
   const session = auth.session();
-  let headers = request.headers.delete(USER_ID_HEADER).delete(AUTHORIZATION_HEADER);
+  let headers = request.headers.delete(AUTHORIZATION_HEADER);
   if (session && auth.isLoggedIn()) {
     headers = headers.set(AUTHORIZATION_HEADER, bearerToken(session.token));
   }
