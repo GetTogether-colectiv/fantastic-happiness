@@ -26,6 +26,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET}
+
 gettogether:
   cors:
     allowed-origins: http://localhost:4200

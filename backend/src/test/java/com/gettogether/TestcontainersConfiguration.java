@@ -1,18 +1,27 @@
 package com.gettogether;
 
+import io.jsonwebtoken.Jwts;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.DynamicPropertyRegistrar;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.nio.file.Path;
+import java.util.Base64;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
 
     private static final String INIT_SCRIPTS_PATH = "/docker-entrypoint-initdb.d/";
+
+    @Bean
+    DynamicPropertyRegistrar jwtSecret() {
+        String secret = Base64.getEncoder().encodeToString(Jwts.SIG.HS256.key().build().getEncoded());
+        return registry -> registry.add("app.jwt.secret", () -> secret);
+    }
 
     @Bean
     @ServiceConnection
