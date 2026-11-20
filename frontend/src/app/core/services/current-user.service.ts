@@ -1,15 +1,19 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { AuthService } from './auth.service';
 
 const STORAGE_KEY = 'currentUserId';
 const DEFAULT_USER_ID = 1;
 
 @Injectable({ providedIn: 'root' })
 export class CurrentUserService {
+  private readonly auth = inject(AuthService);
   private readonly selectedUserId = signal(this.readStoredUserId());
 
-  readonly userId = this.selectedUserId.asReadonly();
+  readonly userId = computed(() => this.auth.currentUser()?.id ?? this.selectedUserId());
 
   select(userId: number): void {
+    if (this.auth.currentUser()) return;
+
     localStorage.setItem(STORAGE_KEY, String(userId));
     this.selectedUserId.set(userId);
   }

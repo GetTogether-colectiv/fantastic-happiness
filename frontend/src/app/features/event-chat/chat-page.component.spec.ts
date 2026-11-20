@@ -1,4 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { RxStompState } from '@stomp/rx-stomp';
@@ -48,6 +49,8 @@ describe('ChatPageComponent', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ChatService, useValue: chat },
         { provide: EventsService, useValue: { getEvent: () => of({ title: 'Morning Run' }) } },
         {

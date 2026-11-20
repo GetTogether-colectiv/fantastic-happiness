@@ -3,6 +3,18 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   { path: '', redirectTo: 'discover', pathMatch: 'full' },
   {
+    path: 'login',
+    data: { title: 'Sign in', hideNavigation: true },
+    loadComponent: () =>
+      import('./features/auth/login-page.component').then((m) => m.LoginPageComponent),
+  },
+  {
+    path: 'register',
+    data: { title: 'Create account', hideNavigation: true },
+    loadComponent: () =>
+      import('./features/auth/register-page.component').then((m) => m.RegisterPageComponent),
+  },
+  {
     path: 'events/new',
     data: { title: 'New event' },
     loadComponent: () =>
