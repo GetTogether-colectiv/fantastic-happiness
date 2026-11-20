@@ -1,28 +1,38 @@
+### Sign in as seeded user 1 to set the bearer token for the backend examples
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"email": "alexandra.pop@gettogether.test", "password": "password1"}
+
+> {% client.global.set("token", response.body.token); %}
+
 ### List users
 GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
 
 ### Get a user
 GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
 
 ### Get the current user (200; must contain "preferredCategories")
 GET {{baseUrl}}/users/me
-X-User-Id: {{userId}}
+Authorization: Bearer {{token}}
 
 ### Update the profile (200; blank name or non-http avatar gives 400)
 PUT {{baseUrl}}/users/me
-X-User-Id: {{userId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 ### Replace the preferences (200; empty list gives 400)
 PUT {{baseUrl}}/users/me/preferences
-X-User-Id: {{userId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {"categories": ["MUSIC", "TECH"]}
 
 ### Empty preferences (400)
 PUT {{baseUrl}}/users/me/preferences
-X-User-Id: {{userId}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {"categories": []}
