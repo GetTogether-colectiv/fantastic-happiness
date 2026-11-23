@@ -28,4 +28,15 @@ describe('PostsService', () => {
     request.flush(response);
     expect(received).toHaveBeenCalledWith(response);
   });
+
+  it('publishes a post for an event', () => {
+    const received = vi.fn();
+    service.createPost(7, { rating: 5, text: 'Loved it' }).subscribe(received);
+
+    const request = http.expectOne('/api/events/7/posts');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ rating: 5, text: 'Loved it' });
+    request.flush({ id: 12 });
+    expect(received).toHaveBeenCalledWith({ id: 12 });
+  });
 });

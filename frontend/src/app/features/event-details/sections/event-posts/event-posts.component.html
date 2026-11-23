@@ -1,6 +1,10 @@
 <section aria-labelledby="posts-title">
   <h3 id="posts-title">How was it?</h3>
 
+  @if (canWrite()) {
+    <button class="write-post" type="button" (click)="openForm()">Write a post</button>
+  }
+
   @let postsState = state();
   @if (postsState.status === 'loading') {
     <p class="status" role="status">Loading posts…</p>

@@ -1,8 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { BehaviorSubject, of } from 'rxjs';
 import { EventDetails } from '../../../../core/models/event.model';
 import { EventPostsResponse } from '../../../../core/models/post.model';
+import { AuthService } from '../../../../core/services/auth.service';
 import { EventPostsComponent } from './event-posts.component';
 
 const EVENT: EventDetails = {
@@ -53,10 +58,33 @@ const RESPONSE: EventPostsResponse = {
 describe('EventPostsComponent', () => {
   let fixture: ComponentFixture<EventPostsComponent>;
   let http: HttpTestingController;
+  const currentUser = signal({ id: 1, displayName: 'Alexandra Pop', avatarUrl: null, city: null });
+  const bottomSheet = { open: vi.fn() };
+  const queryParams = new BehaviorSubject(convertToParamMap({}));
+  const router = { navigate: vi.fn().mockResolvedValue(true) };
 
   beforeEach(() => {
+    bottomSheet.open.mockReset();
+    router.navigate.mockClear();
+    queryParams.next(convertToParamMap({}));
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: { currentUser } },
+        { provide: MatBottomSheet, useValue: bottomSheet },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            queryParamMap: queryParams.asObservable(),
+            snapshot: { queryParamMap: convertToParamMap({}) },
+          },
+        },
+        { provide: Router, useValue: router },
+      ],
+    });
+    TestBed.overrideComponent(EventPostsComponent, {
+      remove: { imports: [MatBottomSheetModule] },
     });
     fixture = TestBed.createComponent(EventPostsComponent);
     fixture.componentRef.setInput('event', EVENT);
@@ -65,11 +93,18 @@ describe('EventPostsComponent', () => {
 
   afterEach(() => http.verify());
 
+  function flushLoad(response: EventPostsResponse, status: 'GOING' | 'NOT_INTERESTED' | null): void {
+    http.expectOne('/api/events/7/posts').flush(response);
+    http
+      .expectOne('/api/events/7/participation')
+      .flush({ status, goingCount: 2, capacity: null });
+    fixture.detectChanges();
+  }
+
   it('shows the average and newest-first post cards returned by the API', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Loading posts');
-    http.expectOne('/api/events/7/posts').flush(RESPONSE);
-    fixture.detectChanges();
+    flushLoad(RESPONSE, 'GOING');
 
     const root = fixture.nativeElement as HTMLElement;
     expect(root.textContent).toContain('How was it?');
@@ -85,14 +120,12 @@ describe('EventPostsComponent', () => {
     );
     expect(cards[1].textContent).toContain('Alexandra Pop');
     expect(cards[1].querySelector('p')).toBeNull();
+    expect(root.querySelector('.write-post')).toBeNull();
   });
 
   it('shows an empty state when nobody has posted', () => {
     fixture.detectChanges();
-    http
-      .expectOne('/api/events/7/posts')
-      .flush({ averageRating: null, count: 0, posts: [] } satisfies EventPostsResponse);
-    fixture.detectChanges();
+    flushLoad({ averageRating: null, count: 0, posts: [] }, 'NOT_INTERESTED');
 
     expect(fixture.nativeElement.textContent).toContain('No posts yet.');
     expect(fixture.nativeElement.querySelector('app-post-card')).toBeNull();
@@ -103,14 +136,65 @@ describe('EventPostsComponent', () => {
     http
       .expectOne('/api/events/7/posts')
       .flush(null, { status: 500, statusText: 'Server Error' });
+    http
+      .expectOne('/api/events/7/participation')
+      .flush({ status: 'GOING', goingCount: 2, capacity: null });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain("Posts couldn't be loaded.");
 
     fixture.nativeElement.querySelector('app-error-state button').click();
     TestBed.tick();
     fixture.detectChanges();
-    http
-      .expectOne('/api/events/7/posts')
-      .flush({ averageRating: null, count: 0, posts: [] } satisfies EventPostsResponse);
+    flushLoad({ averageRating: null, count: 0, posts: [] }, 'GOING');
+  });
+
+  it('shows the form only to an attendee who has not posted and prepends its result', () => {
+    const initial: EventPostsResponse = {
+      averageRating: 5,
+      count: 1,
+      posts: [RESPONSE.posts[0]],
+    };
+    const created = {
+      id: 13,
+      userId: 1,
+      eventId: 7,
+      authorName: 'Alexandra Pop',
+      authorAvatar: null,
+      rating: 4,
+      text: 'My post',
+      createdAt: '2026-11-23T12:00:00Z',
+    };
+    bottomSheet.open.mockReturnValue({ afterDismissed: () => of(created) });
+    fixture.detectChanges();
+    flushLoad(initial, 'GOING');
+
+    const root = fixture.nativeElement as HTMLElement;
+    root.querySelector<HTMLButtonElement>('.write-post')!.click();
+    fixture.detectChanges();
+
+    expect(bottomSheet.open).toHaveBeenCalledOnce();
+    expect(root.querySelector('.write-post')).toBeNull();
+    expect(root.querySelectorAll('app-post-card')[0].textContent).toContain('My post');
+    expect(root.textContent).toContain('4.5 ★');
+    expect(root.textContent).toContain('from 2 posts');
+  });
+
+  it('opens the form automatically for the write query parameter', () => {
+    bottomSheet.open.mockReturnValue({ afterDismissed: () => of(undefined) });
+    queryParams.next(convertToParamMap({ write: '1' }));
+    fixture.detectChanges();
+    flushLoad(
+      { averageRating: 5, count: 1, posts: [RESPONSE.posts[0]] },
+      'GOING',
+    );
+    TestBed.tick();
+
+    expect(bottomSheet.open).toHaveBeenCalledOnce();
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: TestBed.inject(ActivatedRoute),
+      queryParams: { write: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   });
 });

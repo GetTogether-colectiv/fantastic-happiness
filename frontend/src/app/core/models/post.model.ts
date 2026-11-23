@@ -14,3 +14,8 @@ export interface EventPostsResponse {
   count: number;
   posts: EventPost[];
 }
+
+export interface CreatePostRequest {
+  rating: number;
+  text: string | null;
+}

@@ -1,0 +1,36 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <h2>Write a post</h2>
+
+  <fieldset>
+    <legend>How would you rate it?</legend>
+    <app-star-rating [inputMode]="true" formControlName="rating" />
+    @if (form.controls.rating.touched && form.controls.rating.invalid) {
+      <p class="field-error">Choose a rating from 1 to 5.</p>
+    }
+  </fieldset>
+
+  <label for="post-text">Tell others how it was</label>
+  <textarea
+    id="post-text"
+    formControlName="text"
+    placeholder="Tell others how it was…"
+    [maxlength]="maxTextLength"
+    rows="6"
+  ></textarea>
+  <div class="counter" aria-live="polite">
+    {{ form.controls.text.value.length }}/{{ maxTextLength }}
+  </div>
+
+  @if (submitError()) {
+    <p class="submit-error" role="alert">{{ submitError() }}</p>
+  }
+
+  <div class="actions">
+    <button class="secondary" type="button" [disabled]="submitting()" (click)="cancel()">
+      Cancel
+    </button>
+    <button class="primary" type="submit" [disabled]="form.invalid || submitting()">
+      {{ submitting() ? 'Publishing…' : 'Publish' }}
+    </button>
+  </div>
+</form>

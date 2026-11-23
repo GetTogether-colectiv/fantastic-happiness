@@ -109,6 +109,9 @@ describe('MyEventsPageComponent', () => {
     expect(page.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toContain('Past');
     expect(page.querySelectorAll('.day')).toHaveLength(0);
     expect(titles(page)).toEqual(['Old concert']);
+    const writeLink = page.querySelector<HTMLAnchorElement>('.write-post-link');
+    expect(writeLink?.textContent).toContain('Write a post');
+    expect(writeLink?.getAttribute('href')).toBe('/events/3?write=1');
   });
 
   it('stores the selected tab in the query param and loads that tab', async () => {

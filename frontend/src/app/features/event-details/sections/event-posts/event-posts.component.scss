@@ -8,6 +8,19 @@ h3 {
   font-size: var(--font-size-lg);
 }
 
+.write-post {
+  min-height: 44px;
+  margin: 0 0 var(--space-lg);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-pill);
+  background: var(--primary-color);
+  color: var(--on-primary-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .summary {
   display: flex;
   flex-wrap: wrap;
