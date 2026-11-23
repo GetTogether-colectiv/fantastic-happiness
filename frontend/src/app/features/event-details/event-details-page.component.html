@@ -79,15 +79,19 @@
         <div class="event-section event-section--friends">
           <app-event-friends [event]="details.event" />
         </div>
-        <div class="event-section event-section--posts">
-          <app-event-posts [event]="details.event" />
-        </div>
+        @if (isEnded(details.event)) {
+          <div class="event-section event-section--posts">
+            <app-event-posts [event]="details.event" />
+          </div>
+        }
       </div>
 
       <aside class="aside">
-        <div class="event-section event-section--join">
-          <app-event-join [event]="details.event" (participationChanged)="chat.refresh()" />
-        </div>
+        @if (!isEnded(details.event)) {
+          <div class="event-section event-section--join">
+            <app-event-join [event]="details.event" (participationChanged)="chat.refresh()" />
+          </div>
+        }
         <div class="event-section event-section--map">
           <app-event-map [event]="details.event" />
         </div>

@@ -1,0 +1,14 @@
+<article>
+  <header>
+    <app-avatar [name]="post().authorName" [imageUrl]="post().authorAvatar" />
+    <div class="author">
+      <strong>{{ post().authorName }}</strong>
+      <time [attr.datetime]="post().createdAt">{{ post().createdAt | date: 'mediumDate' }}</time>
+    </div>
+  </header>
+
+  <app-star-rating [rating]="post().rating" />
+  @if (post().text) {
+    <p>{{ post().text }}</p>
+  }
+</article>

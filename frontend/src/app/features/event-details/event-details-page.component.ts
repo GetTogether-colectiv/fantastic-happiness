@@ -119,4 +119,8 @@ export class EventDetailsPageComponent {
       this.goToDiscover();
     }
   }
+
+  protected isEnded(event: EventDetails): boolean {
+    return Date.parse(event.endsAt) < Date.now();
+  }
 }

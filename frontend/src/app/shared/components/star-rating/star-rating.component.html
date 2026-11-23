@@ -1,0 +1,5 @@
+<span class="stars" role="img" [attr.aria-label]="accessibleLabel()">
+  @for (position of stars; track position) {
+    <mat-icon aria-hidden="true">{{ iconFor(position) }}</mat-icon>
+  }
+</span>

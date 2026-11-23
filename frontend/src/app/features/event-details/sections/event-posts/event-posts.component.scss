@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  margin-top: var(--space-2xl);
+}
+
+h3 {
+  margin: 0 0 var(--space-lg);
+  font-size: var(--font-size-lg);
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.summary span {
+  color: var(--muted-color);
+}
+
+.summary strong {
+  color: var(--text-color);
+}
+
+.posts {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.status {
+  margin: 0;
+  color: var(--muted-color);
+}

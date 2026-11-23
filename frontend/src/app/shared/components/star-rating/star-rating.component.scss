@@ -1,0 +1,15 @@
+:host {
+  display: inline-flex;
+}
+
+.stars {
+  display: inline-flex;
+  color: var(--warning-color);
+  line-height: 1;
+}
+
+mat-icon {
+  width: var(--font-size-xl);
+  height: var(--font-size-xl);
+  font-size: var(--font-size-xl);
+}
