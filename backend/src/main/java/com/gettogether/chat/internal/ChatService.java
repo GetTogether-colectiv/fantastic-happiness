@@ -60,7 +60,7 @@ class ChatService {
         return chatMessageRepository.countByEventId(eventId);
     }
 
-    private void requireGoing(Long userId, Long eventId) {
+    void requireGoing(Long userId, Long eventId) {
         if (!participationApi.isGoing(userId, eventId)) {
             throw new ForbiddenException(NOT_GOING);
         }

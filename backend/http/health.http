@@ -1,2 +1,3 @@
 ### Application health
 GET {{baseUrl}}/actuator/health
+Authorization: Bearer {{token}}

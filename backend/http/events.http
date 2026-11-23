@@ -1,19 +1,23 @@
 ### List events (first page, ordered by start time)
 GET {{baseUrl}}/events
+Authorization: Bearer {{token}}
 
 ### Filter by category
 GET {{baseUrl}}/events?category=MUSIC
+Authorization: Bearer {{token}}
 
 ### Combine filters and paginate
 GET {{baseUrl}}/events?category=TECH&city=Cluj-Napoca&from=2026-11-01T00:00:00Z&to=2026-12-31T23:59:59Z&page=0&size=5
+Authorization: Bearer {{token}}
 
 ### Get event details
 GET {{baseUrl}}/events/1
+Authorization: Bearer {{token}}
 
 ### Create an event (the organizer is the current user)
 POST {{baseUrl}}/events
 Content-Type: application/json
-X-User-Id: {{userId}}
+Authorization: Bearer {{token}}
 
 {
   "title": "Board game night",
@@ -30,7 +34,7 @@ X-User-Id: {{userId}}
 ### Edit an event (only its organizer, otherwise 403)
 PUT {{baseUrl}}/events/1
 Content-Type: application/json
-X-User-Id: {{userId}}
+Authorization: Bearer {{token}}
 
 {
   "title": "Board game night, new venue",

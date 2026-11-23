@@ -4,8 +4,8 @@ import com.gettogether.events.EventSummary;
 import com.gettogether.events.EventsApi;
 import com.gettogether.participation.ParticipationApi;
 import com.gettogether.participation.ParticipationStatus;
+import com.gettogether.users.CurrentUserProvider;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,16 +23,17 @@ class MyEventsController {
 
     private final ParticipationApi participationApi;
     private final EventsApi eventsApi;
+    private final CurrentUserProvider currentUserProvider;
 
-    MyEventsController(ParticipationApi participationApi, EventsApi eventsApi) {
+    MyEventsController(ParticipationApi participationApi, EventsApi eventsApi, CurrentUserProvider currentUserProvider) {
         this.participationApi = participationApi;
         this.eventsApi = eventsApi;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @GetMapping("/me/events")
-    List<EventSummary> getMyEvents(
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestParam When when) {
+    List<EventSummary> getMyEvents(@RequestParam When when) {
+        Long userId = currentUserProvider.currentUserId();
         List<Long> eventIds = participationApi.listEventsFor(userId, ParticipationStatus.GOING);
         if (eventIds.isEmpty()) {
             return List.of();

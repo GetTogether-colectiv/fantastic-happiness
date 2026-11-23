@@ -1,0 +1,63 @@
+<section class="auth-page" aria-labelledby="login-title">
+  <div class="auth-card">
+    <img class="brand" src="LOGO.svg" alt="GetTogether" />
+    <h1 id="login-title">Sign in</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @let emailInvalid = form.controls.email.touched && form.controls.email.invalid;
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input
+          id="login-email"
+          type="email"
+          autocomplete="email"
+          formControlName="email"
+          [attr.aria-invalid]="emailInvalid"
+          [attr.aria-describedby]="emailInvalid ? 'login-email-error' : null"
+        />
+        @if (emailInvalid) {
+          <p class="error" id="login-email-error" role="alert">Enter a valid email address.</p>
+        }
+      </div>
+
+      @let passwordInvalid = form.controls.password.touched && form.controls.password.invalid;
+      <div class="field">
+        <label for="login-password">Password</label>
+        <div class="password-field">
+          <input
+            id="login-password"
+            [type]="passwordVisible() ? 'text' : 'password'"
+            autocomplete="current-password"
+            formControlName="password"
+            [attr.aria-invalid]="passwordInvalid"
+            [attr.aria-describedby]="passwordInvalid ? 'login-password-error' : null"
+          />
+          <button
+            class="password-toggle"
+            type="button"
+            aria-controls="login-password"
+            [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+            (click)="passwordVisible.set(!passwordVisible())"
+          >
+            <mat-icon aria-hidden="true">{{
+              passwordVisible() ? 'visibility_off' : 'visibility'
+            }}</mat-icon>
+          </button>
+        </div>
+        @if (passwordInvalid) {
+          <p class="error" id="login-password-error" role="alert">Enter your password.</p>
+        }
+      </div>
+
+      @if (submitError(); as message) {
+        <p class="error" role="alert">{{ message }}</p>
+      }
+
+      <button class="submit" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="alternate">New to GetTogether? <a routerLink="/register">Create an account</a></p>
+  </div>
+</section>

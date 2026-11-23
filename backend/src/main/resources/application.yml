@@ -1,6 +1,8 @@
 spring:
   application:
     name: gettogether
+  autoconfigure:
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
   datasource:
     url: jdbc:postgresql://localhost:5432/gettogether
     username: gettogether
@@ -23,6 +25,10 @@ server:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+app:
+  jwt:
+    secret: ${APP_JWT_SECRET}
 
 gettogether:
   cors:

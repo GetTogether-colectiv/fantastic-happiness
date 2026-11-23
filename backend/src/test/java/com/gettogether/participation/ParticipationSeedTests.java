@@ -1,11 +1,13 @@
 package com.gettogether.participation;
 
+import com.gettogether.TestJwtTokens;
 import com.gettogether.TestcontainersConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +30,6 @@ class ParticipationSeedTests {
     private static final int GOING_COUNT = 90;
     private static final int FULL_CAPACITY = 6;
     private static final long NON_ATTENDING_USER = 1L;
-    private static final String USER_ID_HEADER = "X-User-Id";
     private static final String FULL_EVENT_TITLE = "Pastry Masterclass";
     private static final List<String> UPCOMING_TITLES = List.of(
             "Indie Night at Form Space", "Morning Run in the Park", "Cluj JS Meetup", "Board Games Night");
@@ -42,6 +43,9 @@ class ParticipationSeedTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TestJwtTokens tokens;
 
     @Test
     void everySeededUserHasTheRequiredUpcomingAndPastGoingEvents() {
@@ -103,19 +107,19 @@ class ParticipationSeedTests {
         Long eventId = fullEventId();
         String url = "/events/" + eventId + "/participation";
         List<Long> attendeesBefore = participationApi.listGoingUserIds(eventId);
-        mockMvc.perform(get(url).header(USER_ID_HEADER, NON_ATTENDING_USER))
+        mockMvc.perform(get(url).header(HttpHeaders.AUTHORIZATION, tokens.bearer(NON_ATTENDING_USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(nullValue()))
                 .andExpect(jsonPath("$.goingCount").value(FULL_CAPACITY))
                 .andExpect(jsonPath("$.capacity").value(FULL_CAPACITY));
 
-        mockMvc.perform(put(url).header(USER_ID_HEADER, NON_ATTENDING_USER)
+        mockMvc.perform(put(url).header(HttpHeaders.AUTHORIZATION, tokens.bearer(NON_ATTENDING_USER))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"GOING\"}"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
                 .andExpect(jsonPath("$.message").value("EVENT_FULL"));
 
-        mockMvc.perform(get(url).header(USER_ID_HEADER, NON_ATTENDING_USER))
+        mockMvc.perform(get(url).header(HttpHeaders.AUTHORIZATION, tokens.bearer(NON_ATTENDING_USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(nullValue()))
                 .andExpect(jsonPath("$.goingCount").value(FULL_CAPACITY))

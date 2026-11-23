@@ -12,19 +12,7 @@
 }
 
 .avatar {
-  flex: none;
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--border-color);
-  color: var(--muted-color);
+  --avatar-size: 4.5rem;
 }
 
 .identity {
@@ -97,7 +85,17 @@ input {
   color: var(--error-color);
 }
 
+.preferences {
+  scroll-margin-top: calc(var(--top-bar-height) + var(--space-lg));
+}
+
 .preferences h2 {
   margin: 0 0 var(--space-md);
   font-size: 1rem;
+}
+
+.profile-footer {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-color);
 }

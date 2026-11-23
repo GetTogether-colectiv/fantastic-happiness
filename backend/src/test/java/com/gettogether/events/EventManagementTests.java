@@ -1,5 +1,6 @@
 package com.gettogether.events;
 
+import com.gettogether.TestJwtTokens;
 import com.gettogether.TestcontainersConfiguration;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.AfterEach;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.event.ApplicationEvents;
@@ -33,7 +35,6 @@ import static org.hamcrest.Matchers.nullValue;
 @RecordApplicationEvents
 class EventManagementTests {
 
-    private static final String USER_ID_HEADER = "X-User-Id";
     private static final String TEST_TITLE_PREFIX = "Management test";
     private static final long ORGANIZER = 1L;
     private static final long OTHER_USER = 2L;
@@ -48,6 +49,9 @@ class EventManagementTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TestJwtTokens tokens;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -74,7 +78,8 @@ class EventManagementTests {
                 .andExpect(jsonPath("$.capacity").value(CAPACITY))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
 
-        mockMvc.perform(get("/events").param("from", startsAt.toString()).param("to", startsAt.toString()))
+        mockMvc.perform(get("/events").header(HttpHeaders.AUTHORIZATION, tokens.bearer(ORGANIZER))
+                        .param("from", startsAt.toString()).param("to", startsAt.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title").value(title));
     }
@@ -177,7 +182,7 @@ class EventManagementTests {
                 .andReturn();
         Number id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
 
-        mockMvc.perform(get("/events/{id}", id))
+        mockMvc.perform(get("/events/{id}", id).header(HttpHeaders.AUTHORIZATION, tokens.bearer(ORGANIZER)))
                 .andExpect(jsonPath("$.latitude").value(LATITUDE))
                 .andExpect(jsonPath("$.longitude").value(LONGITUDE));
     }
@@ -262,12 +267,12 @@ class EventManagementTests {
     }
 
     private ResultActions create(long userId, String json) throws Exception {
-        return mockMvc.perform(post("/events").header(USER_ID_HEADER, userId)
+        return mockMvc.perform(post("/events").header(HttpHeaders.AUTHORIZATION, tokens.bearer(userId))
                 .contentType(MediaType.APPLICATION_JSON).content(json));
     }
 
     private ResultActions edit(long eventId, long userId, String json) throws Exception {
-        return mockMvc.perform(put("/events/{id}", eventId).header(USER_ID_HEADER, userId)
+        return mockMvc.perform(put("/events/{id}", eventId).header(HttpHeaders.AUTHORIZATION, tokens.bearer(userId))
                 .contentType(MediaType.APPLICATION_JSON).content(json));
     }
 

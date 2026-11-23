@@ -1,0 +1,159 @@
+<section class="auth-page" aria-labelledby="register-title">
+  <div class="auth-card">
+    <img class="brand" src="LOGO.svg" alt="GetTogether" />
+    <h1 id="register-title">Create an account</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      @let nameInvalid = form.controls.name.touched && form.controls.name.invalid;
+      <div class="field">
+        <label for="register-name">Name</label>
+        <input
+          id="register-name"
+          type="text"
+          autocomplete="name"
+          formControlName="name"
+          [attr.aria-invalid]="nameInvalid"
+          [attr.aria-describedby]="nameInvalid ? 'register-name-error' : null"
+        />
+        @if (nameInvalid) {
+          <p class="error" id="register-name-error" role="alert">
+            Enter a name of up to {{ nameMaxLength }} characters.
+          </p>
+        }
+      </div>
+
+      @let emailInvalid = form.controls.email.touched && form.controls.email.invalid;
+      <div class="field">
+        <label for="register-email">Email</label>
+        <input
+          id="register-email"
+          type="email"
+          autocomplete="email"
+          formControlName="email"
+          [attr.aria-invalid]="emailInvalid"
+          [attr.aria-describedby]="emailInvalid ? 'register-email-error' : null"
+        />
+        @if (emailInvalid) {
+          <p class="error" id="register-email-error" role="alert">Enter a valid email address.</p>
+        }
+      </div>
+
+      @let password = form.controls.password;
+      @let passwordInvalid = password.touched && password.invalid;
+      <div class="field">
+        <label for="register-password">Password</label>
+        <div class="password-field">
+          <input
+            id="register-password"
+            [type]="passwordVisible() ? 'text' : 'password'"
+            autocomplete="new-password"
+            formControlName="password"
+            [attr.aria-invalid]="passwordInvalid"
+            [attr.aria-describedby]="
+              passwordInvalid
+                ? 'password-requirements register-password-error'
+                : 'password-requirements'
+            "
+          />
+          <button
+            class="password-toggle"
+            type="button"
+            aria-controls="register-password"
+            [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+            (click)="passwordVisible.set(!passwordVisible())"
+          >
+            <mat-icon aria-hidden="true">{{
+              passwordVisible() ? 'visibility_off' : 'visibility'
+            }}</mat-icon>
+          </button>
+        </div>
+        <p class="hint" id="password-requirements">
+          Use at least {{ passwordMinLength }} characters, including an uppercase letter (A–Z), a
+          lowercase letter (a–z), a digit (0–9), and a special character such as !, @, or #.
+        </p>
+        @if (passwordInvalid) {
+          <p class="error" id="register-password-error" role="alert">
+            {{
+              password.hasError('required')
+                ? 'Enter a password.'
+                : password.getError('passwordRequirements')
+            }}
+          </p>
+        }
+        <div class="password-actions">
+          <button
+            type="button"
+            aria-controls="register-password register-confirmation"
+            (click)="generateStrongPassword()"
+          >
+            {{ passwordGenerated() ? 'Generate another password' : 'Generate strong password' }}
+          </button>
+          @if (passwordGenerated()) {
+            <button type="button" [disabled]="copyStatus() === 'copying'" (click)="copyPassword()">
+              Copy password
+            </button>
+          }
+        </div>
+        <p class="hint password-copy-status" role="status">
+          @switch (copyStatus()) {
+            @case ('copied') {
+              Password copied.
+            }
+            @case ('failed') {
+              Couldn't copy. Show the password to copy it manually.
+            }
+          }
+        </p>
+      </div>
+
+      @let confirmationInvalid =
+        form.controls.confirmPassword.touched &&
+        (form.controls.confirmPassword.invalid || form.hasError('passwordMismatch'));
+      <div class="field">
+        <label for="register-confirmation">Confirm password</label>
+        <div class="password-field">
+          <input
+            id="register-confirmation"
+            [type]="confirmationVisible() ? 'text' : 'password'"
+            autocomplete="new-password"
+            formControlName="confirmPassword"
+            [attr.aria-invalid]="confirmationInvalid"
+            [attr.aria-describedby]="confirmationInvalid ? 'register-confirmation-error' : null"
+          />
+          <button
+            class="password-toggle"
+            type="button"
+            aria-controls="register-confirmation"
+            [attr.aria-label]="
+              confirmationVisible() ? 'Hide password confirmation' : 'Show password confirmation'
+            "
+            (click)="confirmationVisible.set(!confirmationVisible())"
+          >
+            <mat-icon aria-hidden="true">{{
+              confirmationVisible() ? 'visibility_off' : 'visibility'
+            }}</mat-icon>
+          </button>
+        </div>
+        @if (confirmationInvalid) {
+          <p class="error" id="register-confirmation-error" role="alert">
+            {{
+              form.controls.confirmPassword.invalid
+                ? 'Confirm your password.'
+                : 'Passwords must match.'
+            }}
+          </p>
+        }
+      </div>
+
+      @if (submitError(); as message) {
+        <p class="error" role="alert">{{ message }}</p>
+      }
+
+      <button class="submit" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Creating account…' : 'Create account' }}
+      </button>
+    </form>
+
+    <p class="alternate">Already have an account? <a routerLink="/login">Sign in</a></p>
+  </div>
+</section>

@@ -30,12 +30,14 @@ cd fantastic-happiness
 docker compose up -d
 ```
 
-The scripts in `database/` run on the first start. To recreate the database from scratch (needed after changing a script):
+The top-level scripts in `database/` run when PostgreSQL initializes an empty volume. If you have a volume from before login and registration, stop the backend and run this one-time upgrade from the repository root:
 
 ```bash
-docker compose down -v
-docker compose up -d
+docker compose exec -T db pg_dump -U gettogether -d gettogether > ~/gettogether-before-auth.sql
+docker compose exec -T db psql -X -v ON_ERROR_STOP=1 -U gettogether -d gettogether < database/migrations/019_add_user_password_hash.sql
 ```
+
+Keep the backup outside version control. The migration preserves users, related data, and any existing password hashes. It can be run again safely. Seeded accounts get the local demo password. Non-seeded legacy accounts without a password keep their data and receive hashes of discarded random passwords. Those users cannot sign in until a database administrator assigns a BCrypt hash for a password provided securely to that user.
 
 Connect with DBeaver/IntelliJ: `localhost:5432`, database `gettogether`, user `gettogether`, password `gettogether`.
 
@@ -43,8 +45,11 @@ Connect with DBeaver/IntelliJ: `localhost:5432`, database `gettogether`, user `g
 
 ```bash
 cd backend
-./gradlew bootRun
+export APP_JWT_SECRET="$(openssl rand -base64 32)"
+bash ./gradlew bootRun
 ```
+
+`APP_JWT_SECRET` must be standard Base64 and decode to at least 32 bytes. Keep the same secret across local restarts if you want existing sessions to remain valid. Keep it out of version control.
 
 3. Start the frontend (in a new terminal, from the repository root, http://localhost:4200; `/api` is proxied to the backend):
 
@@ -54,11 +59,13 @@ npm install
 npm start
 ```
 
-Tests: `./gradlew test` in `backend/` (the context test starts PostgreSQL through Testcontainers, so it needs Docker), `npm test` in `frontend/`. Lint: `npm run lint` in `frontend/`.
+For local development only, sign in at `/login` with `alexandra.pop@gettogether.test` and `password1`. Other seeded users use the same local demo password.
+
+Tests: `bash ./gradlew test` in `backend/` (the backend tests use isolated PostgreSQL containers and need Docker), `npm test` in `frontend/`. Lint: `npm run lint` in `frontend/`.
 
 API base URL: `http://localhost:8080/api`, Swagger UI: `http://localhost:8080/api/swagger-ui.html`. Every error response has the shape `{ "status", "message" }`, plus `fieldErrors` for validation errors.
 
-HTTP request examples live in `backend/http/` (IntelliJ HTTP Client). Each module gets its own `<module>.http` file, and `http-client.env.json` holds the `dev` environment variables (`baseUrl`, `userId`). Select the `dev` environment when running a request.
+HTTP request examples live in `backend/http/` (IntelliJ HTTP Client). Select the `dev` environment and run the sign-in request in `users.http` first to set the Bearer token for protected requests.
 
 ## Modules
 

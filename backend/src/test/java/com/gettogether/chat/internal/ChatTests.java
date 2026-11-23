@@ -1,5 +1,6 @@
 package com.gettogether.chat.internal;
 
+import com.gettogether.TestJwtTokens;
 import com.gettogether.TestcontainersConfiguration;
 import com.gettogether.shared.ForbiddenException;
 import org.junit.jupiter.api.AfterEach;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestcontainersConfiguration.class)
 class ChatTests {
 
-    private static final String USER_ID_HEADER = "X-User-Id";
     private static final long GOING_USER = 1L;
     private static final long OTHER_USER = 2L;
     private static final Instant OLDER_SENT_AT = Instant.parse("2026-01-01T10:00:00Z");
@@ -34,6 +35,9 @@ class ChatTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TestJwtTokens tokens;
 
     @Autowired
     private JdbcTemplate jdbc;
@@ -84,14 +88,14 @@ class ChatTests {
         insertMessage("First", OLDER_SENT_AT);
         insertMessage("Second", NEWER_SENT_AT);
 
-        mockMvc.perform(get(messagesUrl()).header(USER_ID_HEADER, GOING_USER))
+        mockMvc.perform(get(messagesUrl()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(GOING_USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].content").value("Second"))
                 .andExpect(jsonPath("$[1].content").value("First"));
 
         mockMvc.perform(get(messagesUrl()).param("before", NEWER_SENT_AT.toString())
-                        .header(USER_ID_HEADER, GOING_USER))
+                        .header(HttpHeaders.AUTHORIZATION, tokens.bearer(GOING_USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].content").value("First"));
@@ -102,16 +106,16 @@ class ChatTests {
         insertMessage("First", OLDER_SENT_AT);
         insertMessage("Second", NEWER_SENT_AT);
 
-        mockMvc.perform(get(messagesUrl() + "/count").header(USER_ID_HEADER, GOING_USER))
+        mockMvc.perform(get(messagesUrl() + "/count").header(HttpHeaders.AUTHORIZATION, tokens.bearer(GOING_USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(2));
     }
 
     @Test
     void forbidsHistoryAndCountForUserWhoIsNotGoing() throws Exception {
-        mockMvc.perform(get(messagesUrl()).header(USER_ID_HEADER, OTHER_USER))
+        mockMvc.perform(get(messagesUrl()).header(HttpHeaders.AUTHORIZATION, tokens.bearer(OTHER_USER)))
                 .andExpect(status().isForbidden());
-        mockMvc.perform(get(messagesUrl() + "/count").header(USER_ID_HEADER, OTHER_USER))
+        mockMvc.perform(get(messagesUrl() + "/count").header(HttpHeaders.AUTHORIZATION, tokens.bearer(OTHER_USER)))
                 .andExpect(status().isForbidden());
     }
 

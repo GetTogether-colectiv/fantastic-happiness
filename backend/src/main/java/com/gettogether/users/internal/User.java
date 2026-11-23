@@ -19,6 +19,9 @@ public class User {
 
     private String email;
 
+    @Column(name = "password_hash", nullable = false, length = 100)
+    private String passwordHash;
+
     private String avatarUrl;
 
     private String city;
@@ -34,6 +37,13 @@ public class User {
     protected User() {
     }
 
+    User(String displayName, String email, String passwordHash) {
+        this.displayName = displayName;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.createdAt = Instant.now();
+    }
+
     public Long getId() {
         return id;
     }
@@ -44,6 +54,10 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    String getPasswordHash() {
+        return passwordHash;
     }
 
     public String getAvatarUrl() {
