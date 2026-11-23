@@ -7,11 +7,17 @@ import com.gettogether.shared.BadRequestException;
 import com.gettogether.shared.ConflictException;
 import com.gettogether.shared.ForbiddenException;
 import com.gettogether.shared.NotFoundException;
+import com.gettogether.users.UserSummary;
+import com.gettogether.users.UsersApi;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -24,11 +30,14 @@ class PostService {
     private final PostRepository postRepository;
     private final EventsApi eventsApi;
     private final ParticipationApi participationApi;
+    private final UsersApi usersApi;
 
-    PostService(PostRepository postRepository, EventsApi eventsApi, ParticipationApi participationApi) {
+    PostService(PostRepository postRepository, EventsApi eventsApi, ParticipationApi participationApi,
+            UsersApi usersApi) {
         this.postRepository = postRepository;
         this.eventsApi = eventsApi;
         this.participationApi = participationApi;
+        this.usersApi = usersApi;
     }
 
     PostDto create(Long userId, Long eventId, CreatePostRequest request) {
@@ -45,15 +54,49 @@ class PostService {
         }
 
         try {
-            return toDto(postRepository.saveAndFlush(new Post(userId, eventId, request.rating(), request.text())));
+            Post post = postRepository.saveAndFlush(new Post(userId, eventId, request.rating(), request.text()));
+            return toDto(post, findAuthor(userId));
         } catch (DataIntegrityViolationException exception) {
             // The unique constraint closes the race between the existence check and concurrent inserts.
             throw new ConflictException(POST_ALREADY_EXISTS);
         }
     }
 
-    private PostDto toDto(Post post) {
-        return new PostDto(post.getId(), post.getUserId(), post.getEventId(), post.getRating(), post.getText(),
-                post.getCreatedAt());
+    @Transactional(readOnly = true)
+    PostListResponse findByEvent(Long eventId) {
+        if (!eventsApi.exists(eventId)) {
+            throw new NotFoundException("Event " + eventId + " not found");
+        }
+        List<Post> posts = postRepository.findByEventIdOrderByCreatedAtDesc(eventId);
+        Map<Long, UserSummary> authors = findAuthors(posts);
+        List<PostDto> postDtos = posts.stream()
+                .map(post -> toDto(post, requireAuthor(authors, post.getUserId())))
+                .toList();
+        PostRatingSummary summary = postRepository.summarizeRatings(eventId);
+        return new PostListResponse(summary.getAverageRating(), summary.getCount(), postDtos);
+    }
+
+    private Map<Long, UserSummary> findAuthors(List<Post> posts) {
+        List<Long> authorIds = posts.stream().map(Post::getUserId).distinct().toList();
+        return usersApi.findByIds(authorIds).stream()
+                .collect(Collectors.toMap(UserSummary::id, Function.identity()));
+    }
+
+    private UserSummary findAuthor(Long userId) {
+        return usersApi.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User " + userId + " not found"));
+    }
+
+    private UserSummary requireAuthor(Map<Long, UserSummary> authors, Long userId) {
+        UserSummary author = authors.get(userId);
+        if (author == null) {
+            throw new NotFoundException("User " + userId + " not found");
+        }
+        return author;
+    }
+
+    private PostDto toDto(Post post, UserSummary author) {
+        return new PostDto(post.getId(), post.getUserId(), post.getEventId(), author.displayName(),
+                author.avatarUrl(), post.getRating(), post.getText(), post.getCreatedAt());
     }
 }

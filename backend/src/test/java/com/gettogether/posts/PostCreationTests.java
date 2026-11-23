@@ -70,6 +70,8 @@ class PostCreationTests {
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.userId").value(ATTENDEE_ID))
                 .andExpect(jsonPath("$.eventId").value(eventId))
+                .andExpect(jsonPath("$.authorName").value("Alexandra Pop"))
+                .andExpect(jsonPath("$.authorAvatar").isNotEmpty())
                 .andExpect(jsonPath("$.rating").value(5))
                 .andExpect(jsonPath("$.text").value("A great event"))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());

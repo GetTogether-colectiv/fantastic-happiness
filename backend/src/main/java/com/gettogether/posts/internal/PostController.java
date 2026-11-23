@@ -4,6 +4,7 @@ import com.gettogether.users.CurrentUserProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,5 +29,11 @@ class PostController {
     @Operation(summary = "Write a post about an attended event that has ended")
     PostDto create(@PathVariable Long eventId, @Valid @RequestBody CreatePostRequest request) {
         return postService.create(currentUserProvider.currentUserId(), eventId, request);
+    }
+
+    @GetMapping
+    @Operation(summary = "List posts about an event with its average rating")
+    PostListResponse findByEvent(@PathVariable Long eventId) {
+        return postService.findByEvent(eventId);
     }
 }
