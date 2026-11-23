@@ -24,6 +24,11 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String VALIDATION_FAILED_MESSAGE = "Validation failed";
     private static final String INTERNAL_ERROR_MESSAGE = "Something went wrong";
 
+    @ExceptionHandler(BadRequestException.class)
+    ResponseEntity<Object> handleBadRequest(BadRequestException exception) {
+        return respond(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
     @ExceptionHandler(NotFoundException.class)
     ResponseEntity<Object> handleNotFound(NotFoundException exception) {
         return respond(HttpStatus.NOT_FOUND, exception.getMessage());
