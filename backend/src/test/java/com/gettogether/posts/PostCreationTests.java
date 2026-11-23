@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
+@RecordApplicationEvents
 class PostCreationTests {
 
     private static final long ATTENDEE_ID = 1L;
@@ -39,6 +42,9 @@ class PostCreationTests {
 
     @Autowired
     private JdbcTemplate jdbc;
+
+    @Autowired
+    private ApplicationEvents applicationEvents;
 
     private Long eventId;
 
@@ -77,6 +83,15 @@ class PostCreationTests {
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
 
         assertThat(postCount()).isEqualTo(1);
+    }
+
+    @Test
+    void publishesPostCreatedAfterSuccessfulCreation() throws Exception {
+        createPost(ATTENDEE_ID, eventId, "{\"rating\":5}").andExpect(status().isCreated());
+        Long postId = jdbc.queryForObject("SELECT id FROM posts WHERE event_id = ?", Long.class, eventId);
+
+        assertThat(applicationEvents.stream(PostCreated.class))
+                .containsExactly(new PostCreated(postId, eventId, ATTENDEE_ID));
     }
 
     @Test

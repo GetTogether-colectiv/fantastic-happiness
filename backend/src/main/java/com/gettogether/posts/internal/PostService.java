@@ -3,6 +3,7 @@ package com.gettogether.posts.internal;
 import com.gettogether.events.EventDetails;
 import com.gettogether.events.EventsApi;
 import com.gettogether.participation.ParticipationApi;
+import com.gettogether.posts.PostCreated;
 import com.gettogether.shared.BadRequestException;
 import com.gettogether.shared.ConflictException;
 import com.gettogether.shared.ForbiddenException;
@@ -10,6 +11,7 @@ import com.gettogether.shared.NotFoundException;
 import com.gettogether.users.UserSummary;
 import com.gettogether.users.UsersApi;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +33,15 @@ class PostService {
     private final EventsApi eventsApi;
     private final ParticipationApi participationApi;
     private final UsersApi usersApi;
+    private final ApplicationEventPublisher eventPublisher;
 
     PostService(PostRepository postRepository, EventsApi eventsApi, ParticipationApi participationApi,
-            UsersApi usersApi) {
+            UsersApi usersApi, ApplicationEventPublisher eventPublisher) {
         this.postRepository = postRepository;
         this.eventsApi = eventsApi;
         this.participationApi = participationApi;
         this.usersApi = usersApi;
+        this.eventPublisher = eventPublisher;
     }
 
     PostDto create(Long userId, Long eventId, CreatePostRequest request) {
@@ -53,13 +57,16 @@ class PostService {
             throw new ConflictException(POST_ALREADY_EXISTS);
         }
 
+        Post post;
         try {
-            Post post = postRepository.saveAndFlush(new Post(userId, eventId, request.rating(), request.text()));
-            return toDto(post, findAuthor(userId));
+            post = postRepository.saveAndFlush(new Post(userId, eventId, request.rating(), request.text()));
         } catch (DataIntegrityViolationException exception) {
             // The unique constraint closes the race between the existence check and concurrent inserts.
             throw new ConflictException(POST_ALREADY_EXISTS);
         }
+        PostDto createdPost = toDto(post, findAuthor(userId));
+        eventPublisher.publishEvent(new PostCreated(post.getId(), eventId, userId));
+        return createdPost;
     }
 
     @Transactional(readOnly = true)
