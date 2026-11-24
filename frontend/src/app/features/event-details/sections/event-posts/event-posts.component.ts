@@ -113,6 +113,7 @@ export class EventPostsComponent {
     this.bottomSheet
       .open<PostFormComponent, { eventId: number }, EventPost>(PostFormComponent, {
         data: { eventId: this.event().id },
+        panelClass: 'post-form-sheet',
       })
       .afterDismissed()
       .pipe(take(1))

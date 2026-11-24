@@ -67,6 +67,35 @@ body {
   background: var(--backdrop-color);
 }
 
+.post-form-sheet .mat-bottom-sheet-container {
+  --mat-bottom-sheet-container-background-color: var(--surface-color);
+  --mat-bottom-sheet-container-text-color: var(--text-color);
+  width: min(100vw, 36rem);
+  min-width: min(100vw, 36rem);
+  max-width: min(100vw, 36rem);
+  padding: 0;
+  overflow: hidden auto;
+  border: 1px solid var(--border-color);
+  border-bottom: 0;
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: var(--surface-color);
+  box-shadow: 0 -8px 32px var(--shadow-color);
+}
+
+@include tablet-up {
+  .post-form-sheet {
+    box-sizing: border-box;
+    padding-bottom: clamp(2rem, 8vh, 5rem);
+  }
+
+  .post-form-sheet .mat-bottom-sheet-container {
+    max-height: calc(100vh - 8rem);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 1.5rem;
+    box-shadow: 0 16px 48px var(--shadow-color);
+  }
+}
+
 .mat-mdc-snack-bar-container.app-snack-bar {
   --mat-snack-bar-container-color: var(--text-color);
   --mat-snack-bar-supporting-text-color: var(--surface-color);
