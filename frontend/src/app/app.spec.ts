@@ -59,6 +59,7 @@ describe('App', () => {
     const http = TestBed.inject(HttpTestingController);
     http.expectNone('/api/users');
     http.expectOne('/api/users/me').flush({ ...user, preferredCategories: [] });
+    http.expectOne('/api/friends').flush([]);
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
@@ -100,5 +101,6 @@ describe('App', () => {
     await fixture.whenStable();
     expect(router.url).toBe('/profile');
     http.expectOne('/api/users/me').flush(profile);
+    http.expectOne('/api/friends').flush([]);
   });
 });

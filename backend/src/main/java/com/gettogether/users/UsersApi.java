@@ -10,9 +10,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UsersApi {
+
+    private static final Pattern LIKE_WILDCARD = Pattern.compile("[\\%_]");
 
     private final UserRepository userRepository;
 
@@ -28,8 +32,19 @@ public class UsersApi {
         return userRepository.findAllById(ids).stream().map(UsersApi::toSummary).toList();
     }
 
+    public boolean exists(Long id) {
+        return userRepository.existsById(id);
+    }
+
+    public List<UserSummary> searchByName(String text, Long excludedUserId, int limit) {
+        String pattern = LIKE_WILDCARD.matcher(text).replaceAll(match -> Matcher.quoteReplacement("\\" + match.group()));
+        return userRepository.searchByDisplayName(pattern, excludedUserId, limit).stream()
+                .map(UsersApi::toSummary)
+                .toList();
+    }
+
     private static UserSummary toSummary(User user) {
-        return new UserSummary(user.getId(), user.getDisplayName(), user.getAvatarUrl());
+        return new UserSummary(user.getId(), user.getDisplayName(), user.getAvatarUrl(), user.getCity());
     }
 
     @Transactional(readOnly = true)

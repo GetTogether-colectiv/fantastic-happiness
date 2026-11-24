@@ -1,4 +1,4 @@
 package com.gettogether.users;
 
-public record UserSummary(Long id, String displayName, String avatarUrl) {
+public record UserSummary(Long id, String displayName, String avatarUrl, String city) {
 }

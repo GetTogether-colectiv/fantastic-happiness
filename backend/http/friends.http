@@ -1,0 +1,54 @@
+# Seed data: user 1 is friends with users 2, 3 and 4, has an incoming request from user 5 and sent one to user 6.
+@strangerId = 7
+@incomingRequesterId = 5
+
+### List friends (200; sorted by name)
+GET {{baseUrl}}/friends
+Authorization: Bearer {{token}}
+
+### List incoming requests (200; newest first, each with the requester in "user")
+GET {{baseUrl}}/friends/requests/incoming
+Authorization: Bearer {{token}}
+
+### Search users by name (200; at most 20, excludes the current user, "relation" is NONE, REQUESTED, INCOMING or FRIENDS)
+GET {{baseUrl}}/users/search?q=io
+Authorization: Bearer {{token}}
+
+### Send a friend request (201 PENDING; repeating it gives 409 REQUEST_ALREADY_SENT)
+POST {{baseUrl}}/friends/requests
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"userId": {{strangerId}}}
+
+> {% client.global.set("requestId", response.body.id); %}
+
+### Add someone who already sent you a request (200 ACCEPTED)
+POST {{baseUrl}}/friends/requests
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"userId": {{incomingRequesterId}}}
+
+### Send a request to yourself (400)
+POST {{baseUrl}}/friends/requests
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"userId": {{userId}}}
+
+### Accept a request (200; only the addressee, others get 403)
+POST {{baseUrl}}/friends/requests/{{requestId}}/accept
+Authorization: Bearer {{token}}
+
+### Decline a request (204; deletes it; only the addressee, others get 403)
+POST {{baseUrl}}/friends/requests/{{requestId}}/decline
+Authorization: Bearer {{token}}
+
+### Remove a friend (204; 404 when you are not friends)
+DELETE {{baseUrl}}/friends/{{incomingRequesterId}}
+Authorization: Bearer {{token}}
+
+### Relation to one user (200; NONE, REQUESTED, INCOMING or FRIENDS; 400 for yourself)
+GET {{baseUrl}}/users/{{strangerId}}/relation
+Authorization: Bearer {{token}}

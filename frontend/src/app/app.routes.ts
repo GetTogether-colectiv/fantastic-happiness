@@ -85,6 +85,18 @@ export const routes: Routes = [
           loadComponent: () =>
             import('./features/profile/profile-page.component').then((m) => m.ProfilePageComponent),
         },
+        {
+          path: 'friends',
+          data: { title: 'Friends' },
+          loadComponent: () =>
+            import('./features/friends/friends-page.component').then((m) => m.FriendsPageComponent),
+        },
+        {
+          path: 'users/:id',
+          data: { title: 'Profile' },
+          loadComponent: () =>
+            import('./features/friends/user-page.component').then((m) => m.UserPageComponent),
+        },
         { path: '**', redirectTo: 'discover' },
       ] satisfies Routes
     ).map((route) => ({ ...route, runGuardsAndResolvers: 'always' })),

@@ -34,6 +34,15 @@
   color: var(--muted-color);
 }
 
+.friends-link {
+  display: inline-block;
+  margin-top: var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
 button {
   padding: var(--space-xs) var(--space-md);
   border: 1px solid var(--border-color);

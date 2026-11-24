@@ -43,6 +43,7 @@ describe('Profile authentication actions', () => {
     const profile = http.expectOne('/api/users/me');
     expect(profile.request.headers.get('Authorization')).toBe(`Bearer ${token}`);
     profile.flush({ ...user, preferredCategories: [] });
+    http.expectOne('/api/friends').flush([]);
     harness.detectChanges();
     expect(TestBed.inject(UsersService).profile()?.id).toBe(user.id);
     expect(harness.routeNativeElement?.querySelector('app-avatar')?.textContent?.trim()).toBe('A');
@@ -57,6 +58,22 @@ describe('Profile authentication actions', () => {
     expect(TestBed.inject(AuthService).currentUser()).toBeNull();
     expect(TestBed.inject(UsersService).profile()).toBeNull();
     expect(localStorage.getItem(AUTH_STORAGE_KEY)).toBeNull();
+  });
+
+  it('links to Friends with the friend count', async () => {
+    const { user } = signIn();
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/profile', ProfilePageComponent);
+    http.expectOne('/api/users/me').flush({ ...user, preferredCategories: [] });
+    http.expectOne('/api/friends').flush([
+      { id: 2, displayName: 'Ana', avatarUrl: null, city: null },
+      { id: 3, displayName: 'Bo', avatarUrl: null, city: null },
+    ]);
+    harness.detectChanges();
+
+    const link = harness.routeNativeElement!.querySelector<HTMLAnchorElement>('.friends-link')!;
+    expect(link.textContent?.trim()).toBe('Friends · 2');
+    expect(link.getAttribute('href')).toBe('/friends');
   });
 
   it('opens the existing category picker after registration and saves with the new JWT', async () => {
@@ -81,6 +98,7 @@ describe('Profile authentication actions', () => {
     const profile = http.expectOne('/api/users/me');
     expect(profile.request.headers.get('Authorization')).toBe(`Bearer ${response.token}`);
     profile.flush({ ...response.user, preferredCategories: [] });
+    http.expectOne('/api/friends').flush([]);
     harness.detectChanges();
     const tile = harness.routeNativeElement!.querySelector<HTMLButtonElement>(
       '#preferences app-category-picker .tile',

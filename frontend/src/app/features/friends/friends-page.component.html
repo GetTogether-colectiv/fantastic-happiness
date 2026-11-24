@@ -1,0 +1,130 @@
+<h1>Friends</h1>
+
+<section class="search" aria-label="Find people">
+  <label class="search-field">
+    <mat-icon aria-hidden="true">search</mat-icon>
+    <input
+      type="search"
+      [formControl]="query"
+      placeholder="Search people by name"
+      aria-label="Search people by name"
+      autocomplete="off"
+    />
+  </label>
+
+  @if (searchFailed()) {
+    <p class="error" role="alert">We couldn't search right now. Please try again.</p>
+  } @else if (searchedQuery()) {
+    @if (results().length) {
+      <ul class="people results" aria-label="Search results">
+        @for (result of results(); track result.id) {
+          <li class="person">
+            <app-avatar [name]="result.displayName" [imageUrl]="result.avatarUrl" />
+            <a class="identity" [routerLink]="['/users', result.id]">
+              <span class="name">{{ result.displayName }}</span>
+              @if (result.city) {
+                <span class="city">{{ result.city }}</span>
+              }
+            </a>
+            <button
+              type="button"
+              class="relation"
+              [class.primary]="isAddable(result)"
+              [disabled]="!isAddable(result)"
+              (click)="add(result)"
+            >
+              {{ relationLabels[result.relation] }}
+            </button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="hint">No one matches "{{ searchedQuery() }}".</p>
+    }
+  }
+</section>
+
+@if (actionFailed()) {
+  <p class="error" role="alert">That didn't work. Please try again.</p>
+}
+
+@switch (state()) {
+  @case ('loading') {
+    <app-skeleton-card />
+  }
+  @case ('error') {
+    <app-error-state message="We couldn't load your friends." (retry)="load()" />
+  }
+  @case ('loaded') {
+    @if (requests().length) {
+      <section class="requests" aria-labelledby="requests-title">
+        <h2 id="requests-title">
+          Requests <span class="badge">{{ requests().length }}</span>
+        </h2>
+        <ul class="people">
+          @for (request of requests(); track request.id) {
+            <li class="person">
+              <app-avatar [name]="request.user.displayName" [imageUrl]="request.user.avatarUrl" />
+              <a class="identity" [routerLink]="['/users', request.user.id]">
+                <span class="name">{{ request.user.displayName }}</span>
+                @if (request.user.city) {
+                  <span class="city">{{ request.user.city }}</span>
+                }
+              </a>
+              <div class="request-actions">
+                <button type="button" class="primary accept" (click)="accept(request)">
+                  Accept
+                </button>
+                <button type="button" class="decline" (click)="decline(request)">Decline</button>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="friends" aria-labelledby="friends-title">
+      <h2 id="friends-title">Friends · {{ friends().length }}</h2>
+      @if (friends().length) {
+        <ul class="people">
+          @for (friend of friends(); track friend.id) {
+            <li class="person">
+              <app-avatar [name]="friend.displayName" [imageUrl]="friend.avatarUrl" />
+              <a class="identity" [routerLink]="['/users', friend.id]">
+                <span class="name">{{ friend.displayName }}</span>
+                @if (friend.city) {
+                  <span class="city">{{ friend.city }}</span>
+                }
+              </a>
+              <div class="menu-anchor">
+                <button
+                  type="button"
+                  class="menu-toggle"
+                  aria-haspopup="menu"
+                  [attr.aria-expanded]="menuOpenFor() === friend.id"
+                  [attr.aria-label]="'More options for ' + friend.displayName"
+                  (click)="toggleMenu(friend.id, $event)"
+                >
+                  ⋯
+                </button>
+                @if (menuOpenFor() === friend.id) {
+                  <div class="menu" role="menu">
+                    <button type="button" role="menuitem" (click)="removeFriend(friend)">
+                      Remove friend
+                    </button>
+                  </div>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <app-empty-state
+          icon="group"
+          title="No friends yet"
+          text="Search for people above to add them."
+        />
+      }
+    </section>
+  }
+}

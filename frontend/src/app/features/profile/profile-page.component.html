@@ -45,6 +45,9 @@
             @if (user.city) {
               <p class="city">{{ user.city }}</p>
             }
+            <a class="friends-link" routerLink="/friends">
+              Friends{{ friendCount() === null ? '' : ' · ' + friendCount() }}
+            </a>
           </div>
           <button type="button" class="edit" (click)="edit()">Edit</button>
         }

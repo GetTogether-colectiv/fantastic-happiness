@@ -29,6 +29,8 @@ describe('authGuard', () => {
     '/map',
     '/my-events',
     '/profile#preferences',
+    '/friends',
+    '/users/7',
   ])('sends an unauthenticated visit to %s to login', async (url) => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl(url, LoginPageComponent);
@@ -51,6 +53,7 @@ describe('authGuard', () => {
     await harness.navigateByUrl('/profile');
     const http = TestBed.inject(HttpTestingController);
     http.expectOne('/api/users/me').flush({ ...user, preferredCategories: [] });
+    http.expectOne('/api/friends').flush([]);
     TestBed.inject(AuthService).clearSession();
 
     await harness.navigateByUrl('/profile?view=preferences', LoginPageComponent);

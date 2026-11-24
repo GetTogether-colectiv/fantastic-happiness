@@ -1,0 +1,37 @@
+@switch (state()) {
+  @case ('loading') {
+    <app-skeleton-card />
+  }
+  @case ('error') {
+    <app-error-state message="We couldn't load this profile." (retry)="retry()" />
+  }
+  @case ('loaded') {
+    @if (user(); as user) {
+      <section class="header">
+        <app-avatar class="avatar" [name]="user.displayName" [imageUrl]="user.avatarUrl" />
+        <div class="identity">
+          <h1>{{ user.displayName }}</h1>
+          @if (user.city) {
+            <p class="city">{{ user.city }}</p>
+          }
+        </div>
+      </section>
+
+      @if (relationButton(); as button) {
+        <button
+          type="button"
+          class="relation"
+          [class.primary]="button.actionable"
+          [disabled]="!button.actionable"
+          (click)="addFriend()"
+        >
+          <mat-icon aria-hidden="true">{{ button.icon }}</mat-icon>
+          {{ button.label }}
+        </button>
+      }
+      @if (actionFailed()) {
+        <p class="error" role="alert">That didn't work. Please try again.</p>
+      }
+    }
+  }
+}

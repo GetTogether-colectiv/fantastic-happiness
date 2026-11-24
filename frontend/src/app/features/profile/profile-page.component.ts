@@ -9,8 +9,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PROFILE_PREFERENCES_FRAGMENT } from '../../core/auth/auth-navigation';
+import { FriendsService } from '../../core/services/friends.service';
 import { SessionExitService } from '../../core/services/session-exit.service';
 import { UsersService } from '../../core/services/users.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
@@ -31,6 +32,7 @@ const NOT_BLANK_PATTERN = /\S/;
   selector: 'app-profile-page',
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     AvatarComponent,
     CategoryPickerComponent,
     ErrorStateComponent,
@@ -41,6 +43,7 @@ const NOT_BLANK_PATTERN = /\S/;
 })
 export class ProfilePageComponent {
   private readonly usersService = inject(UsersService);
+  private readonly friendsService = inject(FriendsService);
   private readonly sessionExit = inject(SessionExitService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fragment = toSignal(inject(ActivatedRoute).fragment);
@@ -48,6 +51,7 @@ export class ProfilePageComponent {
 
   protected readonly profile = this.usersService.profile;
   protected readonly state = signal<ProfileState>('loading');
+  protected readonly friendCount = signal<number | null>(null);
   protected readonly editing = signal(false);
   protected readonly saving = signal(false);
   protected readonly saveFailed = signal(false);
@@ -71,6 +75,7 @@ export class ProfilePageComponent {
 
   constructor() {
     this.load();
+    this.loadFriendCount();
     afterRenderEffect({
       write: () => {
         if (this.fragment() === this.preferencesFragment) {
@@ -92,6 +97,16 @@ export class ProfilePageComponent {
       .subscribe({
         next: () => this.state.set('loaded'),
         error: () => this.state.set('error'),
+      });
+  }
+
+  private loadFriendCount(): void {
+    this.friendsService
+      .getFriends()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (friends) => this.friendCount.set(friends.length),
+        error: () => this.friendCount.set(null),
       });
   }
 
