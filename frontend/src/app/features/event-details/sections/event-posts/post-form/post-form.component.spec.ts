@@ -51,6 +51,7 @@ describe('PostFormComponent', () => {
       rating: 4,
       text: 'Loved it',
       createdAt: '2026-11-23T12:00:00Z',
+      commentCount: 0,
     };
     request.flush(created);
     expect(sheetRef.dismiss).toHaveBeenCalledWith(created);
