@@ -48,7 +48,8 @@ class PostPhotoService {
         this.photosBaseUrl = contextPath + PhotoController.PHOTOS_PATH + "/";
     }
 
-    void addPhotos(Long userId, Long postId, List<MultipartFile> files) {
+    /** Returns the URLs of all the post's photos, so the client can show the post without reloading it. */
+    List<String> addPhotos(Long userId, Long postId, List<MultipartFile> files) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Post " + postId + " not found"));
         if (!post.getUserId().equals(userId)) {
@@ -71,6 +72,7 @@ class PostPhotoService {
                 throw new ConflictException(CONCURRENT_UPLOAD_MESSAGE);
             }
         }
+        return findPhotoUrls(List.of(postId)).getOrDefault(postId, List.of());
     }
 
     @Transactional(readOnly = true)

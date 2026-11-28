@@ -66,11 +66,74 @@ label {
   gap: var(--space-sm);
 }
 
+legend span,
 label span {
   margin-left: var(--space-xs);
   color: var(--muted-color);
   font-size: var(--font-size-xs);
   font-weight: 400;
+}
+
+.photos-field {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.previews {
+  display: flex;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.previews li {
+  position: relative;
+  width: 5rem;
+  aspect-ratio: 1;
+}
+
+.previews img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.remove-photo {
+  position: absolute;
+  top: calc(-1 * var(--space-xs));
+  right: calc(-1 * var(--space-xs));
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--text-color);
+  color: var(--surface-color);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}
+
+.add-photos {
+  justify-self: start;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-color);
+  color: var(--text-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-photos:disabled,
+.remove-photo:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 
 textarea {

@@ -111,6 +111,7 @@ describe('MyEventsPageComponent', () => {
                 rating: 5,
                 text: 'Great event',
                 createdAt: '2026-11-20T12:00:00Z',
+                photoUrls: [],
               },
             ]
           : [],

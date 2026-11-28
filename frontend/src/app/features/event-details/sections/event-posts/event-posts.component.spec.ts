@@ -41,6 +41,7 @@ const RESPONSE: EventPostsResponse = {
       rating: 5,
       text: 'A wonderful evening.',
       createdAt: '2026-11-12T10:00:00Z',
+      photoUrls: [],
     },
     {
       id: 11,
@@ -51,6 +52,7 @@ const RESPONSE: EventPostsResponse = {
       rating: 3,
       text: null,
       createdAt: '2026-11-11T10:00:00Z',
+      photoUrls: [],
     },
   ],
 };
@@ -166,6 +168,7 @@ describe('EventPostsComponent', () => {
       rating: 4,
       text: 'My post',
       createdAt: '2026-11-23T12:00:00Z',
+      photoUrls: [],
     };
     bottomSheet.open.mockReturnValue({ afterDismissed: () => of(created) });
     fixture.detectChanges();
