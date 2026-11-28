@@ -96,6 +96,13 @@ body {
   }
 }
 
+// Targets the container itself, because the .mat-mdc-dialog-container rule above sets these tokens there.
+.photo-viewer-panel .mat-mdc-dialog-container {
+  --mat-dialog-container-color: rgb(0 0 0 / 92%);
+  --mat-dialog-container-shape: 0;
+  --mat-dialog-container-elevation-shadow: none;
+}
+
 .mat-mdc-snack-bar-container.app-snack-bar {
   --mat-snack-bar-container-color: var(--text-color);
   --mat-snack-bar-supporting-text-color: var(--surface-color);
