@@ -25,4 +25,12 @@ class PostPhoto {
         this.fileName = fileName;
         this.position = (short) position;
     }
+
+    Long getPostId() {
+        return postId;
+    }
+
+    String getFileName() {
+        return fileName;
+    }
 }

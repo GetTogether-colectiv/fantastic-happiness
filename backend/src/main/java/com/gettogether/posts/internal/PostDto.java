@@ -1,6 +1,7 @@
 package com.gettogether.posts.internal;
 
 import java.time.Instant;
+import java.util.List;
 
 record PostDto(
         Long id,
@@ -10,5 +11,6 @@ record PostDto(
         String authorAvatar,
         int rating,
         String text,
-        Instant createdAt) {
+        Instant createdAt,
+        List<String> photoUrls) {
 }

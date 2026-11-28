@@ -1,6 +1,10 @@
 package com.gettogether.posts.internal;
 
+import com.gettogether.shared.BadRequestException;
+import com.gettogether.shared.NotFoundException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +18,8 @@ import java.util.UUID;
 @Component
 class PhotoStorage {
 
+    private static final String INVALID_FILE_NAME_MESSAGE = "Invalid file name";
+
     private final Path uploadsDir;
 
     PhotoStorage(@Value("${app.uploads.dir}") Path uploadsDir) {
@@ -21,7 +27,6 @@ class PhotoStorage {
         this.uploadsDir = uploadsDir.toAbsolutePath().normalize();
     }
 
-    /** Saves the file under a random name, so names never clash and say nothing about the original file. */
     String store(MultipartFile file, String extension) {
         String fileName = UUID.randomUUID() + "." + extension;
         try (InputStream content = file.getInputStream()) {
@@ -31,5 +36,16 @@ class PhotoStorage {
             throw new UncheckedIOException("Could not store photo " + fileName, exception);
         }
         return fileName;
+    }
+
+    Resource load(String fileName) {
+        if (fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+            throw new BadRequestException(INVALID_FILE_NAME_MESSAGE);
+        }
+        Resource photo = new FileSystemResource(uploadsDir.resolve(fileName));
+        if (!photo.isReadable()) {
+            throw new NotFoundException("Photo " + fileName + " not found");
+        }
+        return photo;
     }
 }

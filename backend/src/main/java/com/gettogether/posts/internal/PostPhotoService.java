@@ -11,15 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 class PostPhotoService {
 
     private static final int MAX_PHOTOS_PER_POST = 3;
-    // Allowed types and the extension each one is saved with.
     private static final Map<String, String> EXTENSIONS_BY_CONTENT_TYPE = Map.of(
             "image/jpeg", "jpg",
             "image/png", "png");
@@ -32,15 +33,19 @@ class PostPhotoService {
     private final PhotoStorage photoStorage;
     private final DataSize maxFileSize;
     private final String invalidPhotoMessage;
+    private final String photosBaseUrl;
 
     PostPhotoService(PostRepository postRepository, PostPhotoRepository postPhotoRepository,
             PhotoStorage photoStorage,
-            @Value("${spring.servlet.multipart.max-file-size}") DataSize maxFileSize) {
+            @Value("${spring.servlet.multipart.max-file-size}") DataSize maxFileSize,
+            @Value("${server.servlet.context-path}") String contextPath) {
         this.postRepository = postRepository;
         this.postPhotoRepository = postPhotoRepository;
         this.photoStorage = photoStorage;
         this.maxFileSize = maxFileSize;
         this.invalidPhotoMessage = "Only JPG or PNG up to " + maxFileSize.toMegabytes() + " MB";
+        // Relative URL, so the browser loads photos through the same host (and Angular proxy) as the API.
+        this.photosBaseUrl = contextPath + PhotoController.PHOTOS_PATH + "/";
     }
 
     void addPhotos(Long userId, Long postId, List<MultipartFile> files) {
@@ -66,6 +71,13 @@ class PostPhotoService {
                 throw new ConflictException(CONCURRENT_UPLOAD_MESSAGE);
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    Map<Long, List<String>> findPhotoUrls(Collection<Long> postIds) {
+        return postPhotoRepository.findByPostIdInOrderByPosition(postIds).stream()
+                .collect(Collectors.groupingBy(PostPhoto::getPostId,
+                        Collectors.mapping(photo -> photosBaseUrl + photo.getFileName(), Collectors.toList())));
     }
 
     private void validate(MultipartFile file) {
