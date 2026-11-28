@@ -1,0 +1,36 @@
+<section id="posts" aria-labelledby="posts-title">
+  <h3 id="posts-title">How was it?</h3>
+
+  @if (canWrite()) {
+    <button class="write-post" type="button" (click)="openForm()">Write a post</button>
+  }
+
+  @let postsState = state();
+  @if (postsState.status === 'loading') {
+    <p class="status" role="status">Loading posts…</p>
+  } @else if (postsState.status === 'error') {
+    <app-error-state message="Posts couldn't be loaded." (retry)="retry()" />
+  } @else {
+    @if (postsState.response.count > 0 && postsState.response.averageRating !== null) {
+      <div class="summary">
+        <app-star-rating
+          [rating]="postsState.response.averageRating"
+          [label]="(postsState.response.averageRating | number: '1.1-1') + ' out of 5 stars'"
+        />
+        <span>
+          <strong>{{ postsState.response.averageRating | number: '1.1-1' }} ★</strong>
+          from {{ postsState.response.count }}
+          {{ postsState.response.count === 1 ? 'post' : 'posts' }}
+        </span>
+      </div>
+
+      <div class="posts">
+        @for (post of postsState.response.posts; track post.id) {
+          <app-post-card [post]="post" />
+        }
+      </div>
+    } @else {
+      <p class="status">No posts yet.</p>
+    }
+  }
+</section>

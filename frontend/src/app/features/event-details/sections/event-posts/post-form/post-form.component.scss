@@ -1,0 +1,152 @@
+@use 'breakpoints' as *;
+
+:host {
+  display: block;
+  color: var(--text-color);
+}
+
+form {
+  display: grid;
+  gap: var(--space-xl);
+  padding: var(--space-md) var(--space-lg) max(var(--space-xl), env(safe-area-inset-bottom));
+
+  @include tablet-up {
+    padding: var(--space-xl);
+  }
+}
+
+.handle {
+  width: 2.5rem;
+  height: 4px;
+  margin: 0 auto calc(-1 * var(--space-sm));
+  border-radius: var(--radius-pill);
+  background: var(--border-color);
+
+  @include tablet-up {
+    display: none;
+  }
+}
+
+header {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+h2 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}
+
+header p {
+  margin: 0;
+  color: var(--muted-color);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend,
+label {
+  display: block;
+  font-weight: 600;
+}
+
+.rating-field {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.review-field {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+label span {
+  margin-left: var(--space-xs);
+  color: var(--muted-color);
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+}
+
+textarea {
+  width: 100%;
+  min-height: 8rem;
+  resize: none;
+  padding: var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--background-color) 45%, var(--surface-color));
+  color: var(--text-color);
+  font: inherit;
+  line-height: 1.5;
+}
+
+textarea:focus-visible {
+  border-color: var(--primary-color);
+  outline: 3px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+  outline-offset: 1px;
+}
+
+.counter {
+  color: var(--muted-color);
+  font-size: var(--font-size-xs);
+  text-align: right;
+}
+
+.field-error,
+.submit-error {
+  margin: var(--space-sm) 0 0;
+  color: var(--error-color);
+  font-size: var(--font-size-sm);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+
+  @include tablet-up {
+    justify-content: flex-end;
+  }
+}
+
+.actions button {
+  flex: 1;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  @include tablet-up {
+    flex: 0 0 auto;
+    min-width: 7rem;
+  }
+}
+
+.actions button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.actions .secondary {
+  border-color: var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-color);
+}
+
+.actions .primary {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
+  color: var(--on-primary-color);
+}
+
+.primary:not(:disabled):hover {
+  background: var(--primary-hover-color);
+}

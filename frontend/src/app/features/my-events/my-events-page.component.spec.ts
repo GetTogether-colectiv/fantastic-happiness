@@ -1,11 +1,12 @@
 import { Location } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { EventSummary } from '../../core/models/event.model';
+import { AuthService } from '../../core/services/auth.service';
 import { MyEventsPageComponent } from './my-events-page.component';
 
 @Component({ selector: 'app-swipe-stub', template: '' })
@@ -13,6 +14,7 @@ class SwipeStubComponent {}
 
 const UPCOMING_URL = '/api/me/events?when=UPCOMING';
 const PAST_URL = '/api/me/events?when=PAST';
+const CURRENT_USER_ID = 1;
 
 function eventSummary(id: number, title: string, startsAt: Date): EventSummary {
   return {
@@ -54,6 +56,17 @@ describe('MyEventsPageComponent', () => {
         ]),
         provideHttpClient(),
         provideHttpClientTesting(),
+        {
+          provide: AuthService,
+          useValue: {
+            currentUser: signal({
+              id: CURRENT_USER_ID,
+              displayName: 'Alex',
+              avatarUrl: null,
+              city: null,
+            }),
+          },
+        },
       ],
     });
     http = TestBed.inject(HttpTestingController);
@@ -80,6 +93,31 @@ describe('MyEventsPageComponent', () => {
     TestBed.tick();
   }
 
+  function flushPastEvents(events: EventSummary[], reviewedEventIds: number[] = []): void {
+    http.expectOne(PAST_URL).flush(events);
+    for (const event of events) {
+      const reviewed = reviewedEventIds.includes(event.id);
+      http.expectOne(`/api/events/${event.id}/posts`).flush({
+        averageRating: reviewed ? 5 : null,
+        count: reviewed ? 1 : 0,
+        posts: reviewed
+          ? [
+              {
+                id: 10,
+                userId: CURRENT_USER_ID,
+                eventId: event.id,
+                authorName: 'Alex',
+                authorAvatar: null,
+                rating: 5,
+                text: 'Great event',
+                createdAt: '2026-11-20T12:00:00Z',
+              },
+            ]
+          : [],
+      });
+    }
+  }
+
   it('shows a loading skeleton and requests the upcoming events by default', async () => {
     const page = await open();
     harness.detectChanges();
@@ -103,12 +141,25 @@ describe('MyEventsPageComponent', () => {
 
   it('loads the past events when the tab is in the URL, as a list without day headers', async () => {
     const page = await open('/my-events?tab=past');
-    http.expectOne(PAST_URL).flush([PAST_EVENT]);
+    flushPastEvents([PAST_EVENT], [PAST_EVENT.id]);
     harness.detectChanges();
 
     expect(page.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toContain('Past');
     expect(page.querySelectorAll('.day')).toHaveLength(0);
     expect(titles(page)).toEqual(['Old concert']);
+    const actionLink = page.querySelector<HTMLAnchorElement>('.post-action-link');
+    expect(actionLink?.textContent).toContain('See your post');
+    expect(actionLink?.getAttribute('href')).toBe('/events/3#posts');
+  });
+
+  it('keeps Write a post for a past event the user has not reviewed', async () => {
+    const page = await open('/my-events?tab=past');
+    flushPastEvents([PAST_EVENT]);
+    harness.detectChanges();
+
+    const actionLink = page.querySelector<HTMLAnchorElement>('.post-action-link');
+    expect(actionLink?.textContent).toContain('Write a post');
+    expect(actionLink?.getAttribute('href')).toBe('/events/3?write=1');
   });
 
   it('stores the selected tab in the query param and loads that tab', async () => {
@@ -118,7 +169,7 @@ describe('MyEventsPageComponent', () => {
 
     await clickTab(page, 1);
     expect(TestBed.inject(Location).path()).toBe('/my-events?tab=past');
-    http.expectOne(PAST_URL).flush([PAST_EVENT]);
+    flushPastEvents([PAST_EVENT]);
     harness.detectChanges();
     expect(titles(page)).toEqual(['Old concert']);
 
@@ -135,7 +186,7 @@ describe('MyEventsPageComponent', () => {
 
     await clickTab(page, 1);
     expect(upcoming.cancelled).toBe(true);
-    http.expectOne(PAST_URL).flush([PAST_EVENT]);
+    flushPastEvents([PAST_EVENT]);
     harness.detectChanges();
 
     expect(titles(page)).toEqual(['Old concert']);
@@ -174,7 +225,7 @@ describe('MyEventsPageComponent', () => {
     harness.detectChanges();
     expect(page.querySelectorAll('app-skeleton-card')).toHaveLength(3);
 
-    http.expectOne(PAST_URL).flush([PAST_EVENT]);
+    flushPastEvents([PAST_EVENT]);
     harness.detectChanges();
     expect(page.querySelector('app-error-state')).toBeNull();
     expect(titles(page)).toEqual(['Old concert']);

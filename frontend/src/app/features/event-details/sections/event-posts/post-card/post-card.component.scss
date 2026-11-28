@@ -1,0 +1,29 @@
+article {
+  padding: var(--space-lg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.author {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+time {
+  color: var(--muted-color);
+  font-size: var(--font-size-sm);
+}
+
+p {
+  margin: var(--space-md) 0 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}

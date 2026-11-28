@@ -1,0 +1,9 @@
+CREATE TABLE posts (
+    id         BIGSERIAL PRIMARY KEY,
+    user_id    BIGINT       NOT NULL,
+    event_id   BIGINT       NOT NULL,
+    rating     SMALLINT     NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    text       VARCHAR(1000),
+    created_at TIMESTAMPTZ  DEFAULT now(),
+    UNIQUE (user_id, event_id)
+);

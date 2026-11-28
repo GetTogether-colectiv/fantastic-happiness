@@ -1,0 +1,21 @@
+@if (inputMode()) {
+  <div class="stars stars--input" role="group" aria-label="Rating">
+    @for (position of stars; track position) {
+      <button
+        type="button"
+        [disabled]="disabled()"
+        [attr.aria-label]="'Rate ' + position + ' out of 5'"
+        [attr.aria-pressed]="controlValue() === position"
+        (click)="select(position)"
+      >
+        <mat-icon aria-hidden="true">{{ position <= safeRating() ? 'star' : 'star_border' }}</mat-icon>
+      </button>
+    }
+  </div>
+} @else {
+  <span class="stars" role="img" [attr.aria-label]="accessibleLabel()">
+    @for (position of stars; track position) {
+      <mat-icon aria-hidden="true">{{ iconFor(position) }}</mat-icon>
+    }
+  </span>
+}

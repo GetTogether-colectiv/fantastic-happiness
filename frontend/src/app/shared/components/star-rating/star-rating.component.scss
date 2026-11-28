@@ -1,0 +1,47 @@
+:host {
+  display: inline-flex;
+}
+
+.stars {
+  display: inline-flex;
+  color: var(--warning-color);
+  line-height: 1;
+}
+
+.stars--input {
+  gap: var(--space-xs);
+}
+
+button {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--warning-container-color);
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.stars--input mat-icon {
+  width: 2rem;
+  height: 2rem;
+  font-size: 2rem;
+}
+
+mat-icon {
+  width: var(--font-size-xl);
+  height: var(--font-size-xl);
+  font-size: var(--font-size-xl);
+}

@@ -36,6 +36,14 @@ class ChatStubComponent {
 }
 
 @Component({
+  selector: 'app-event-posts',
+  template: '',
+})
+class PostsStubComponent {
+  readonly event = input.required<EventDetails>();
+}
+
+@Component({
   selector: 'app-event-join',
   template: '<button type="button">Join {{ event().title }}</button>',
 })
@@ -69,8 +77,8 @@ describe('Event details navigation', () => {
       providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     });
     TestBed.overrideComponent(EventDetailsPageComponent, {
-      remove: { imports: [EventJoinComponent, EventChatComponent] },
-      add: { imports: [JoinStubComponent, ChatStubComponent] },
+      remove: { imports: [EventJoinComponent, EventChatComponent, EventPostsComponent] },
+      add: { imports: [JoinStubComponent, ChatStubComponent, PostsStubComponent] },
     });
     http = TestBed.inject(HttpTestingController);
     signIn();
@@ -286,20 +294,20 @@ describe('Event details navigation', () => {
     expect(harness.routeNativeElement?.querySelector('app-empty-state')).toBeNull();
   });
 
-  it('passes the current event to all five sections without rendering placeholder content', async () => {
+  it('shows posts instead of Join after the event has ended', async () => {
     const harness = await RouterTestingHarness.create();
     await loadEvent(harness);
     const nextEvent = { ...EVENT, id: 8, title: 'Another concert' };
     await loadEvent(harness, nextEvent);
 
     const sectionComponents = [
-      JoinStubComponent,
       EventMapComponent,
       ChatStubComponent,
       EventFriendsComponent,
-      EventPostsComponent,
+      PostsStubComponent,
     ];
-    expect(harness.routeNativeElement?.querySelectorAll('.event-section')).toHaveLength(5);
+    expect(harness.routeNativeElement?.querySelectorAll('.event-section')).toHaveLength(4);
+    expect(harness.routeDebugElement!.query(By.directive(JoinStubComponent))).toBeNull();
     for (const component of sectionComponents) {
       const section = harness.routeDebugElement!.query(By.directive(component));
       expect(section.componentInstance.event()).toEqual(nextEvent);
@@ -318,15 +326,15 @@ describe('Event details section extension', () => {
       providers: [provideRouter(routes), provideHttpClient(), provideHttpClientTesting()],
     });
     TestBed.overrideComponent(EventDetailsPageComponent, {
-      remove: { imports: [EventJoinComponent, EventChatComponent] },
-      add: { imports: [PopulatedJoinComponent, ChatStubComponent] },
+      remove: { imports: [EventJoinComponent, EventChatComponent, EventPostsComponent] },
+      add: { imports: [PopulatedJoinComponent, ChatStubComponent, PostsStubComponent] },
     });
     const http = TestBed.inject(HttpTestingController);
     signIn();
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/events/7', EventDetailsPageComponent);
     TestBed.tick();
-    http.expectOne('/api/events/7').flush(EVENT);
+    http.expectOne('/api/events/7').flush({ ...EVENT, endsAt: '2999-01-01T20:00:00Z' });
     http.expectOne('/api/users/3').flush({ id: 3, displayName: 'Alex', avatarUrl: null });
     harness.detectChanges();
 
