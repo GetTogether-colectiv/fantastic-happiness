@@ -50,6 +50,7 @@
     }
     @if (photos().length < maxPhotos) {
       <button class="add-photos" type="button" [disabled]="submitting()" (click)="photoInput.click()">
+        <mat-icon aria-hidden="true">add_a_photo</mat-icon>
         Add photos
       </button>
     }

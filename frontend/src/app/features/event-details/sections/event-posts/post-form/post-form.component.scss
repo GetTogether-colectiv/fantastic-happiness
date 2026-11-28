@@ -79,10 +79,16 @@ label span {
   gap: var(--space-sm);
 }
 
+// A legend is not a grid item, so the gap above does not separate it from the content.
+.photos-field legend {
+  margin-bottom: var(--space-sm);
+}
+
 .previews {
   display: flex;
   gap: var(--space-sm);
-  margin: 0;
+  // Extra room above, because the ✕ buttons stick out over the top edge of the photos.
+  margin: var(--space-sm) 0 0;
   padding: 0;
   list-style: none;
 }
@@ -118,16 +124,23 @@ label span {
 }
 
 .add-photos {
+  display: inline-flex;
+  align-items: center;
   justify-self: start;
+  gap: var(--space-sm);
   min-height: 44px;
   padding: var(--space-sm) var(--space-lg);
-  border: 1px dashed var(--border-color);
+  border: 2px dashed var(--primary-color);
   border-radius: var(--radius-pill);
-  background: var(--surface-color);
-  color: var(--text-color);
+  background: var(--primary-container-color);
+  color: var(--primary-color);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+.add-photos:not(:disabled):hover {
+  border-style: solid;
 }
 
 .add-photos:disabled,

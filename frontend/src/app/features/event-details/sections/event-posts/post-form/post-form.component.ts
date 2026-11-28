@@ -1,6 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { MatIconModule } from '@angular/material/icon';
 import {
   ALLOWED_PHOTO_TYPES,
   EventPost,
@@ -30,7 +31,7 @@ function isValidPhoto(file: File): boolean {
 
 @Component({
   selector: 'app-post-form',
-  imports: [ReactiveFormsModule, StarRatingComponent],
+  imports: [MatIconModule, ReactiveFormsModule, StarRatingComponent],
   templateUrl: './post-form.component.html',
   styleUrl: './post-form.component.scss',
 })
