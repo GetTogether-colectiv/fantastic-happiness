@@ -39,4 +39,35 @@ describe('PostsService', () => {
     request.flush({ id: 12 });
     expect(received).toHaveBeenCalledWith({ id: 12 });
   });
+
+  it('loads the comments of a post', () => {
+    const received = vi.fn();
+    service.getComments(12).subscribe(received);
+
+    const request = http.expectOne('/api/posts/12/comments');
+    expect(request.request.method).toBe('GET');
+    request.flush([{ id: 1 }]);
+    expect(received).toHaveBeenCalledWith([{ id: 1 }]);
+  });
+
+  it('publishes a comment on a post', () => {
+    const received = vi.fn();
+    service.createComment(12, { text: 'Nice' }).subscribe(received);
+
+    const request = http.expectOne('/api/posts/12/comments');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ text: 'Nice' });
+    request.flush({ id: 1 });
+    expect(received).toHaveBeenCalledWith({ id: 1 });
+  });
+
+  it('deletes a comment', () => {
+    const received = vi.fn();
+    service.deleteComment(1).subscribe({ complete: received });
+
+    const request = http.expectOne('/api/comments/1');
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null);
+    expect(received).toHaveBeenCalled();
+  });
 });

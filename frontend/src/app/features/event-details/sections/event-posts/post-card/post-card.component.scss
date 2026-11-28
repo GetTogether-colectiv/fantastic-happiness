@@ -27,3 +27,15 @@ p {
   white-space: pre-wrap;
   line-height: 1.5;
 }
+
+.comments-toggle {
+  min-height: 44px;
+  margin-top: var(--space-sm);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

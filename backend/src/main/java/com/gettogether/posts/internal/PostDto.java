@@ -10,5 +10,6 @@ record PostDto(
         String authorAvatar,
         int rating,
         String text,
-        Instant createdAt) {
+        Instant createdAt,
+        long commentCount) {
 }

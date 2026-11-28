@@ -7,6 +7,7 @@ export interface EventPost {
   rating: number;
   text: string | null;
   createdAt: string;
+  commentCount: number;
 }
 
 export interface EventPostsResponse {
@@ -18,4 +19,18 @@ export interface EventPostsResponse {
 export interface CreatePostRequest {
   rating: number;
   text: string | null;
+}
+
+export interface PostComment {
+  id: number;
+  postId: number;
+  userId: number;
+  authorName: string;
+  authorAvatar: string | null;
+  text: string;
+  createdAt: string;
+}
+
+export interface CreateCommentRequest {
+  text: string;
 }

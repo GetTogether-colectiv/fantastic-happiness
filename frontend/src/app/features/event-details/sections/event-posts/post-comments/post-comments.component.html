@@ -1,0 +1,44 @@
+@let commentsState = state();
+@if (commentsState.status === 'loading') {
+  <p class="status" role="status">Loading comments…</p>
+} @else if (commentsState.status === 'error') {
+  <app-error-state message="Comments couldn't be loaded." (retry)="load()" />
+} @else {
+  @if (commentsState.comments.length > 0) {
+    <ul class="comments">
+      @for (comment of commentsState.comments; track comment.id) {
+        <li>
+          <app-avatar [name]="comment.authorName" [imageUrl]="comment.authorAvatar" />
+          <div class="body">
+            <div class="meta">
+              <strong>{{ comment.authorName }}</strong>
+              <time [attr.datetime]="comment.createdAt">{{ comment.createdAt | timeAgo }}</time>
+              @if (comment.userId === currentUserId()) {
+                <button class="delete" type="button" (click)="remove(comment)">Delete</button>
+              }
+            </div>
+            <p>{{ comment.text }}</p>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <form (submit)="send($event)">
+    <input
+      type="text"
+      aria-label="Write a comment"
+      placeholder="Write a comment…"
+      autocomplete="off"
+      [maxlength]="maxLength"
+      [formControl]="text"
+    />
+    <button class="send" type="submit" aria-label="Send comment" [disabled]="!canSend()">
+      <mat-icon aria-hidden="true">send</mat-icon>
+    </button>
+  </form>
+
+  @if (failure(); as message) {
+    <p class="failure" role="alert">{{ message }}</p>
+  }
+}
