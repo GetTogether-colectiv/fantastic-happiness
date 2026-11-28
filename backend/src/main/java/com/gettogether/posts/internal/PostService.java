@@ -33,16 +33,18 @@ class PostService {
     private final ParticipationApi participationApi;
     private final AuthorLookup authorLookup;
     private final CommentRepository commentRepository;
+    private final PostPhotoService postPhotoService;
     private final ApplicationEventPublisher eventPublisher;
 
     PostService(PostRepository postRepository, EventsApi eventsApi, ParticipationApi participationApi,
-            AuthorLookup authorLookup, CommentRepository commentRepository,
+            AuthorLookup authorLookup, CommentRepository commentRepository, PostPhotoService postPhotoService,
             ApplicationEventPublisher eventPublisher) {
         this.postRepository = postRepository;
         this.eventsApi = eventsApi;
         this.participationApi = participationApi;
         this.authorLookup = authorLookup;
         this.commentRepository = commentRepository;
+        this.postPhotoService = postPhotoService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -66,7 +68,8 @@ class PostService {
             // The unique constraint closes the race between the existence check and concurrent inserts.
             throw new ConflictException(POST_ALREADY_EXISTS);
         }
-        PostDto createdPost = toDto(post, authorLookup.find(userId), 0);
+        // A new post has no photos or comments yet; photos are uploaded right after it is created.
+        PostDto createdPost = toDto(post, authorLookup.find(userId), List.of(), 0);
         eventPublisher.publishEvent(new PostCreated(post.getId(), eventId, userId));
         return createdPost;
     }
@@ -78,9 +81,11 @@ class PostService {
         }
         List<Post> posts = postRepository.findByEventIdOrderByCreatedAtDesc(eventId);
         Function<Long, UserSummary> authors = authorLookup.findAll(posts.stream().map(Post::getUserId).toList());
+        Map<Long, List<String>> photoUrls = postPhotoService.findPhotoUrls(posts.stream().map(Post::getId).toList());
         Map<Long, Long> commentCounts = countComments(posts);
         List<PostDto> postDtos = posts.stream()
                 .map(post -> toDto(post, authors.apply(post.getUserId()),
+                        photoUrls.getOrDefault(post.getId(), List.of()),
                         commentCounts.getOrDefault(post.getId(), 0L)))
                 .toList();
         PostRatingSummary summary = postRepository.summarizeRatings(eventId);
@@ -95,8 +100,8 @@ class PostService {
                 .collect(Collectors.toMap(CommentCount::getPostId, CommentCount::getCount));
     }
 
-    private PostDto toDto(Post post, UserSummary author, long commentCount) {
+    private PostDto toDto(Post post, UserSummary author, List<String> photoUrls, long commentCount) {
         return new PostDto(post.getId(), post.getUserId(), post.getEventId(), author.displayName(),
-                author.avatarUrl(), post.getRating(), post.getText(), post.getCreatedAt(), commentCount);
+                author.avatarUrl(), post.getRating(), post.getText(), post.getCreatedAt(), photoUrls, commentCount);
     }
 }

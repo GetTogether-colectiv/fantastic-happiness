@@ -1,0 +1,77 @@
+@use 'breakpoints' as *;
+
+$control-size: 44px;
+// Room around the photo, so the ✕, arrows and counter never cover it.
+$controls-space: calc(#{$control-size} + 2 * var(--space-md));
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.viewer {
+  position: relative;
+  display: grid;
+  // minmax(0, 1fr) makes the single cell exactly the free space, so the photo can be sized to it.
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  height: 100%;
+  padding: $controls-space var(--space-sm);
+  box-sizing: border-box;
+
+  @include tablet-up {
+    padding-inline: $controls-space;
+  }
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  // Shrinks the whole photo to fit the screen, never crops it.
+  object-fit: contain;
+}
+
+button {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: $control-size;
+  height: $control-size;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 15%);
+  color: #fff;
+  font: inherit;
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+}
+
+button:hover {
+  background: rgb(255 255 255 / 25%);
+}
+
+.close {
+  top: max(var(--space-md), env(safe-area-inset-top));
+  right: var(--space-md);
+}
+
+.nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.previous {
+  left: var(--space-md);
+}
+
+.next {
+  right: var(--space-md);
+}
+
+.counter {
+  position: absolute;
+  bottom: max(var(--space-md), env(safe-area-inset-bottom));
+  margin: 0;
+  color: #fff;
+  font-size: var(--font-size-sm);
+}

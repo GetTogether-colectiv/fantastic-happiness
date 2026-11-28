@@ -11,6 +11,17 @@
   @if (post().text) {
     <p>{{ post().text }}</p>
   }
+  @if (post().photoUrls.length > 0) {
+    <ul class="photos">
+      @for (url of post().photoUrls; track url) {
+        <li>
+          <button type="button" [attr.aria-label]="'Open photo ' + ($index + 1)" (click)="openPhoto($index)">
+            <img [src]="url" alt="" loading="lazy" />
+          </button>
+        </li>
+      }
+    </ul>
+  }
 
   <button
     class="comments-toggle"

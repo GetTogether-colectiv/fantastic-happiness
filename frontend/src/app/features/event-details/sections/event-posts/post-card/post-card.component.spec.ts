@@ -15,6 +15,7 @@ const POST: EventPost = {
   rating: 5,
   text: 'A wonderful evening.',
   createdAt: '2026-11-12T10:00:00Z',
+  photoUrls: [],
   commentCount: 3,
 };
 

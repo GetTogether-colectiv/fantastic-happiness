@@ -29,3 +29,6 @@ replay_pid*
 # IDE
 .idea/
 frontend/package-lock.json
+
+# Uploaded post photos (app.uploads.dir)
+uploads/

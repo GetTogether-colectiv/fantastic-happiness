@@ -28,6 +28,46 @@
     </div>
   </div>
 
+  <fieldset class="photos-field">
+    <legend>Photos <span>Optional, up to {{ maxPhotos }}</span></legend>
+    @if (photos().length > 0) {
+      <ul class="previews">
+        @for (photo of photos(); track photo.previewUrl) {
+          <li>
+            <img [src]="photo.previewUrl" [alt]="'Selected photo ' + ($index + 1)" />
+            <button
+              class="remove-photo"
+              type="button"
+              [attr.aria-label]="'Remove photo ' + ($index + 1)"
+              [disabled]="submitting()"
+              (click)="removePhoto(photo)"
+            >
+              ✕
+            </button>
+          </li>
+        }
+      </ul>
+    }
+    @if (photos().length < maxPhotos) {
+      <button class="add-photos" type="button" [disabled]="submitting()" (click)="photoInput.click()">
+        <mat-icon aria-hidden="true">add_a_photo</mat-icon>
+        Add photos
+      </button>
+    }
+    <!-- Hidden: the button above opens it; on a phone it offers the gallery or the camera. -->
+    <input
+      #photoInput
+      type="file"
+      hidden
+      multiple
+      [accept]="acceptedPhotoTypes"
+      (change)="addPhotos($event)"
+    />
+    @if (photoError()) {
+      <p class="field-error" role="alert">{{ photoError() }}</p>
+    }
+  </fieldset>
+
   @if (submitError()) {
     <p class="submit-error" role="alert">{{ submitError() }}</p>
   }
@@ -37,7 +77,7 @@
       Cancel
     </button>
     <button class="primary" type="submit" [disabled]="form.invalid || submitting()">
-      {{ submitting() ? 'Publishing…' : 'Publish' }}
+      {{ submitting() ? 'Publishing…' : createdPost() ? 'Retry photos' : 'Publish' }}
     </button>
   </div>
 </form>

@@ -42,6 +42,7 @@ const RESPONSE: EventPostsResponse = {
       rating: 5,
       text: 'A wonderful evening.',
       createdAt: '2026-11-12T10:00:00Z',
+      photoUrls: [],
       commentCount: 0,
     },
     {
@@ -53,6 +54,7 @@ const RESPONSE: EventPostsResponse = {
       rating: 3,
       text: null,
       createdAt: '2026-11-11T10:00:00Z',
+      photoUrls: [],
       commentCount: 0,
     },
   ],
@@ -172,6 +174,7 @@ describe('EventPostsComponent', () => {
       rating: 4,
       text: 'My post',
       createdAt: '2026-11-23T12:00:00Z',
+      photoUrls: [],
       commentCount: 0,
     };
     bottomSheet.open.mockReturnValue({ afterDismissed: () => of(created) });
@@ -251,8 +254,8 @@ describe('EventPostsComponent', () => {
       expect(fixture.nativeElement.querySelectorAll('app-post-card')).toHaveLength(2);
       expect(fixture.nativeElement.textContent).toContain('My post');
     });
+  });
 
-    
   it('scrolls to the posts section after loading a posts fragment', () => {
     const scrollIntoView = vi.fn();
     fixture.nativeElement.scrollIntoView = scrollIntoView;
