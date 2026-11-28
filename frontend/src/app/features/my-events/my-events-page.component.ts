@@ -1,9 +1,11 @@
 import { Component, LOCALE_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { EMPTY, Subject, catchError, map, merge, switchMap, tap } from 'rxjs';
+import { EMPTY, Subject, catchError, forkJoin, map, merge, of, switchMap, tap } from 'rxjs';
 import { EventSummary } from '../../core/models/event.model';
+import { AuthService } from '../../core/services/auth.service';
 import { ParticipationService } from '../../core/services/participation.service';
+import { PostsService } from '../../core/services/posts.service';
 import { CompactEventCardComponent } from '../../shared/components/compact-event-card/compact-event-card.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '../../shared/components/error-state/error-state.component';
@@ -12,6 +14,7 @@ import { groupByDay } from './group-by-day';
 
 type MyEventsTab = 'upcoming' | 'past';
 type MyEventsState = 'loading' | 'loaded' | 'empty' | 'error';
+type PastEventAction = 'write' | 'view-post' | 'view-event';
 
 const SKELETON_ROW_COUNT = 3;
 
@@ -29,6 +32,8 @@ const SKELETON_ROW_COUNT = 3;
 })
 export class MyEventsPageComponent {
   private readonly participationService = inject(ParticipationService);
+  private readonly postsService = inject(PostsService);
+  private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly locale = inject(LOCALE_ID);
@@ -40,6 +45,7 @@ export class MyEventsPageComponent {
   protected readonly tab = toSignal(this.tab$, { requireSync: true });
   protected readonly state = signal<MyEventsState>('loading');
   protected readonly events = signal<EventSummary[]>([]);
+  protected readonly pastEventActions = signal<Record<number, PastEventAction>>({});
   protected readonly skeletons = Array.from({ length: SKELETON_ROW_COUNT });
   protected readonly days = computed(() => groupByDay(this.events(), this.locale));
 
@@ -70,12 +76,19 @@ export class MyEventsPageComponent {
     this.retryRequests.next();
   }
 
+  protected pastEventAction(eventId: number): PastEventAction {
+    return this.pastEventActions()[eventId] ?? 'view-event';
+  }
+
   private load(tab: MyEventsTab) {
     this.state.set('loading');
     this.events.set([]);
+    this.pastEventActions.set({});
     return this.participationService.getMyEvents(tab === 'past' ? 'PAST' : 'UPCOMING').pipe(
-      tap((events) => {
+      switchMap((events) => this.loadPastEventActions(tab, events)),
+      tap(({ events, actions }) => {
         this.events.set(events);
+        this.pastEventActions.set(actions);
         this.state.set(events.length ? 'loaded' : 'empty');
       }),
       catchError(() => {
@@ -83,5 +96,37 @@ export class MyEventsPageComponent {
         return EMPTY;
       }),
     );
+  }
+
+  private loadPastEventActions(tab: MyEventsTab, events: EventSummary[]) {
+    if (tab !== 'past' || events.length === 0) {
+      return of({ events, actions: {} as Record<number, PastEventAction> });
+    }
+
+    const currentUserId = this.authService.currentUser()?.id;
+    if (currentUserId === undefined) {
+      return of({ events, actions: this.actionsFor(events, 'view-event') });
+    }
+
+    return forkJoin(
+      events.map((event) =>
+        this.postsService.getPosts(event.id).pipe(
+          map(
+            (response) =>
+              [
+                event.id,
+                response.posts.some((post) => post.userId === currentUserId)
+                  ? 'view-post'
+                  : 'write',
+              ] as const,
+          ),
+          catchError(() => of([event.id, 'view-event'] as const)),
+        ),
+      ),
+    ).pipe(map((entries) => ({ events, actions: Object.fromEntries(entries) })));
+  }
+
+  private actionsFor(events: EventSummary[], action: PastEventAction): Record<number, PastEventAction> {
+    return Object.fromEntries(events.map((event) => [event.id, action]));
   }
 }

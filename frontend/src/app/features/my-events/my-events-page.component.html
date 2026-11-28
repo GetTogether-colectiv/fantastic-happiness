@@ -46,13 +46,27 @@
             <a class="card-link" [routerLink]="['/events', event.id]">
               <app-compact-event-card [event]="event" [showDate]="true" />
             </a>
-            <a
-              class="write-post-link"
-              [routerLink]="['/events', event.id]"
-              [queryParams]="{ write: 1 }"
-            >
-              Write a post
-            </a>
+            @if (pastEventAction(event.id) === 'write') {
+              <a
+                class="post-action-link"
+                [routerLink]="['/events', event.id]"
+                [queryParams]="{ write: 1 }"
+              >
+                Write a post
+              </a>
+            } @else if (pastEventAction(event.id) === 'view-post') {
+              <a
+                class="post-action-link post-action-link--reviewed"
+                [routerLink]="['/events', event.id]"
+                fragment="posts"
+              >
+                See your post
+              </a>
+            } @else {
+              <a class="post-action-link post-action-link--reviewed" [routerLink]="['/events', event.id]">
+                View event
+              </a>
+            }
           </div>
         }
       </div>

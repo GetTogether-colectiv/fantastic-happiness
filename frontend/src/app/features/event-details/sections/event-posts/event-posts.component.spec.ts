@@ -61,12 +61,14 @@ describe('EventPostsComponent', () => {
   const currentUser = signal({ id: 1, displayName: 'Alexandra Pop', avatarUrl: null, city: null });
   const bottomSheet = { open: vi.fn() };
   const queryParams = new BehaviorSubject(convertToParamMap({}));
+  const fragment = new BehaviorSubject<string | null>(null);
   const router = { navigate: vi.fn().mockResolvedValue(true) };
 
   beforeEach(() => {
     bottomSheet.open.mockReset();
     router.navigate.mockClear();
     queryParams.next(convertToParamMap({}));
+    fragment.next(null);
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -77,7 +79,8 @@ describe('EventPostsComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             queryParamMap: queryParams.asObservable(),
-            snapshot: { queryParamMap: convertToParamMap({}) },
+            fragment: fragment.asObservable(),
+            snapshot: { queryParamMap: convertToParamMap({}), fragment: null },
           },
         },
         { provide: Router, useValue: router },
@@ -196,5 +199,15 @@ describe('EventPostsComponent', () => {
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
+  });
+
+  it('scrolls to the posts section after loading a posts fragment', () => {
+    const scrollIntoView = vi.fn();
+    fixture.nativeElement.scrollIntoView = scrollIntoView;
+    fragment.next('posts');
+    fixture.detectChanges();
+    flushLoad(RESPONSE, 'GOING');
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
   });
 });
