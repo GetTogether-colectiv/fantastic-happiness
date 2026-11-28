@@ -16,6 +16,10 @@ spring:
       jdbc:
         schema-initialization:
           enabled: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 16MB
 
 server:
   port: 8080
@@ -29,6 +33,8 @@ springdoc:
 app:
   jwt:
     secret: ${APP_JWT_SECRET}
+  uploads:
+    dir: ./uploads
 
 gettogether:
   cors:

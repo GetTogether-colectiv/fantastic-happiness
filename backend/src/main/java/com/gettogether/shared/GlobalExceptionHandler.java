@@ -2,16 +2,19 @@ package com.gettogether.shared;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.jspecify.annotations.Nullable;
+import org.springframework.util.unit.DataSize;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.LinkedHashMap;
@@ -23,6 +26,12 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String VALIDATION_FAILED_MESSAGE = "Validation failed";
     private static final String INTERNAL_ERROR_MESSAGE = "Something went wrong";
+
+    private final String fileTooLargeMessage;
+
+    GlobalExceptionHandler(@Value("${spring.servlet.multipart.max-file-size}") DataSize maxFileSize) {
+        this.fileTooLargeMessage = "Each file can be at most " + maxFileSize.toMegabytes() + " MB";
+    }
 
     @ExceptionHandler(BadRequestException.class)
     ResponseEntity<Object> handleBadRequest(BadRequestException exception) {
@@ -64,6 +73,13 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), VALIDATION_FAILED_MESSAGE, fieldErrors));
+    }
+
+    // Spring rejects files over spring.servlet.multipart limits before any controller runs
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException exception,
+            HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return respond(HttpStatus.CONTENT_TOO_LARGE, fileTooLargeMessage);
     }
 
     // Spring's own web exceptions (unknown URL, wrong method, malformed body...) keep their status
