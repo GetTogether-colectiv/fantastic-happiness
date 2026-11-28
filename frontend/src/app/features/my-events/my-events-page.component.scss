@@ -52,7 +52,7 @@
   gap: var(--space-sm);
 }
 
-.write-post-link {
+.post-action-link {
   justify-self: start;
   padding: var(--space-sm) var(--space-lg);
   border: 1px solid var(--primary-color);
@@ -60,4 +60,9 @@
   color: var(--primary-color);
   font-weight: 600;
   text-decoration: none;
+}
+
+.post-action-link--reviewed {
+  border-color: transparent;
+  background: var(--primary-container-color);
 }

@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -41,12 +41,17 @@ export class EventPostsComponent {
   private readonly bottomSheet = inject(MatBottomSheet);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly retryCount = signal(0);
   private readonly participationStatus = signal<ParticipationStatus | null>(null);
   private readonly queryParams = toSignal(this.route.queryParamMap, {
     initialValue: this.route.snapshot.queryParamMap,
   });
+  private readonly fragment = toSignal(this.route.fragment, {
+    initialValue: this.route.snapshot.fragment,
+  });
   private readonly autoOpenedFor = signal<number | null>(null);
+  private readonly scrolledToPostsFor = signal<number | null>(null);
   private sheetOpen = false;
   private changes = 0;
 
@@ -100,6 +105,18 @@ export class EventPostsComponent {
       ) {
         this.autoOpenedFor.set(eventId);
         this.openForm(true);
+      }
+    });
+
+    effect(() => {
+      const eventId = this.event().id;
+      if (
+        this.fragment() === 'posts' &&
+        this.state().status === 'loaded' &&
+        this.scrolledToPostsFor() !== eventId
+      ) {
+        this.scrolledToPostsFor.set(eventId);
+        this.host.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
   }
