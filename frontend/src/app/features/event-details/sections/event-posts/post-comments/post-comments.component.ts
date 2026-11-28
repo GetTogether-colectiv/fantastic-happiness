@@ -3,6 +3,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { finalize } from 'rxjs';
+import { refreshEvery } from '../../../../../core/live-refresh';
 import { PostComment } from '../../../../../core/models/post.model';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { PostsService } from '../../../../../core/services/posts.service';
@@ -30,6 +31,7 @@ export class PostCommentsComponent implements OnInit {
   private readonly posts = inject(PostsService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private changes = 0;
 
   protected readonly maxLength = MAX_COMMENT_LENGTH;
   protected readonly text = new FormControl('', { nonNullable: true });
@@ -43,6 +45,16 @@ export class PostCommentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+    refreshEvery(
+      () => this.posts.getComments(this.postId()),
+      () => this.changes,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ value, changesBefore }) => {
+        if (changesBefore === this.changes && this.state().status === 'loaded') {
+          this.show(value);
+        }
+      });
   }
 
   protected load(): void {
@@ -74,6 +86,7 @@ export class PostCommentsComponent implements OnInit {
       .subscribe({
         next: (comment) => {
           this.text.reset();
+          this.changes++;
           this.show([...this.comments(), comment]);
         },
         error: () => this.failure.set("Your comment couldn't be sent. Please try again."),
@@ -86,7 +99,10 @@ export class PostCommentsComponent implements OnInit {
       .deleteComment(comment.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.show(this.comments().filter((item) => item.id !== comment.id)),
+        next: () => {
+          this.changes++;
+          this.show(this.comments().filter((item) => item.id !== comment.id));
+        },
         error: () => this.failure.set("The comment couldn't be deleted. Please try again."),
       });
   }

@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
+import { LIVE_REFRESH_MS } from '../../../../core/live-refresh';
 import { EventDetails } from '../../../../core/models/event.model';
 import { EventPostsResponse } from '../../../../core/models/post.model';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -93,7 +94,10 @@ describe('EventPostsComponent', () => {
     http = TestBed.inject(HttpTestingController);
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    vi.useRealTimers();
+  });
 
   function flushLoad(response: EventPostsResponse, status: 'GOING' | 'NOT_INTERESTED' | null): void {
     http.expectOne('/api/events/7/posts').flush(response);
@@ -198,6 +202,51 @@ describe('EventPostsComponent', () => {
       queryParams: { write: null },
       queryParamsHandling: 'merge',
       replaceUrl: true,
+    });
+  });
+
+  describe('live refresh', () => {
+
+    beforeEach(() => vi.useFakeTimers());
+
+    it('shows new comment counts and posts from other users without interaction', () => {
+      fixture.detectChanges();
+      flushLoad(RESPONSE, 'NOT_INTERESTED');
+      const root = fixture.nativeElement as HTMLElement;
+      expect(root.querySelectorAll('app-post-card')[0].textContent).toContain('0 comments');
+
+      vi.advanceTimersByTime(LIVE_REFRESH_MS);
+      http.expectOne('/api/events/7/posts').flush({
+        averageRating: 4,
+        count: 3,
+        posts: [
+          { ...RESPONSE.posts[0], id: 14, text: 'Brand new post' },
+          { ...RESPONSE.posts[0], commentCount: 2 },
+          RESPONSE.posts[1],
+        ],
+      });
+      fixture.detectChanges();
+
+      const cards = root.querySelectorAll('app-post-card');
+      expect(cards).toHaveLength(3);
+      expect(cards[0].textContent).toContain('Brand new post');
+      expect(cards[1].textContent).toContain('2 comments');
+    });
+
+    it('drops a refresh that started before the user published a post', () => {
+      const created = { ...RESPONSE.posts[1], id: 13, text: 'My post' };
+      bottomSheet.open.mockReturnValue({ afterDismissed: () => of(created) });
+      fixture.detectChanges();
+      flushLoad({ averageRating: 5, count: 1, posts: [RESPONSE.posts[0]] }, 'GOING');
+      vi.advanceTimersByTime(LIVE_REFRESH_MS);
+      const staleRefresh = http.expectOne('/api/events/7/posts');
+
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.write-post')!.click();
+      staleRefresh.flush({ averageRating: 5, count: 1, posts: [RESPONSE.posts[0]] });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelectorAll('app-post-card')).toHaveLength(2);
+      expect(fixture.nativeElement.textContent).toContain('My post');
     });
   });
 });

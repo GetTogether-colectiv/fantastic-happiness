@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { LIVE_REFRESH_MS } from '../../../../../core/live-refresh';
 import { PostComment } from '../../../../../core/models/post.model';
 import { AuthService } from '../../../../../core/services/auth.service';
 import { PostCommentsComponent } from './post-comments.component';
@@ -34,6 +35,7 @@ describe('PostCommentsComponent', () => {
   const counts: number[] = [];
 
   beforeEach(() => {
+    vi.useFakeTimers();
     counts.length = 0;
     TestBed.configureTestingModule({
       providers: [
@@ -55,7 +57,10 @@ describe('PostCommentsComponent', () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    vi.useRealTimers();
+  });
 
   function loadComments(comments: PostComment[]): void {
     http.expectOne('/api/posts/12/comments').flush(comments);
@@ -182,5 +187,66 @@ describe('PostCommentsComponent', () => {
 
     expect(root.querySelectorAll('li')).toHaveLength(2);
     expect(root.querySelector('.failure')!.textContent).toContain("couldn't be deleted");
+  });
+
+  describe('live refresh', () => {
+    const NEW_COMMENT: PostComment = { ...COMMENTS[1], id: 9, text: 'From another user' };
+
+    function refresh(): void {
+      vi.advanceTimersByTime(LIVE_REFRESH_MS);
+    }
+
+    it('shows a comment added by someone else without any interaction', () => {
+      loadComments(COMMENTS);
+
+      refresh();
+      http.expectOne('/api/posts/12/comments').flush([...COMMENTS, NEW_COMMENT]);
+      fixture.detectChanges();
+
+      expect(root.querySelectorAll('li')).toHaveLength(3);
+      expect(root.textContent).toContain('From another user');
+      expect(counts.at(-1)).toBe(3);
+    });
+
+    it('keeps what the user is typing while the list refreshes', () => {
+      loadComments(COMMENTS);
+      type('Half written');
+
+      refresh();
+      http.expectOne('/api/posts/12/comments').flush([...COMMENTS, NEW_COMMENT]);
+      fixture.detectChanges();
+
+      expect(root.querySelector('input')!.value).toBe('Half written');
+    });
+
+    it('drops a refresh that started before the user sent a comment', () => {
+      loadComments(COMMENTS);
+      refresh();
+      const staleRefresh = http.expectOne('/api/posts/12/comments');
+
+      type('Mine too');
+      submit();
+      http.expectOne({ method: 'POST', url: '/api/posts/12/comments' }).flush({
+        ...COMMENTS[0],
+        id: 10,
+        text: 'Mine too',
+      });
+      staleRefresh.flush(COMMENTS);
+      fixture.detectChanges();
+
+      expect(root.querySelectorAll('li')).toHaveLength(3);
+      expect(root.textContent).toContain('Mine too');
+    });
+
+    it('ignores a failed refresh', () => {
+      loadComments(COMMENTS);
+
+      refresh();
+      http.expectOne('/api/posts/12/comments').flush(null, { status: 500, statusText: 'Server Error' });
+      fixture.detectChanges();
+
+      expect(root.querySelectorAll('li')).toHaveLength(2);
+      expect(root.textContent).not.toContain("Comments couldn't be loaded.");
+    });
   });
 });
