@@ -12,5 +12,6 @@ record PostDto(
         int rating,
         String text,
         Instant createdAt,
-        List<String> photoUrls) {
+        List<String> photoUrls,
+        long commentCount) {
 }

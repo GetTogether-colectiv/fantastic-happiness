@@ -52,6 +52,7 @@ describe('PostFormComponent', () => {
       text: 'Loved it',
       createdAt: '2026-11-23T12:00:00Z',
       photoUrls: [],
+      commentCount: 0,
     };
     request.flush(created);
     expect(sheetRef.dismiss).toHaveBeenCalledWith(created);

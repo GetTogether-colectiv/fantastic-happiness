@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs';
+import { refreshEvery } from '../../../../core/live-refresh';
 import { EventDetails } from '../../../../core/models/event.model';
 import { EventPost, EventPostsResponse } from '../../../../core/models/post.model';
 import { ParticipationStatus } from '../../../../core/models/participation.model';
@@ -52,6 +53,7 @@ export class EventPostsComponent {
   private readonly autoOpenedFor = signal<number | null>(null);
   private readonly scrolledToPostsFor = signal<number | null>(null);
   private sheetOpen = false;
+  private changes = 0;
 
   protected readonly state = signal<PostsState>({ status: 'loading' });
   protected readonly canWrite = computed(() => {
@@ -79,9 +81,18 @@ export class EventPostsComponent {
         next: (response) => this.participationStatus.set(response.status),
         error: () => this.participationStatus.set(null),
       });
+      const refresh = refreshEvery(
+        () => this.posts.getPosts(eventId),
+        () => this.changes,
+      ).subscribe(({ value, changesBefore }) => {
+        if (changesBefore === this.changes && this.state().status === 'loaded') {
+          this.state.set({ status: 'loaded', response: value });
+        }
+      });
       onCleanup(() => {
         postsRequest.unsubscribe();
         participationRequest.unsubscribe();
+        refresh.unsubscribe();
       });
     });
 
@@ -143,6 +154,7 @@ export class EventPostsComponent {
   }
 
   private prepend(post: EventPost): void {
+    this.changes++;
     this.state.update((state) => {
       if (state.status !== 'loaded' || state.response.posts.some((item) => item.id === post.id)) {
         return state;

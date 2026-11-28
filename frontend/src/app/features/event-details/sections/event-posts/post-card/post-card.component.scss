@@ -53,3 +53,15 @@ p {
   height: 100%;
   object-fit: cover;
 }
+
+.comments-toggle {
+  min-height: 44px;
+  margin-top: var(--space-sm);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

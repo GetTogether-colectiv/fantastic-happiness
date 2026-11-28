@@ -22,4 +22,17 @@
       }
     </ul>
   }
+
+  <button
+    class="comments-toggle"
+    type="button"
+    [attr.aria-expanded]="commentsOpen()"
+    (click)="commentsOpen.set(!commentsOpen())"
+  >
+    {{ commentCount() }} {{ commentCount() === 1 ? 'comment' : 'comments' }}
+  </button>
+
+  @if (commentsOpen()) {
+    <app-post-comments [postId]="post().id" (countChange)="commentCount.set($event)" />
+  }
 </article>
